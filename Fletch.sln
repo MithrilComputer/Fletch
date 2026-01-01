@@ -1,15 +1,15 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
-VisualStudioVersion = 17.14.36623.8 d17.14
+VisualStudioVersion = 17.14.36623.8
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Fletch.Core", "Fletch.Core\Fletch.Core.csproj", "{0047C8B4-3BEE-42F6-A188-7A4447EC9E4B}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Fletch.Tests", "Fletch.Tests\Fletch.Tests.csproj", "{6B8080E8-8C98-43A9-8F09-F665E88FF144}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Fletch.Runtime", "Fletch.Runtime\Fletch.Runtime.csproj", "{DA5942D0-4506-4E6C-A214-059AE5F5E1D3}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Fletch.Core", "Fletch.Core\Fletch.Core.csproj", "{5B9B2E36-5E08-4166-82CA-CD46DC84E740}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Fletch.Rendering", "Fletch.Rendering\Fletch.Rendering.csproj", "{657647CE-6C72-4339-A723-AED0A260FDC7}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Fletch.Input", "Fletch.Input\Fletch.Input.csproj", "{E474DC23-F76C-44D1-8087-B4876A7CE21E}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Fletch.Audio", "Fletch.Audio\Fletch.Audio.csproj", "{B238DC31-EEC2-4B66-ABEF-887094E5EACD}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Fletch.Input.MonoGame", "Fletch.Input.MonoGame\Fletch.Input.MonoGame.csproj", "{C9811814-DB32-4BAA-9BA9-5936A30B2991}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -17,22 +17,22 @@ Global
 		Release|Any CPU = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
-		{0047C8B4-3BEE-42F6-A188-7A4447EC9E4B}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{0047C8B4-3BEE-42F6-A188-7A4447EC9E4B}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{0047C8B4-3BEE-42F6-A188-7A4447EC9E4B}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{0047C8B4-3BEE-42F6-A188-7A4447EC9E4B}.Release|Any CPU.Build.0 = Release|Any CPU
-		{DA5942D0-4506-4E6C-A214-059AE5F5E1D3}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{DA5942D0-4506-4E6C-A214-059AE5F5E1D3}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{DA5942D0-4506-4E6C-A214-059AE5F5E1D3}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{DA5942D0-4506-4E6C-A214-059AE5F5E1D3}.Release|Any CPU.Build.0 = Release|Any CPU
-		{657647CE-6C72-4339-A723-AED0A260FDC7}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{657647CE-6C72-4339-A723-AED0A260FDC7}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{657647CE-6C72-4339-A723-AED0A260FDC7}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{657647CE-6C72-4339-A723-AED0A260FDC7}.Release|Any CPU.Build.0 = Release|Any CPU
-		{B238DC31-EEC2-4B66-ABEF-887094E5EACD}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{B238DC31-EEC2-4B66-ABEF-887094E5EACD}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{B238DC31-EEC2-4B66-ABEF-887094E5EACD}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{B238DC31-EEC2-4B66-ABEF-887094E5EACD}.Release|Any CPU.Build.0 = Release|Any CPU
+		{6B8080E8-8C98-43A9-8F09-F665E88FF144}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{6B8080E8-8C98-43A9-8F09-F665E88FF144}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{6B8080E8-8C98-43A9-8F09-F665E88FF144}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{6B8080E8-8C98-43A9-8F09-F665E88FF144}.Release|Any CPU.Build.0 = Release|Any CPU
+		{5B9B2E36-5E08-4166-82CA-CD46DC84E740}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{5B9B2E36-5E08-4166-82CA-CD46DC84E740}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{5B9B2E36-5E08-4166-82CA-CD46DC84E740}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{5B9B2E36-5E08-4166-82CA-CD46DC84E740}.Release|Any CPU.Build.0 = Release|Any CPU
+		{E474DC23-F76C-44D1-8087-B4876A7CE21E}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{E474DC23-F76C-44D1-8087-B4876A7CE21E}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{E474DC23-F76C-44D1-8087-B4876A7CE21E}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{E474DC23-F76C-44D1-8087-B4876A7CE21E}.Release|Any CPU.Build.0 = Release|Any CPU
+		{C9811814-DB32-4BAA-9BA9-5936A30B2991}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{C9811814-DB32-4BAA-9BA9-5936A30B2991}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{C9811814-DB32-4BAA-9BA9-5936A30B2991}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{C9811814-DB32-4BAA-9BA9-5936A30B2991}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
