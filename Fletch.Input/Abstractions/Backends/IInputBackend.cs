@@ -7,8 +7,8 @@ namespace Fletch.Input.Abstractions.Backends
 {
     internal interface IInputBackend
     {
-        void UpdateInputStates();
+        void UpdateBackend();
 
-        IKeyboard GetKeyboard();
+        IKeyboard KeyboardDevice { get; }
     }
 }

@@ -1,5 +1,8 @@
 ﻿namespace Fletch.Input.Model
 {
+    /// <summary>
+    /// The key codes for keyboard keys.
+    /// </summary>
     public enum KeyCode
     {
         None = 0,

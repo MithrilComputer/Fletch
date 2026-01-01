@@ -9,10 +9,10 @@ namespace Fletch.Input.MonoGame.Devices
         private KeyboardState currentKeyboardState;
         private KeyboardState previousKeyboardState;
 
-        public MonoGameKeyboard()
+        public MonoGameKeyboard(KeyboardState initState)
         {
-            currentKeyboardState = Keyboard.GetState();
-            previousKeyboardState = currentKeyboardState;
+            currentKeyboardState = initState;
+            previousKeyboardState = initState;
         }
 
         /// <summary>
