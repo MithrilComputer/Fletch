@@ -9,6 +9,9 @@ namespace Fletch.Input.MonoGame.Devices
         private MouseState currentMouseState;
         private MouseState previousMouseState;
 
+        /// <summary>
+        /// The current visibility state of the mouse cursor.
+        /// </summary>
         public CursorState CursorState { get; set; } = CursorState.Visible;
 
         /// <summary>

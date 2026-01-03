@@ -9,10 +9,10 @@ namespace Fletch.Input.MonoGame.Devices
         private KeyboardState currentKeyboardState;
         private KeyboardState previousKeyboardState;
 
-        public MonoGameKeyboard(KeyboardState initState)
+        public MonoGameKeyboard(KeyboardState initialState)
         {
-            currentKeyboardState = initState;
-            previousKeyboardState = initState;
+            currentKeyboardState = initialState;
+            previousKeyboardState = initialState;
         }
 
         /// <summary>
@@ -28,7 +28,7 @@ namespace Fletch.Input.MonoGame.Devices
         /// <summary>
         /// Gets the current state of the specified key.
         /// </summary>
-        public bool GetKeyState(KeyCode keyCode)
+        public bool GetKey(KeyCode keyCode)
         {
             return currentKeyboardState.IsKeyDown(ConvertKeycodeToKeys(keyCode));
         }

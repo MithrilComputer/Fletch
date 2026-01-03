@@ -10,7 +10,7 @@ namespace Fletch.Input.Abstractions.InputDevices
         /// <summary>
         /// Gets the current state of the specified key.
         /// </summary>
-        public bool GetKeyState(KeyCode keyCode);
+        public bool GetKey(KeyCode keyCode);
 
         /// <summary>
         /// Gets whether the specified key was pressed this frame.

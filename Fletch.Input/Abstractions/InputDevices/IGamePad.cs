@@ -58,19 +58,19 @@ namespace Fletch.Input.Abstractions.InputDevices
         /// <summary>
         /// Gets the current state of the specified button.
         /// </summary>
-        bool GetButton(ControllerButtonCodes buttonCode);
+        bool GetButton(ControllerButtonCode buttonCode);
 
         /// <summary>
         /// Gets whether the specified button was pressed this frame.
         /// </summary>
         /// <param name="buttonCode"></param>
         /// <returns></returns>
-        bool GetButtonDown(ControllerButtonCodes buttonCode);
+        bool GetButtonDown(ControllerButtonCode buttonCode);
 
         /// <summary>
         /// Gets whether the specified button was released this frame.
         /// </summary>
-        bool GetButtonUp(ControllerButtonCodes buttonCode);
+        bool GetButtonUp(ControllerButtonCode buttonCode);
 
         /// <summary>
         /// Vibrates the controller continuously until changed or stopped.

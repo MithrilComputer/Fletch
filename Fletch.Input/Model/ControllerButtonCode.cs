@@ -3,7 +3,7 @@
     /// <summary>
     /// All the button codes for a standard game controller.
     /// </summary>
-    public enum ControllerButtonCodes
+    public enum ControllerButtonCode
     {
         A = 0,
         B = 1,

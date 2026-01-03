@@ -113,7 +113,7 @@ namespace Fletch.Input.MonoGame.Devices
         /// <summary>
         /// Gets the current state of the specified controller button.
         /// </summary>
-        public bool GetButton(ControllerButtonCodes buttonCode)
+        public bool GetButton(ControllerButtonCode buttonCode)
         {
             return GetButtonFromStateAndCode(currentControllerState, buttonCode);
         }
@@ -121,7 +121,7 @@ namespace Fletch.Input.MonoGame.Devices
         /// <summary>
         /// Gets whether the specified controller button was pressed this frame.
         /// </summary>
-        public bool GetButtonDown(ControllerButtonCodes buttonCode)
+        public bool GetButtonDown(ControllerButtonCode buttonCode)
         {
             return GetButtonFromStateAndCode(currentControllerState, buttonCode)
                 && !GetButtonFromStateAndCode(previousControllerState, buttonCode);
@@ -130,7 +130,7 @@ namespace Fletch.Input.MonoGame.Devices
         /// <summary>
         /// Gets whether the specified controller button was released this frame.
         /// </summary>
-        public bool GetButtonUp(ControllerButtonCodes buttonCode)
+        public bool GetButtonUp(ControllerButtonCode buttonCode)
         {
             return !GetButtonFromStateAndCode(currentControllerState, buttonCode)
                 && GetButtonFromStateAndCode(previousControllerState, buttonCode);
@@ -162,24 +162,24 @@ namespace Fletch.Input.MonoGame.Devices
             vibrationEndTime = DateTime.UtcNow.AddSeconds(durationSeconds);
         }
 
-        private static bool GetButtonFromStateAndCode(GamePadState gamepadState, ControllerButtonCodes buttonCode)
+        private static bool GetButtonFromStateAndCode(GamePadState gamepadState, ControllerButtonCode buttonCode)
         {
             return buttonCode switch
             {
-                ControllerButtonCodes.A => gamepadState.Buttons.A == ButtonState.Pressed,
-                ControllerButtonCodes.B => gamepadState.Buttons.B == ButtonState.Pressed,
-                ControllerButtonCodes.X => gamepadState.Buttons.X == ButtonState.Pressed,
-                ControllerButtonCodes.Y => gamepadState.Buttons.Y == ButtonState.Pressed,
-                ControllerButtonCodes.LeftBumper => gamepadState.Buttons.LeftShoulder == ButtonState.Pressed,
-                ControllerButtonCodes.RightBumper => gamepadState.Buttons.RightShoulder == ButtonState.Pressed,
-                ControllerButtonCodes.Back => gamepadState.Buttons.Back == ButtonState.Pressed,
-                ControllerButtonCodes.Start => gamepadState.Buttons.Start == ButtonState.Pressed,
-                ControllerButtonCodes.LeftStick => gamepadState.Buttons.LeftStick == ButtonState.Pressed,
-                ControllerButtonCodes.RightStick => gamepadState.Buttons.RightStick == ButtonState.Pressed,
-                ControllerButtonCodes.DPadUp => gamepadState.DPad.Up == ButtonState.Pressed,
-                ControllerButtonCodes.DPadDown => gamepadState.DPad.Down == ButtonState.Pressed,
-                ControllerButtonCodes.DPadLeft => gamepadState.DPad.Left == ButtonState.Pressed,
-                ControllerButtonCodes.DPadRight => gamepadState.DPad.Right == ButtonState.Pressed,
+                ControllerButtonCode.A => gamepadState.Buttons.A == ButtonState.Pressed,
+                ControllerButtonCode.B => gamepadState.Buttons.B == ButtonState.Pressed,
+                ControllerButtonCode.X => gamepadState.Buttons.X == ButtonState.Pressed,
+                ControllerButtonCode.Y => gamepadState.Buttons.Y == ButtonState.Pressed,
+                ControllerButtonCode.LeftBumper => gamepadState.Buttons.LeftShoulder == ButtonState.Pressed,
+                ControllerButtonCode.RightBumper => gamepadState.Buttons.RightShoulder == ButtonState.Pressed,
+                ControllerButtonCode.Back => gamepadState.Buttons.Back == ButtonState.Pressed,
+                ControllerButtonCode.Start => gamepadState.Buttons.Start == ButtonState.Pressed,
+                ControllerButtonCode.LeftStick => gamepadState.Buttons.LeftStick == ButtonState.Pressed,
+                ControllerButtonCode.RightStick => gamepadState.Buttons.RightStick == ButtonState.Pressed,
+                ControllerButtonCode.DPadUp => gamepadState.DPad.Up == ButtonState.Pressed,
+                ControllerButtonCode.DPadDown => gamepadState.DPad.Down == ButtonState.Pressed,
+                ControllerButtonCode.DPadLeft => gamepadState.DPad.Left == ButtonState.Pressed,
+                ControllerButtonCode.DPadRight => gamepadState.DPad.Right == ButtonState.Pressed,
                 _ => false,
             };
         }

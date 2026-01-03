@@ -42,24 +42,14 @@ namespace Fletch.Input.MonoGame.Backend
         public int NumberOfConnectedGamepads { get; private set; }
 
         /// <summary>
-        /// Handler for when a controller is disconnected.
-        /// </summary>
-        public delegate void ControllerDisconnectedHandler(int PlayerID);
-
-        /// <summary>
-        /// Handler for when a controller is connected.
-        /// </summary>
-        public delegate void ControllerConnectedHandler(int PlayerID);
-
-        /// <summary>
         /// Fired when a controller is disconnected.
         /// </summary>
-        public event ControllerDisconnectedHandler? OnControllerDisconnected;
+        public event Action<int>? OnControllerDisconnected;
 
         /// <summary>
         /// Fired when a controller is connected.
         /// </summary>
-        public event ControllerConnectedHandler? OnControllerConnected;
+        public event Action<int>? OnControllerConnected;
 
         public MonoGameInputBackend(byte maxControllerCount = 4)
         {

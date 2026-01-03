@@ -11,6 +11,14 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Fletch.Input", "Fletch.Inpu
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Fletch.Input.MonoGame", "Fletch.Input.MonoGame\Fletch.Input.MonoGame.csproj", "{C9811814-DB32-4BAA-9BA9-5936A30B2991}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Fletch.Rendering", "Fletch.Rendering\Fletch.Rendering.csproj", "{9518BF95-E066-423E-B900-9923C19BB6F0}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Fletch.Rendering.MonoGame", "Fletch.Rendering.MonoGame\Fletch.Rendering.MonoGame.csproj", "{E9C36106-502C-428C-ADA4-BF02A63D2110}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Fletch.Runtime", "Fletch.Runtime\Fletch.Runtime.csproj", "{BDB70B30-CB6D-4D6C-81B7-DE1C64F26087}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Fletch.Runtime.MonoGame", "Fletch.Runtime.MonoGame\Fletch.Runtime.MonoGame.csproj", "{3DDAAB30-AC07-4784-8C3F-5346A6F36D79}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -33,6 +41,22 @@ Global
 		{C9811814-DB32-4BAA-9BA9-5936A30B2991}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{C9811814-DB32-4BAA-9BA9-5936A30B2991}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{C9811814-DB32-4BAA-9BA9-5936A30B2991}.Release|Any CPU.Build.0 = Release|Any CPU
+		{9518BF95-E066-423E-B900-9923C19BB6F0}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{9518BF95-E066-423E-B900-9923C19BB6F0}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{9518BF95-E066-423E-B900-9923C19BB6F0}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{9518BF95-E066-423E-B900-9923C19BB6F0}.Release|Any CPU.Build.0 = Release|Any CPU
+		{E9C36106-502C-428C-ADA4-BF02A63D2110}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{E9C36106-502C-428C-ADA4-BF02A63D2110}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{E9C36106-502C-428C-ADA4-BF02A63D2110}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{E9C36106-502C-428C-ADA4-BF02A63D2110}.Release|Any CPU.Build.0 = Release|Any CPU
+		{BDB70B30-CB6D-4D6C-81B7-DE1C64F26087}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{BDB70B30-CB6D-4D6C-81B7-DE1C64F26087}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{BDB70B30-CB6D-4D6C-81B7-DE1C64F26087}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{BDB70B30-CB6D-4D6C-81B7-DE1C64F26087}.Release|Any CPU.Build.0 = Release|Any CPU
+		{3DDAAB30-AC07-4784-8C3F-5346A6F36D79}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{3DDAAB30-AC07-4784-8C3F-5346A6F36D79}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{3DDAAB30-AC07-4784-8C3F-5346A6F36D79}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{3DDAAB30-AC07-4784-8C3F-5346A6F36D79}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
