@@ -2,19 +2,20 @@
 using Fletch.Rendering.Abstractions.Drawing;
 using Fletch.Rendering.Abstractions.Resources;
 using Fletch.Rendering.Model;
-using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using System.Numerics;
 using FletchColor = Fletch.Rendering.Model.Color;
+using FletchSpriteEffect = Fletch.Rendering.Model.SpriteEffect;
 using SystemVector = System.Numerics.Vector2;
 using XnaColor = Microsoft.Xna.Framework.Color;
 using XnaMatrix = Microsoft.Xna.Framework.Matrix;
 using XnaRectangle = Microsoft.Xna.Framework.Rectangle;
+using XnaSpriteEffect = Microsoft.Xna.Framework.Graphics.SpriteEffects;
 using XnaVector = Microsoft.Xna.Framework.Vector2;
 
 namespace Fletch.Rendering.MonoGame.Drawing
 {
-    internal class MonoGameSpriteBatcher : ISpriteBatcher
+    internal sealed class MonoGameSpriteBatcher : ISpriteBatcher, IDisposable
     {
         private readonly SpriteBatch spriteBatch;
 
@@ -126,6 +127,7 @@ namespace Fletch.Rendering.MonoGame.Drawing
         /// </exception>
         /// <remarks>
         /// This method requires an open batch created with <see cref="Begin"/> and will throw if none is active
+        /// </remarks>
         #pragma warning disable S107 // Method has many parameters by design
         public void Draw(
             ITexture texture,
@@ -135,10 +137,14 @@ namespace Fletch.Rendering.MonoGame.Drawing
             float rotation,
             SystemVector origin,
             SystemVector scale,
-            float layerDepth)
+            float layerDepth,
+            FletchSpriteEffect spriteEffect = FletchSpriteEffect.None)
         {
             if (!IsBatchOpen)
                 throw new InvalidOperationException("Draw called before Begin.");
+
+            if (texture is null)
+                throw new ArgumentNullException(nameof(texture));
 
             if (texture is not Resources.MonoGameTexture mgTexture)
                 throw new InvalidOperationException("ITexture is not a MonoGame texture instance for this backend.");
@@ -149,6 +155,7 @@ namespace Fletch.Rendering.MonoGame.Drawing
 
             var xnaRectangle = ConvertFromFletchType(rect);
             var xnaColor = ConvertFromFletchType(color);
+            var xnaSpriteEffect = ConvertFromFletchType(spriteEffect);
 
             spriteBatch.Draw(
                 texture: xnaTexture,
@@ -158,7 +165,7 @@ namespace Fletch.Rendering.MonoGame.Drawing
                 rotation: rotation,
                 origin: new XnaVector(origin.X, origin.Y),
                 scale: new XnaVector(scale.X, scale.Y),
-                effects: SpriteEffects.None,
+                effects: xnaSpriteEffect,
                 layerDepth: layerDepth
                 );
         }
@@ -168,11 +175,12 @@ namespace Fletch.Rendering.MonoGame.Drawing
         /// </summary>
         /// <param name="texture">The texture to draw.</param>
         /// <param name="position">The world-space position of the sprite.</param>
-        /// <param name="color">The color tint to apply. Use <c>Color.White</c> for no tint.</param>
+        /// The color tint to apply to the sprite. Use <c>Color.White</c> (the engine’s white color) to draw without tint.
         /// <remarks>
         /// This is a convenience overload that draws the entire texture with no rotation and unit scale.
         /// </remarks>
-        public void Draw(ITexture texture, SystemVector position, FletchColor color)
+        public void Draw(ITexture texture, SystemVector position, FletchColor color, 
+            FletchSpriteEffect spriteEffect = FletchSpriteEffect.None)
         {
             Draw(texture,
                 position,
@@ -181,7 +189,8 @@ namespace Fletch.Rendering.MonoGame.Drawing
                 rotation: 0f,
                 origin: SystemVector.Zero,
                 scale: new SystemVector(1f, 1f),
-                layerDepth: 0f);
+                layerDepth: 0f,
+                spriteEffect);
         }
 
         /// <summary>
@@ -194,7 +203,11 @@ namespace Fletch.Rendering.MonoGame.Drawing
         /// <remarks>
         /// This overload draws the full texture without rotation, using an origin of (0,0) and unit scale.
         /// </remarks>
-        public void Draw(ITexture texture, SystemVector position, FletchColor color, float layerDepth)
+        public void Draw(ITexture texture, 
+            SystemVector position,
+            FletchColor color,
+            float layerDepth,
+            FletchSpriteEffect spriteEffect = FletchSpriteEffect.None)
         {
             Draw(texture,
                 position,
@@ -203,7 +216,8 @@ namespace Fletch.Rendering.MonoGame.Drawing
                 rotation: 0f,
                 origin: SystemVector.Zero,
                 scale: new SystemVector(1f, 1f),
-                layerDepth: layerDepth);
+                layerDepth: layerDepth, 
+                spriteEffect: spriteEffect);
         }
 
 
@@ -225,7 +239,8 @@ namespace Fletch.Rendering.MonoGame.Drawing
             SystemVector position,
             RectangleFloat sourceRectangle,
             FletchColor color,
-            float layerDepth = 0f)
+            float layerDepth = 0f,
+            FletchSpriteEffect spriteEffect = FletchSpriteEffect.None)
         {
             Draw(texture,
                 position,
@@ -234,7 +249,8 @@ namespace Fletch.Rendering.MonoGame.Drawing
                 rotation: 0f,
                 origin: SystemVector.Zero,
                 scale: new SystemVector(1f, 1f),
-                layerDepth: layerDepth);
+                layerDepth: layerDepth,
+                spriteEffect: spriteEffect);
         }
 
         /// <summary>
@@ -254,7 +270,8 @@ namespace Fletch.Rendering.MonoGame.Drawing
             ITexture texture,
             RectangleFloat destinationRectangle,
             FletchColor color,
-            float layerDepth = 0f)
+            float layerDepth = 0f,
+            FletchSpriteEffect spriteEffect = FletchSpriteEffect.None)
         {
             Draw(texture,
                 position: new SystemVector(destinationRectangle.X, destinationRectangle.Y),
@@ -265,7 +282,9 @@ namespace Fletch.Rendering.MonoGame.Drawing
                 scale: new SystemVector(
                     destinationRectangle.Width / texture.Width,
                     destinationRectangle.Height / texture.Height),
-                layerDepth: layerDepth);
+                layerDepth: layerDepth,
+                spriteEffect: spriteEffect
+                );
         }
 
         /// <summary>
@@ -288,7 +307,8 @@ namespace Fletch.Rendering.MonoGame.Drawing
             RectangleFloat destinationRectangle,
             RectangleFloat sourceRectangle,
             FletchColor color,
-            float layerDepth = 0f)
+            float layerDepth = 0f,
+            FletchSpriteEffect spriteEffect = FletchSpriteEffect.None)
         {
             Draw(texture,
                 position: new SystemVector(destinationRectangle.X, destinationRectangle.Y),
@@ -299,10 +319,68 @@ namespace Fletch.Rendering.MonoGame.Drawing
                 scale: new SystemVector(
                     destinationRectangle.Width / sourceRectangle.Width,
                     destinationRectangle.Height / sourceRectangle.Height),
-                layerDepth: layerDepth);
+                layerDepth: layerDepth,
+                spriteEffect: spriteEffect);
         }
 
-        private BlendState ConvertFromFletchType(BlendMode blendMode)
+        /// <summary>
+        /// Draws a texture so that it is stretched to exactly fill the specified destination rectangle.
+        /// </summary>
+        /// <param name="texture">
+        /// The texture to draw. Must be a texture created by this rendering backend.
+        /// </param>
+        /// <param name="destinationRectangle">
+        /// The rectangle in world or screen space that the texture will be stretched to fill.
+        /// </param>
+        /// <param name="color">
+        /// The color tint to apply to the texture. Use white to draw without tint.
+        /// </param>
+        /// <param name="sourceRectangle">
+        /// Optional region of the texture to draw. If null, the entire texture is used.
+        /// </param>
+        /// <param name="layerDepth">
+        /// Depth sorting value within the current sprite batch.
+        /// </param>
+        /// <param name="spriteEffect">
+        /// Optional sprite flip effect applied during drawing.
+        /// </param>
+        /// <remarks>
+        /// This overload uses SpriteBatch's destination-rectangle draw path, providing
+        /// pixel-perfect stretching behavior. The texture will be scaled to fill the
+        /// rectangle exactly, without requiring manual scale calculations.
+        /// </remarks>
+        public void DrawToRect(
+            ITexture texture,
+            RectangleFloat destinationRectangle,
+            FletchColor color,
+            RectangleFloat? sourceRectangle = null,
+            float layerDepth = 0f,
+            FletchSpriteEffect spriteEffect = FletchSpriteEffect.None)
+        {
+            if (!IsBatchOpen)
+                throw new InvalidOperationException("Draw called before Begin.");
+
+            if (texture is not Resources.MonoGameTexture mgTexture)
+                throw new InvalidOperationException("ITexture is not a MonoGame texture instance for this backend.");
+
+            var xnaDest = ConvertFromFletchType(destinationRectangle);
+            var xnaSource = sourceRectangle.HasValue ? ConvertFromFletchType(sourceRectangle.Value) : (XnaRectangle?)null;
+
+            spriteBatch.Draw(
+                mgTexture.Texture,
+                destinationRectangle: xnaDest,
+                sourceRectangle: xnaSource,
+                color: ConvertFromFletchType(color),
+                rotation: 0f,
+                origin: XnaVector.Zero,
+                effects: ConvertFromFletchType(spriteEffect),
+                layerDepth: layerDepth
+            );
+        }
+
+        #pragma warning restore S107
+
+        private static BlendState ConvertFromFletchType(BlendMode blendMode)
         {
             return blendMode switch
             {
@@ -313,7 +391,7 @@ namespace Fletch.Rendering.MonoGame.Drawing
             };
         }
 
-        private SamplerState ConvertFromFletchType(SamplerMode samplerMode)
+        private static SamplerState ConvertFromFletchType(SamplerMode samplerMode)
         {
             return samplerMode switch
             {
@@ -323,18 +401,37 @@ namespace Fletch.Rendering.MonoGame.Drawing
             };
         }
 
-        private XnaRectangle ConvertFromFletchType(RectangleFloat rectangle)
+        private static XnaRectangle ConvertFromFletchType(RectangleFloat rectangle)
         {
             return new XnaRectangle(
-                (int)rectangle.X,
-                (int)rectangle.Y,
-                (int)rectangle.Width,
-                (int)rectangle.Height);
+                (int)MathF.Round(rectangle.X),
+                (int)MathF.Round(rectangle.Y),
+                (int)MathF.Round(rectangle.Width),
+                (int)MathF.Round(rectangle.Height));
         }
 
-        private XnaColor ConvertFromFletchType(FletchColor fletchColor)
+        private static XnaColor ConvertFromFletchType(FletchColor fletchColor)
         {
             return new XnaColor(fletchColor.R, fletchColor.G, fletchColor.B, fletchColor.A);
+        }
+
+        private static XnaSpriteEffect ConvertFromFletchType(FletchSpriteEffect fletchSpriteEffect)
+        {
+            return fletchSpriteEffect switch
+            {
+                FletchSpriteEffect.None => XnaSpriteEffect.None,
+                FletchSpriteEffect.FlipHorizontally => XnaSpriteEffect.FlipHorizontally,
+                FletchSpriteEffect.FlipVertically => XnaSpriteEffect.FlipVertically,
+                _ => XnaSpriteEffect.None,
+            };
+        }
+
+        public void Dispose()
+        {
+            if (IsBatchOpen)
+                spriteBatch.End();
+
+            spriteBatch.Dispose();
         }
     }
 }

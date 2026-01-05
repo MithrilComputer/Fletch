@@ -3,7 +3,7 @@
     /// <summary>
     /// Represents a GPU texture resource in a backend-agnostic way.
     /// </summary>
-    public interface ITexture : IDisposable
+    public interface ITexture
     {
         /// <summary>
         /// The width of the texture in pixels.

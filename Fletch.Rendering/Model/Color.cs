@@ -1,10 +1,28 @@
 ﻿namespace Fletch.Rendering.Model
 {
+    /// <summary>
+    /// Represents a color with red, green, blue, and alpha components.
+    /// </summary>
     public struct Color
     {
+        /// <summary>
+        /// The red component of the color.
+        /// </summary>
         public byte R;
+
+        /// <summary>
+        /// The green component of the color.
+        /// </summary>
         public byte G;
+
+        /// <summary>
+        /// The blue component of the color.
+        /// </summary>
         public byte B;
+
+        /// <summary>
+        /// The alpha (transparency) component of the color.
+        /// </summary>
         public byte A;
 
         public Color(byte r, byte g, byte b, byte a = 255)

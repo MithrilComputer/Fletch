@@ -9,8 +9,11 @@
   <ItemGroup>
     <Folder Include="Abstractions\Systems\" />
     <Folder Include="Facade\" />
-    <Folder Include="Model\" />
     <Folder Include="Systems\" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\Fletch.Core\Fletch.Core.csproj" />
   </ItemGroup>
 
 </Project>

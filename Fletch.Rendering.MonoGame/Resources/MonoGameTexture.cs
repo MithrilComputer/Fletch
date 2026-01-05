@@ -3,7 +3,10 @@ using Microsoft.Xna.Framework.Graphics;
 
 namespace Fletch.Rendering.MonoGame.Resources
 {
-    internal class MonoGameTexture : ITexture, IDisposable
+    /// <summary>
+    /// The MonoGame implementation of a texture resource.
+    /// </summary>
+    internal sealed class MonoGameTexture : ITexture, IDisposable
     {
         private readonly Texture2D texture;
 
