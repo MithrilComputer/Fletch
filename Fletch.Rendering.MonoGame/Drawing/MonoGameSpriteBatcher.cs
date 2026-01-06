@@ -363,12 +363,12 @@ namespace Fletch.Rendering.MonoGame.Drawing
             if (texture is not Resources.MonoGameTexture mgTexture)
                 throw new InvalidOperationException("ITexture is not a MonoGame texture instance for this backend.");
 
-            var xnaDest = ConvertFromFletchType(destinationRectangle);
-            var xnaSource = sourceRectangle.HasValue ? ConvertFromFletchType(sourceRectangle.Value) : (XnaRectangle?)null;
+            XnaRectangle xnaDestination = ConvertFromFletchType(destinationRectangle);
+            XnaRectangle? xnaSource = sourceRectangle.HasValue ? ConvertFromFletchType(sourceRectangle.Value) : (XnaRectangle?)null;
 
             spriteBatch.Draw(
                 mgTexture.Texture,
-                destinationRectangle: xnaDest,
+                destinationRectangle: xnaDestination,
                 sourceRectangle: xnaSource,
                 color: ConvertFromFletchType(color),
                 rotation: 0f,
@@ -378,7 +378,65 @@ namespace Fletch.Rendering.MonoGame.Drawing
             );
         }
 
-        #pragma warning restore S107
+        public void DrawString(
+            IFont font,
+            string text,
+            SystemVector position,
+            FletchColor color)
+        {
+            if (!IsBatchOpen)
+                throw new InvalidOperationException("DrawString called before Begin.");
+
+            if (font is not Resources.MonoGameFont monoGameFont)
+                throw new InvalidOperationException("IFont is not a MonoGame font instance for this backend.");
+
+            spriteBatch.DrawString(
+                monoGameFont.SpriteFont,
+                text,
+                new XnaVector(position.X, position.Y),
+                ConvertFromFletchType(color));
+        }
+
+        /// <summary>
+        /// Draws text using the specified font at the given position with a color tint.
+        /// </summary>
+        /// <param name="font">The font resource to use when rendering the text.</param>
+        /// <param name="text">The text string to render.</param>
+        /// <param name="position">
+        /// The position, in pixels, where the text should be drawn 
+        /// (typically in screen or world space, depending on the current transform).
+        /// </param>
+        /// <param name="color">The color tint to apply to the rendered text.</param>
+        /// <param name="samplerMode">
+        /// The sampler mode that controls how the text is filtered when scaled 
+        /// (for example, point sampling for pixel-perfect text or linear for smooth text).
+        /// </param>
+        /// <exception cref="InvalidOperationException">
+        /// Thrown if the underlying sprite batch is not currently in a valid state to draw,
+        /// or if the provided font is not compatible with the active rendering backend.
+        /// </exception>
+        public void DrawString(
+            IFont font,
+            string text,
+            SystemVector position,
+            FletchColor color,
+            SamplerMode samplerMode)
+        {
+            if (!IsBatchOpen)
+                throw new InvalidOperationException("DrawString called before Begin.");
+
+            if (font is not Resources.MonoGameFont monoGameFont)
+                throw new InvalidOperationException("IFont is not a MonoGame font instance for this backend.");
+
+            spriteBatch.DrawString(
+                spriteFont: monoGameFont.SpriteFont,
+                text: text,
+                position: new XnaVector(position.X, position.Y),
+                color: ConvertFromFletchType(color)
+                );
+        }
+
+#pragma warning restore S107
 
         private static BlendState ConvertFromFletchType(BlendMode blendMode)
         {

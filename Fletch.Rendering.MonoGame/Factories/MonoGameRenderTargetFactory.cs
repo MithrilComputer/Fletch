@@ -14,7 +14,7 @@ namespace Fletch.Rendering.MonoGame.Factories
             this.graphicsDevice = graphicsDevice;
         }
 
-        public IRenderingTarget CreateRenderTarget(int width, int height)
+        public IRenderingTarget Create(int width, int height)
         {
             var renderTarget = new RenderTarget2D(
                 graphicsDevice,

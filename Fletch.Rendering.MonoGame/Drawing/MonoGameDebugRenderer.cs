@@ -104,7 +104,7 @@ namespace Fletch.Rendering.MonoGame.Drawing
             SysMatrix transform =
                 SysMatrix.CreateTranslation(-pivot) *
                 SysMatrix.CreateRotation(rotation) *
-                SysMatrix.CreateTranslation(position);
+                SysMatrix.CreateTranslation(pivot + position);
 
             topLeftCorner = SystemVector.Transform(topLeftCorner, transform);
             topRightCorner = SystemVector.Transform(topRightCorner, transform);

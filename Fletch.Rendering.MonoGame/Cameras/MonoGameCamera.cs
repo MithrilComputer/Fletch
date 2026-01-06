@@ -3,7 +3,6 @@ using Fletch.Rendering.Abstractions.Cameras;
 using Microsoft.Xna.Framework;
 using MonoGame.Extended;
 using MonoGame.Extended.ViewportAdapters;
-using System.Numerics;
 using SysMatrix = System.Numerics.Matrix3x2;
 using SysVector = System.Numerics.Vector2;
 using XnaRectangle = Microsoft.Xna.Framework.Rectangle;

@@ -1,8 +1,7 @@
 ﻿using Fletch.Rendering.Abstractions.Resources;
-using Fletch.Rendering.MonoGame.Resources;
 using Microsoft.Xna.Framework.Graphics;
 
-namespace Fletch.Rendering.MonoGame.Factories
+namespace Fletch.Rendering.MonoGame.Resources
 {
     internal sealed class MonoGameRenderContext
     {
