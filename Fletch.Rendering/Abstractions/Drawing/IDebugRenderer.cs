@@ -28,6 +28,17 @@ namespace Fletch.Rendering.Abstractions.Drawing
         void DrawLine(Vector2 start, Vector2 end, float lineThickness, Color color);
 
         /// <summary>
+        /// Draws a straight line segment between two points.
+        /// </summary>
+        /// <param name="start">World position of the start point.</param>
+        /// <param name="end">World position of the end point.</param>
+        /// <param name="lineThickness">Visual thickness of the line.</param>
+        /// <remarks>
+        /// No line is drawn if the length is zero or drawing is disabled.
+        /// </remarks>
+        void DrawLine(Vector2 start, Vector2 end, float lineThickness);
+
+        /// <summary>
         /// Draws the outline of a rotated rectangle.
         /// </summary>
         /// <param name="position">World-space position of the rectangle.</param>
@@ -50,6 +61,26 @@ namespace Fletch.Rendering.Abstractions.Drawing
         /// <param name="color">Color used to render the rectangle outline.</param>
         void DrawRectangle(Vector2 position, Vector2 size, float lineThickness, Color color);
 
+        /// <summary>
+        /// Draws the outline of a rotated rectangle.
+        /// </summary>
+        /// <param name="position">World-space position of the rectangle.</param>
+        /// <param name="size">Width and height of the rectangle.</param>
+        /// <param name="pivot">
+        /// Pivot point in the rectangle's local space that rotation occurs around.
+        /// Local space is centered at (0,0), with range approximately -halfSize..+halfSize.
+        /// </param>
+        /// <param name="rotation">Rotation in radians around the pivot point.</param>
+        /// <param name="lineThickness">Thickness of the rectangle edges.</param>
+        void DrawRectangle(Vector2 position, Vector2 size, Vector2 pivot, float rotation, float lineThickness);
+
+        /// <summary>
+        /// Draws the outline of an axis-aligned rectangle without rotation.
+        /// </summary>
+        /// <param name="position">Center position of the rectangle.</param>
+        /// <param name="size">Width and height of the rectangle.</param>
+        /// <param name="lineThickness">Thickness of each rectangle edge.</param>
+        void DrawRectangle(Vector2 position, Vector2 size, float lineThickness);
 
         /// <summary>
         /// Draws the outline of a circle using line segments.
@@ -63,6 +94,18 @@ namespace Fletch.Rendering.Abstractions.Drawing
         /// No circle is drawn if the radius is non-positive.
         /// </remarks>
         void DrawCircle(Vector2 position, float radius, float lineThickness, Color color);
+
+        /// <summary>
+        /// Draws the outline of a circle using line segments.
+        /// </summary>
+        /// <param name="position">Center position of the circle.</param>
+        /// <param name="radius">Radius of the circle.</param>
+        /// <param name="lineThickness">Thickness of each segment.</param>
+        /// <remarks>
+        /// The circle is approximated using a fixed number of segments.
+        /// No circle is drawn if the radius is non-positive.
+        /// </remarks>
+        void DrawCircle(Vector2 position, float radius, float lineThickness);
 
         /// <summary>
         /// Draws a connected polyline going through the given points in order.

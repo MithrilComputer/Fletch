@@ -5,6 +5,9 @@ using Microsoft.Xna.Framework.Graphics;
 
 namespace Fletch.Rendering.MonoGame.Factories
 {
+    /// <summary>
+    /// The main class for making render targets for MonoGame.
+    /// </summary>
     internal sealed class MonoGameRenderTargetFactory : IRenderingTargetFactory
     {
         private readonly GraphicsDevice graphicsDevice;
@@ -14,6 +17,9 @@ namespace Fletch.Rendering.MonoGame.Factories
             this.graphicsDevice = graphicsDevice;
         }
 
+        /// <summary>
+        /// Creates a new render target Texture.
+        /// </summary>
         public IRenderingTarget Create(int width, int height)
         {
             var renderTarget = new RenderTarget2D(
@@ -25,7 +31,5 @@ namespace Fletch.Rendering.MonoGame.Factories
                 DepthFormat.None);
             return new MonoGameRenderTarget(renderTarget);
         }
-
-
     }
 }

@@ -6,4 +6,8 @@
     <Nullable>enable</Nullable>
   </PropertyGroup>
 
+  <ItemGroup>
+    <ProjectReference Include="..\Fletch.Platform\Fletch.Platform.csproj" />
+  </ItemGroup>
+
 </Project>

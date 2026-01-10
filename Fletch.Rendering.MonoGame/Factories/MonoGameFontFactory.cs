@@ -5,52 +5,87 @@ using FontStashSharp;
 
 namespace Fletch.Rendering.MonoGame.Factories
 {
-    internal class MonoGameFontFactory : IFontFactory
+    /// <summary>
+    /// A MonoGame-based implementation of <see cref="IFontFactory"/> that loads,
+    /// caches, and serves fonts using FontStashSharp.
+    /// </summary>
+    internal sealed class MonoGameFontFactory : IFontFactory, IDisposable
     {
-        private readonly FontSystem fontSystem;
-
-        Dictionary<string, IFont> fontCache = new();
-
-        private readonly Dictionary<string, float> fontSizes = new()
-        {
-            { "Default", 16f },
-            { "Small",   12f },
-            { "Title",   32f }
-        };
+        private readonly Dictionary<string, FontSystem> systems;
+        private readonly Dictionary<(string family, int size), IFont> cache;
 
         public MonoGameFontFactory()
         {
-            fontSystem = new FontSystem();
+            systems = new Dictionary<string, FontSystem>(StringComparer.OrdinalIgnoreCase);
 
-            var bytes = File.ReadAllBytes("Assets/Fonts/Arial.ttf");
-            fontSystem.AddFont(bytes);
+            cache = new Dictionary<(string family, int size), IFont>();
         }
 
-        public IFont GetFont(string fontName)
+        /// <summary>
+        /// Registers a font family from a TrueType Font (.ttf) file.
+        /// </summary>
+        /// <param name="name">Logical font family name used for lookup.</param>
+        /// <param name="ttfPath">File system path to the .ttf font file.</param>
+        /// <remarks>
+        /// If a font family with the same name already exists, it will be replaced.
+        /// </remarks>
+        public void RegisterFamily(string name, string ttfPath)
         {
-            if (fontCache.TryGetValue(fontName, out IFont? font))
-            {
-                return font;
-            }
+            FontSystem fontSystem = new FontSystem(new FontSystemSettings{});
 
-            if (!fontSizes.TryGetValue(fontName, out float size))
-                throw new KeyNotFoundException(
-                    $"Font '{fontName}' is not registered. Add it to 'fontSizes' in MonoGameFontFactory.");
+            fontSystem.AddFont(File.ReadAllBytes(ttfPath));
+
+            systems[name] = fontSystem;
+        }
+
+        /// <summary>
+        /// Gets a font from the specified family and size.
+        /// Creates and caches the font if it has not already been created.
+        /// </summary>
+        /// <param name="family">Registered font family name.</param>
+        /// <param name="size">Point size of the requested font.</param>
+        /// <returns>An <see cref="IFont"/> matching the specified family and size.</returns>
+        /// <exception cref="KeyNotFoundException">
+        /// Thrown when the requested font family has not been registered.
+        /// </exception>
+        public IFont GetFont(string family, int size)
+        {
+            var key = (family, size);
+
+            if (cache.TryGetValue(key, out var existing))
+                return existing;
+
+            if (!systems.TryGetValue(family, out var fontSystem))
+                throw new KeyNotFoundException($"Font family '{family}' is not registered.");
 
             SpriteFontBase spriteFont = fontSystem.GetFont(size);
 
-            var wrapped = new MonoGameFont(spriteFont, fontName);
-            fontCache[fontName] = wrapped;
+            MonoGameFont wrapped = new MonoGameFont(spriteFont, $"{family}-{size}");
 
+            cache[key] = wrapped;
             return wrapped;
         }
 
-        public bool TryGetFont(string fontName, out IFont? font)
+        /// <summary>
+        /// Attempts to get a font from the specified family and size without throwing.
+        /// </summary>
+        /// <param name="family">Registered font family name.</param>
+        /// <param name="size">Point size of the requested font.</param>
+        /// <param name="font">
+        /// When this method returns, contains the font if it was found or created;
+        /// otherwise <c>null</c>.
+        /// </param>
+        /// <returns>
+        /// <c>true</c> if the font could be returned; otherwise <c>false</c>.
+        /// </returns>
+        public bool TryGetFont(string family, int size, out IFont? font)
         {
-            if (fontCache.TryGetValue(fontName, out font))
+            var key = (family, size);
+
+            if (cache.TryGetValue(key, out font))
                 return true;
 
-            if (!fontSizes.TryGetValue(fontName, out float size))
+            if (!systems.TryGetValue(family, out var fontSystem))
             {
                 font = null;
                 return false;
@@ -58,10 +93,21 @@ namespace Fletch.Rendering.MonoGame.Factories
 
             SpriteFontBase spriteFont = fontSystem.GetFont(size);
 
-            font = new MonoGameFont(spriteFont, fontName);
-            fontCache[fontName] = font;
+            font = new MonoGameFont(spriteFont, $"{family}-{size}");
+            cache[key] = font;
 
             return true;
+        }
+
+        public void Dispose()
+        {
+            foreach (FontSystem fontSystem in systems.Values)
+            {
+                fontSystem.Dispose();
+            }
+
+            systems.Clear();
+            cache.Clear();
         }
     }
 }

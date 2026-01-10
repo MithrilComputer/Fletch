@@ -78,6 +78,20 @@ namespace Fletch.Rendering.MonoGame.Drawing
         }
 
         /// <summary>
+        /// Draws a straight line segment between two points.
+        /// </summary>
+        /// <param name="start">World position of the start point.</param>
+        /// <param name="end">World position of the end point.</param>
+        /// <param name="lineThickness">Visual thickness of the line.</param>
+        /// <remarks>
+        /// No line is drawn if the length is zero or drawing is disabled.
+        /// </remarks>
+        public void DrawLine(SystemVector start, SystemVector end, float lineThickness)
+        {
+            DrawLine(start, end, lineThickness, Color.Green);
+        }
+
+        /// <summary>
         /// Draws the outline of a rotated rectangle.
         /// </summary>
         /// <param name="position">World-space position of the rectangle.</param>
@@ -118,6 +132,22 @@ namespace Fletch.Rendering.MonoGame.Drawing
         }
 
         /// <summary>
+        /// Draws the outline of a rotated rectangle.
+        /// </summary>
+        /// <param name="position">World-space position of the rectangle.</param>
+        /// <param name="size">Width and height of the rectangle.</param>
+        /// <param name="pivot">
+        /// Pivot point in the rectangle's local space that rotation occurs around.
+        /// Local space is centered at (0,0), with range approximately -halfSize..+halfSize.
+        /// </param>
+        /// <param name="rotation">Rotation in radians around the pivot point.</param>
+        /// <param name="lineThickness">Thickness of the rectangle edges.</param>
+        public void DrawRectangle(SystemVector position, SystemVector size, SystemVector pivot, float rotation, float lineThickness)
+        {
+            DrawRectangle(position, size, pivot, rotation, lineThickness, Color.Green);
+        }
+
+        /// <summary>
         /// Draws the outline of an axis-aligned rectangle without rotation.
         /// </summary>
         /// <param name="position">Center position of the rectangle.</param>
@@ -140,6 +170,17 @@ namespace Fletch.Rendering.MonoGame.Drawing
             DrawLine(topRightCorner, bottomRightCorner, lineThickness, color);
             DrawLine(bottomRightCorner, bottomLeftCorner, lineThickness, color);
             DrawLine(bottomLeftCorner, topLeftCorner, lineThickness, color);
+        }
+
+        /// <summary>
+        /// Draws the outline of an axis-aligned rectangle without rotation.
+        /// </summary>
+        /// <param name="position">Center position of the rectangle.</param>
+        /// <param name="size">Width and height of the rectangle.</param>
+        /// <param name="lineThickness">Thickness of each rectangle edge.</param>
+        public void DrawRectangle(SystemVector position, SystemVector size, float lineThickness)
+        {
+            DrawRectangle(position, size, lineThickness, Color.Green);
         }
 
         /// <summary>
@@ -170,6 +211,21 @@ namespace Fletch.Rendering.MonoGame.Drawing
 
                 DrawLine(start, end, lineThickness, color);
             }
+        }
+
+        /// <summary>
+        /// Draws the outline of a circle using line segments.
+        /// </summary>
+        /// <param name="position">Center position of the circle.</param>
+        /// <param name="radius">Radius of the circle.</param>
+        /// <param name="lineThickness">Thickness of each segment.</param>
+        /// <remarks>
+        /// The circle is approximated using a fixed number of segments.
+        /// No circle is drawn if the radius is non-positive.
+        /// </remarks>
+        public void DrawCircle(SystemVector position, float radius, float lineThickness)
+        {
+            DrawCircle(position, radius, lineThickness, Color.Green);
         }
 
         /// <summary>

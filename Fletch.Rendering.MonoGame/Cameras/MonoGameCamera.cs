@@ -3,6 +3,7 @@ using Fletch.Rendering.Abstractions.Cameras;
 using Microsoft.Xna.Framework;
 using MonoGame.Extended;
 using MonoGame.Extended.ViewportAdapters;
+using System.Diagnostics;
 using SysMatrix = System.Numerics.Matrix3x2;
 using SysVector = System.Numerics.Vector2;
 using XnaRectangle = Microsoft.Xna.Framework.Rectangle;
@@ -111,7 +112,7 @@ namespace Fletch.Rendering.MonoGame.Cameras
         {
             Matrix xna = camera.GetViewMatrix();
 
-            SysMatrix veiw = new SysMatrix(
+            SysMatrix view = new SysMatrix(
                 xna.M11, xna.M12,
                 xna.M21, xna.M22,
                 xna.M41, xna.M42);
@@ -120,7 +121,7 @@ namespace Fletch.Rendering.MonoGame.Cameras
 
             SysMatrix flipY = SysMatrix.CreateScale(1, -1) * SysMatrix.CreateTranslation(0, height);
 
-            return veiw * flipY;
+            return  view * flipY;
         }
 
         /// <summary>
