@@ -6,6 +6,7 @@ using Fletch.Platform.Abstractions.Lifecycle;
 using Fletch.Platform.Abstractions.Paths;
 using Fletch.Platform.Abstractions.Window;
 using Fletch.Rendering.Abstractions.Backends;
+using Fletch.Rendering.Abstractions.Resources;
 using Fletch.Rendering.Model;
 using Fletch.Runtime.Abstractions.Hosting;
 using Fletch.Runtime.Abstractions.Time;
@@ -33,6 +34,24 @@ namespace Fletch.Runtime.Hosting
 
         private float movespeed = 200;
 
+        SpriteEffect testRatFlip = SpriteEffect.None;
+
+        IFont testFont;
+
+        ITexture testTexture;
+
+        float timekeep = 0f;
+
+        string fps = "";
+
+        int frameCountFps = 0;
+
+        float spriteRotation = 0;
+
+        float rotationSpeed = 300;
+
+        float zoom = 1f;
+
         public FletchRuntime(IPlatformContext platformContext)
         {
             window = platformContext.Window;
@@ -49,12 +68,18 @@ namespace Fletch.Runtime.Hosting
         public void FixedUpdate(FixedTimeStep time)
         {
             //if(!IsInitialized) Throw later
-                
+            
         }
 
         public void Initialize()
         {
             IsInitialized = true;
+
+            renderingBackend.FontFactory.RegisterFamily("Roboto", Path.Combine(pathProvider.AssetFolderDirectory, "Roboto-VariableFont.ttf"));
+
+            testFont = renderingBackend.FontFactory.GetFont("Roboto", 64);
+
+            testTexture = renderingBackend.TextureFactory.Load(Path.Combine(pathProvider.AssetFolderDirectory, "Rat.png"));
         }
 
         public void Pause()
@@ -75,6 +100,8 @@ namespace Fletch.Runtime.Hosting
                 window.Height
                 ));
 
+            renderingBackend.MainCamera.SetZoom(zoom);
+
             renderingBackend.DebugRenderer.DrawCircle(worldCenter, 200, 5);
 
             renderingBackend.DebugRenderer.DrawCross(worldCenter, 20000, 5, Color.Red);
@@ -82,6 +109,12 @@ namespace Fletch.Runtime.Hosting
             renderingBackend.DebugRenderer.DrawCrosshair(worldCenter, 20000, 5, Color.Blue);
 
             renderingBackend.DebugRenderer.DrawRectangle(drawAxis, Vector2.One * 150, 10, Color.Magenta);
+
+            renderingBackend.DebugRenderer.DrawLine(drawAxis, Vector2.UnitY * 300, 10, Color.Brown);
+
+            renderingBackend.SpriteBatcher.DrawString(testFont, "Hi :D", drawAxis, Color.Black);
+
+            renderingBackend.SpriteBatcher.Draw(testTexture, drawAxis, new RectangleFloat(0,0, testTexture.Width, testTexture.Height), Color.White, spriteRotation, Vector2.Zero, Vector2.One, 0);
 
             renderingBackend.EndCamera();
 
@@ -98,6 +131,18 @@ namespace Fletch.Runtime.Hosting
             if (inputBackend.KeyboardDevice.GetKeyDown(KeyCode.Escape))
             {
                 applicationLifeTime.RequestExit();
+            }
+
+            timekeep += time.Delta;
+
+            frameCountFps++;
+
+            if (timekeep >= 1)
+            {
+                Debug.WriteLine(frameCountFps);
+
+                frameCountFps = 0;
+                timekeep = 0;
             }
 
             float xAxis = 0f;
@@ -134,11 +179,13 @@ namespace Fletch.Runtime.Hosting
             if (inputBackend.KeyboardDevice.GetKey(KeyCode.Left))
             {
                 xAxisTwo--;
+                testRatFlip = SpriteEffect.None;
             }
 
             if (inputBackend.KeyboardDevice.GetKey(KeyCode.Right))
             {
                 xAxisTwo++;
+                testRatFlip = SpriteEffect.FlipHorizontally;
             }
 
             if (inputBackend.KeyboardDevice.GetKey(KeyCode.Up))
@@ -151,11 +198,30 @@ namespace Fletch.Runtime.Hosting
                 yAxisTwo--;
             }
 
+            if (inputBackend.KeyboardDevice.GetKey(KeyCode.Q))
+            {
+                spriteRotation += rotationSpeed * time.Delta;
+            }
+
+            if (inputBackend.KeyboardDevice.GetKey(KeyCode.E))
+            {
+                spriteRotation -= rotationSpeed * time.Delta;
+            }
+
+            if (inputBackend.KeyboardDevice.GetKey(KeyCode.Z))
+            {
+                zoom = zoom + (0.06f * time.Delta);
+            }
+
+            if (inputBackend.KeyboardDevice.GetKey(KeyCode.X))
+            {
+                zoom = zoom - (0.06f * time.Delta);
+            }
+
             cameraAxis = new Vector2(xAxis, yAxis) * time.Delta * movespeed;
-            drawAxis += new Vector2(xAxisTwo, yAxisTwo) * time.Delta * movespeed;
+            drawAxis += new Vector2(xAxisTwo, yAxisTwo) * time.Delta * movespeed * 2;
 
             renderingBackend.MainCamera.MoveBy(cameraAxis);
-
         }
     }
 }

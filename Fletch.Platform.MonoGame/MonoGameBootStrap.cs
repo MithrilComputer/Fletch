@@ -24,9 +24,9 @@ namespace Fletch.Platform.MonoGame
 
             ServiceCollection services = new ServiceCollection();
 
-            FletchMonoGame game = new FletchMonoGame(options);
-
             MonoGamePathProvider pathProvider = new MonoGamePathProvider(options.Title);
+
+            FletchMonoGame game = new FletchMonoGame(options, pathProvider);
 
             services.AddSingleton(game);
             services.AddSingleton<Game>(game);

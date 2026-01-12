@@ -51,6 +51,11 @@ namespace Fletch.Rendering.Abstractions.Backends
         IFontFactory FontFactory { get; }
 
         /// <summary>
+        /// Gets the texture factory for the backend.
+        /// </summary>
+        ITextureFactory TextureFactory { get; }
+
+        /// <summary>
         /// Creates a new camera managed by this backend.
         /// </summary>
         /// <returns>The newly created camera.</returns>

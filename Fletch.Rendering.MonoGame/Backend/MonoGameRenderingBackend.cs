@@ -60,6 +60,11 @@ namespace Fletch.Rendering.MonoGame.Backend
         public IFontFactory FontFactory { get { return fontFactory; } }
 
         /// <summary>
+        /// Gets the MonoGame Texture Factory.
+        /// </summary>
+        public ITextureFactory TextureFactory { get { return textureFactory; } }
+
+        /// <summary>
         /// Gets the debug renderer used for shapes, lines, and diagnostic overlays.
         /// </summary>
         public IDebugRenderer DebugRenderer { get { return debugRenderer; } }

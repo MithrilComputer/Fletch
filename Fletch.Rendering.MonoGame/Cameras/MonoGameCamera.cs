@@ -1,162 +1,227 @@
 ﻿using Fletch.Core.Math.Geometry;
 using Fletch.Rendering.Abstractions.Cameras;
-using Microsoft.Xna.Framework;
+using Microsoft.Xna.Framework.Graphics;
 using MonoGame.Extended;
 using MonoGame.Extended.ViewportAdapters;
-using System.Diagnostics;
+using System.Numerics;
 using SysMatrix = System.Numerics.Matrix3x2;
-using SysVector = System.Numerics.Vector2;
-using XnaRectangle = Microsoft.Xna.Framework.Rectangle;
-using XnaVector2 = Microsoft.Xna.Framework.Vector2;
+using SysVector2 = System.Numerics.Vector2;
+using XnaMatrix = Microsoft.Xna.Framework.Matrix;
 
 namespace Fletch.Rendering.MonoGame.Cameras
 {
-    internal class MonoGameCamera : ICamera
+    internal sealed class MonoGameCamera : ICamera
     {
-        private readonly OrthographicCamera camera;
-        private readonly BoxingViewportAdapter viewportAdapter;
+        private readonly BoxingViewportAdapter adapter;
 
-        // Adjust these later, perhaps make configurable
+        // Camera state in ENGINE WORLD (Y-up, origin bottom-left)
+        private SysVector2 position;
+        private float zoom = 1f;
+
+        // Optional: keep for later if you want rotation
+        private float rotation = 0f;
+
         private readonly float zoomMax = 100.0f;
-        private readonly float zoomMin = 0.05f;
+        private readonly float zoomMin = 0.0001f;
+
+        // Optional world bounds (Y-up)
+        private bool hasBounds;
+        private RectangleFloat worldBounds;
 
         public MonoGameCamera(BoxingViewportAdapter viewportAdapter)
         {
-            this.viewportAdapter = viewportAdapter;
-            camera = new OrthographicCamera(viewportAdapter);
+            adapter = viewportAdapter;
         }
 
-        /// <summary>
-        /// Gets the area currently visible by the camera in world coordinates.
-        /// </summary>
+        private float VirtualWidth => adapter.VirtualWidth;
+        private float VirtualHeight => adapter.VirtualHeight;
+
         public RectangleFloat GetVisibleArea()
         {
-            RectangleF bounds = camera.BoundingRectangle;
+            // Invert world->virtual to map virtual corners back to world.
+            // Use world->virtual (not world->actual) because "visible area" should ignore black bars.
+            SysMatrix worldToVirtual = WorldToVirtualMatrix();
+            SysMatrix.Invert(worldToVirtual, out var virtualToWorld);
 
-            return new RectangleFloat(bounds.X, bounds.Y, bounds.Width, bounds.Height);
+            // Virtual coords are SpriteBatch-like: top-left (0,0), bottom-right (VW,VH)
+            var topLeftV = new SysVector2(0, 0);
+            var bottomRightV = new SysVector2(VirtualWidth, VirtualHeight);
+
+            var a = SysVector2.Transform(topLeftV, virtualToWorld);
+            var b = SysVector2.Transform(bottomRightV, virtualToWorld);
+
+            float x = MathF.Min(a.X, b.X);
+            float y = MathF.Min(a.Y, b.Y);
+            float w = MathF.Abs(b.X - a.X);
+            float h = MathF.Abs(b.Y - a.Y);
+
+            return new RectangleFloat(x, y, w, h);
         }
 
-        /// <summary>
-        /// Forces the viewport adapter to recompute its boxing and scaling,
-        /// useful after window size, backbuffer, or virtual resolution changes.
-        /// </summary>
         public void ResetViewport()
         {
-            viewportAdapter.Reset();
+            adapter.Reset();
+            // If bounds are active, re-clamp because VH/VW may have changed meaningfully.
+            if (hasBounds)
+                ClampToBounds();
         }
 
-        /// <summary>
-        /// Gets the center point of the camera in world coordinates.
-        /// </summary>
-        public SysVector GetCameraCenter()
+        public SysVector2 GetCameraCenter()
         {
-            return new SysVector(camera.Center.X, camera.Center.Y);
+            // In this camera, "position" is the center of the view in world space.
+            return position;
         }
 
-        /// <summary>
-        /// Gets the screen position corresponding to the given world position.
-        /// </summary>
-        public SysVector WorldToScreen(SysVector worldPosition)
+        public SysVector2 WorldToScreen(SysVector2 worldPosition)
         {
-            float height = viewportAdapter.VirtualHeight;
-
-            XnaVector2 worldDown = new XnaVector2(worldPosition.X, height - worldPosition.Y);
-
-            XnaVector2 screenPosition = camera.WorldToScreen(worldDown);
-
-            return new SysVector(screenPosition.X, screenPosition.Y);
+            // Returns ACTUAL window pixel coords (includes boxing)
+            var m = WorldToActualMatrix();
+            return SysVector2.Transform(worldPosition, m);
         }
 
-        /// <summary>
-        /// Gets the world position corresponding to the given screen position.
-        /// </summary>
-        public SysVector ScreenToWorld(SysVector screenPosition)
+        public SysVector2 ScreenToWorld(SysVector2 screenPosition)
         {
-            XnaVector2 worldDown = camera.ScreenToWorld(
-                new XnaVector2(screenPosition.X, screenPosition.Y));
+            // screenPosition is in ACTUAL window pixels.
+            // Convert actual->virtual (remove boxing), then virtual->world.
+            SysVector2 virtualPos = ActualToVirtual(screenPosition);
 
-            float height = viewportAdapter.VirtualHeight;
+            var w2v = WorldToVirtualMatrix();
+            if (!SysMatrix.Invert(w2v, out var v2w))
+                return default;
 
-            return new SysVector(worldDown.X, height - worldDown.Y);
+            return SysVector2.Transform(virtualPos, v2w);
         }
 
-        /// <summary>
-        /// Returns true if the given point is within the camera's visible area.
-        /// </summary>
-        /// <remarks>In world coords</remarks>
-        public bool ContainsPoint(SysVector point)
+        public bool ContainsPoint(SysVector2 point)
         {
-            XnaVector2 xnaPoint = new XnaVector2(point.X, point.Y);
-
-            return camera.BoundingRectangle.Contains(xnaPoint);
+            var r = GetVisibleArea();
+            return point.X >= r.X && point.X <= r.X + r.Width &&
+                   point.Y >= r.Y && point.Y <= r.Y + r.Height;
         }
 
-        /// <summary>
-        /// Sets the world bounds for the camera in world coordinates.
-        /// </summary>
         public void SetWorldBounds(RectangleFloat bounds)
         {
-            XnaRectangle xnaBounds = new XnaRectangle(
-                (int)bounds.X,
-                (int)bounds.Y,
-                (int)bounds.Width,
-                (int)bounds.Height);
-
-            camera.EnableWorldBounds(xnaBounds);
+            worldBounds = bounds;
+            hasBounds = true;
+            ClampToBounds();
         }
 
-        /// <summary>
-        /// Gets the view matrix of the camera.
-        /// </summary>
         public SysMatrix GetViewMatrix()
         {
-            Matrix xna = camera.GetViewMatrix();
-
-            SysMatrix view = new SysMatrix(
-                xna.M11, xna.M12,
-                xna.M21, xna.M22,
-                xna.M41, xna.M42);
-
-            float height = viewportAdapter.VirtualHeight;
-
-            SysMatrix flipY = SysMatrix.CreateScale(1, -1) * SysMatrix.CreateTranslation(0, height);
-
-            return  view * flipY;
+            // This is what you pass to SpriteBatch.Begin(transformMatrix: ...)
+            // It maps WORLD (Y-up) -> ACTUAL screen pixels (Y-down) including boxing.
+            return WorldToActualMatrix();
         }
 
-        /// <summary>
-        /// Sets the position of the camera in world coordinates.
-        /// </summary>
-        public void SetPosition(SysVector position)
+        public void SetPosition(SysVector2 position)
         {
-            camera.Position = new XnaVector2(position.X, position.Y);
+            this.position = position;
+            if (hasBounds)
+                ClampToBounds();
         }
 
-        /// <summary>
-        /// Moves the camera by the given delta in world coordinates.
-        /// </summary>
-        public void MoveBy(SysVector delta)
+        public void MoveBy(SysVector2 delta)
         {
-            camera.Position += new XnaVector2(delta.X, delta.Y);
+            position += delta;
+            if (hasBounds)
+                ClampToBounds();
         }
 
-        /// <summary>
-        /// Sets the zoom level of the camera.
-        /// </summary>
         public void SetZoom(float zoom)
         {
-            camera.Zoom = Math.Clamp(zoom, zoomMin, zoomMax);
+            this.zoom = Math.Clamp(zoom, zoomMin, zoomMax);
+            if (hasBounds)
+                ClampToBounds();
         }
-        
-        /// <summary>
-        /// Gets the position of the camera in world coordinates.
-        /// </summary>
-        public SysVector GetPosition() =>
-            new SysVector(camera.Position.X, camera.Position.Y);
 
-        /// <summary>
-        /// Gets the zoom level of the camera.
-        /// </summary>
-        public float GetZoom() => camera.Zoom;
+        public SysVector2 GetPosition() => position;
+
+        public float GetZoom() => zoom;
+
+        // -------------------------
+        // Internals
+        // -------------------------
+
+        private SysMatrix WorldToVirtualMatrix()
+        {
+            // World (Y-up) -> Virtual (SpriteBatch coords: Y-down)
+            //
+            // view: move world relative to camera center, apply zoom/rotation
+            // center: put camera center into middle of virtual screen
+            // flipY: convert Y-up to Y-down in virtual space
+            var view =
+                SysMatrix.CreateTranslation(-position) *
+                SysMatrix.CreateRotation(-rotation) *
+                SysMatrix.CreateScale(zoom);
+
+            var center = SysMatrix.CreateTranslation(VirtualWidth * 0.5f, VirtualHeight * 0.5f);
+
+            // Flip Y-up world into Y-down virtual coords.
+            // With System.Numerics row-vector convention:
+            // v * (Scale * Translate) => scale then translate
+            var flipY = SysMatrix.CreateScale(1f, -1f) * SysMatrix.CreateTranslation(0f, VirtualHeight);
+
+            return view * center * flipY;
+        }
+
+        private static SysMatrix XnaToSys2D(Microsoft.Xna.Framework.Matrix xna)
+        {
+            return new SysMatrix(
+                xna.M11, xna.M12,
+                xna.M21, xna.M22,
+                xna.M41, xna.M42
+            );
+        }
+
+        private SysMatrix VirtualToActualMatrix()
+        {
+            // Includes both scale and translation to account for black bars.
+            return XnaToSys2D(adapter.GetScaleMatrix());
+        }
+
+        private SysMatrix WorldToActualMatrix()
+        {
+            // world -> virtual (camera) -> actual (boxing)
+            return WorldToVirtualMatrix() * VirtualToActualMatrix();
+        }
+
+        private SysVector2 ActualToVirtual(SysVector2 actual)
+        {
+            // Convert from actual window pixels into virtual coordinates,
+            // compensating for black bars and scale.
+            Viewport vp = adapter.Viewport;
+
+            float x = actual.X - vp.X;
+            float y = actual.Y - vp.Y;
+
+            float sx = VirtualWidth / vp.Width;
+            float sy = VirtualHeight / vp.Height;
+
+            return new SysVector2(x * sx, y * sy);
+        }
+
+        private void ClampToBounds()
+        {
+            // Keep the camera from showing outside world bounds.
+            // We clamp camera CENTER based on half visible size in world units.
+
+            var visible = GetVisibleArea();
+
+            float halfW = visible.Width * 0.5f;
+            float halfH = visible.Height * 0.5f;
+
+            float minX = worldBounds.X + halfW;
+            float maxX = worldBounds.X + worldBounds.Width - halfW;
+
+            float minY = worldBounds.Y + halfH;
+            float maxY = worldBounds.Y + worldBounds.Height - halfH;
+
+            // If bounds smaller than view, just pin to middle of bounds
+            if (minX > maxX) position.X = worldBounds.X + worldBounds.Width * 0.5f;
+            else position.X = Math.Clamp(position.X, minX, maxX);
+
+            if (minY > maxY) position.Y = worldBounds.Y + worldBounds.Height * 0.5f;
+            else position.Y = Math.Clamp(position.Y, minY, maxY);
+        }
     }
 }

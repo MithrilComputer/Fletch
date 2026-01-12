@@ -22,12 +22,12 @@ namespace Fletch.Platform.MonoGame.Paths
         /// <summary>
         /// Gets the root directory for game assets.
         /// </summary>
-        public string EngineContentRoot { get; }
+        public string AssetFolderDirectory { get; }
 
         /// <summary>
         /// Gets the root directory for the optional backend files.
         /// </summary>
-        public string BackendContentRoot { get; }
+        public string BackendRoot { get; }
 
         public MonoGamePathProvider(string applicationName, string? backendDir = null)
         {
@@ -40,10 +40,9 @@ namespace Fletch.Platform.MonoGame.Paths
             CachePath = Path.Combine(AppDataPath, "Cache");
             LogsPath = Path.Combine(AppDataPath, "Logs");
 
+            AssetFolderDirectory = Path.GetFullPath(Path.Combine(AppContext.BaseDirectory, "Assets"));
 
-            EngineContentRoot = Path.GetFullPath(Path.Combine(AppContext.BaseDirectory, "Assets"));
-
-            BackendContentRoot = Path.GetFullPath(
+            BackendRoot = Path.GetFullPath(
                 string.IsNullOrWhiteSpace(backendDir)
                     ? Path.Combine(AppContext.BaseDirectory, "Content")
                     : backendDir);
@@ -51,7 +50,8 @@ namespace Fletch.Platform.MonoGame.Paths
             EnsureDirectory(AppDataPath);
             EnsureDirectory(CachePath);
             EnsureDirectory(LogsPath);
-            EnsureDirectory(EngineContentRoot);
+            EnsureDirectory(AssetFolderDirectory);
+            EnsureDirectory(BackendRoot);
         }
 
         private static void EnsureDirectory(string path)

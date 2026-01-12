@@ -1,12 +1,14 @@
 ﻿using Fletch.Platform.Abstractions.Lifecycle;
+using Fletch.Platform.Abstractions.Paths;
 using Fletch.Platform.MonoGame.Host;
 using Fletch.Platform.MonoGame.Lifecycle;
-using Fletch.Rendering.Abstractions.Backends;
+using Fletch.Platform.MonoGame.Loader;
 using Fletch.Rendering.MonoGame.Backend;
 using Fletch.Runtime.Abstractions.Hosting;
 using Fletch.Runtime.Abstractions.Time;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Xna.Framework;
+using SDL2;
 
 namespace Fletch.Platform.MonoGame
 {
@@ -27,32 +29,46 @@ namespace Fletch.Platform.MonoGame
 
         private float alpha = 0f;
 
+        private readonly IPathProvider pathProvider;
+
         public ServiceProvider provider;
 
         public IRuntime? Runtime { get; set; }
 
         public IApplicationLifetime ApplicationLifetime { get; }
 
-        public FletchMonoGame(MonoGamePlatformOptions options)
+        public FletchMonoGame(MonoGamePlatformOptions options, IPathProvider pathProvider)
         {
             this.options = options;
 
-            ApplicationLifetime = new MonoGameAppLifetime();
+            this.pathProvider = pathProvider;
 
             graphics = new GraphicsDeviceManager(this);
-
-            Content.RootDirectory = options.MonoGameRootDirectory;
-
-            Window.Title = options.Title;
 
             graphics.PreferredBackBufferWidth = options.Width;
             graphics.PreferredBackBufferHeight = options.Height;
 
             graphics.SynchronizeWithVerticalRetrace = options.VSync;
 
+            ApplicationLifetime = new MonoGameAppLifetime();
+
+            Content.RootDirectory = pathProvider.BackendRoot;
+
+            Window.Title = options.Title;
+
             IsFixedTimeStep = false;
 
             IsMouseVisible = true;
+        }
+
+        protected override void Initialize()
+        {
+            base.Initialize();
+
+            nint icon = IconLoader.GetIcon(Path.Combine(AppContext.BaseDirectory, "Icon.ico"));
+
+            SDL.SDL_SetWindowIcon(Window.Handle, icon);
+            SDL.SDL_FreeSurface(icon);
         }
 
         protected override void LoadContent()

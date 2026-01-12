@@ -13,6 +13,7 @@ using XnaMatrix = Microsoft.Xna.Framework.Matrix;
 using XnaRectangle = Microsoft.Xna.Framework.Rectangle;
 using XnaSpriteEffect = Microsoft.Xna.Framework.Graphics.SpriteEffects;
 using XnaVector = Microsoft.Xna.Framework.Vector2;
+using System.Drawing;
 
 namespace Fletch.Rendering.MonoGame.Drawing
 {
@@ -152,11 +153,11 @@ namespace Fletch.Rendering.MonoGame.Drawing
 
             Texture2D xnaTexture = mgTexture.Texture;
 
-            var rect = sourceRectangle ?? new RectangleFloat(0, 0, texture.Width, texture.Height);
+            RectangleFloat rect = sourceRectangle ?? new RectangleFloat(0, 0, texture.Width, texture.Height);
 
-            var xnaRectangle = ConvertFromFletchType(rect);
-            var xnaColor = ConvertFromFletchType(color);
-            var xnaSpriteEffect = ConvertFromFletchType(spriteEffect);
+            XnaRectangle xnaRectangle = ConvertFromFletchType(rect);
+            XnaColor xnaColor = ConvertFromFletchType(color);
+            XnaSpriteEffect effects = ConvertFromFletchType(spriteEffect) ^ XnaSpriteEffect.FlipVertically;
 
             spriteBatch.Draw(
                 texture: xnaTexture,
@@ -166,7 +167,7 @@ namespace Fletch.Rendering.MonoGame.Drawing
                 rotation: rotation,
                 origin: new XnaVector(origin.X, origin.Y),
                 scale: new XnaVector(scale.X, scale.Y),
-                effects: xnaSpriteEffect,
+                effects: effects,
                 layerDepth: layerDepth
                 );
         }
@@ -367,6 +368,8 @@ namespace Fletch.Rendering.MonoGame.Drawing
             XnaRectangle xnaDestination = ConvertFromFletchType(destinationRectangle);
             XnaRectangle? xnaSource = sourceRectangle.HasValue ? ConvertFromFletchType(sourceRectangle.Value) : (XnaRectangle?)null;
 
+            XnaSpriteEffect flipState = ConvertFromFletchType(spriteEffect);
+
             spriteBatch.Draw(
                 mgTexture.Texture,
                 destinationRectangle: xnaDestination,
@@ -374,7 +377,7 @@ namespace Fletch.Rendering.MonoGame.Drawing
                 color: ConvertFromFletchType(color),
                 rotation: 0f,
                 origin: XnaVector.Zero,
-                effects: ConvertFromFletchType(spriteEffect),
+                effects: flipState,
                 layerDepth: layerDepth
             );
         }
