@@ -7,7 +7,7 @@ MonoGamePlatformOptions options = new MonoGamePlatformOptions
 {
     Width = 1920,
     Height = 1080,
-    Title = "Game",
+    Title = "Fletch Sandbox",
     VSync = false,
     TargetFramesPerSecond = 144,
     StartFullscreen = false,

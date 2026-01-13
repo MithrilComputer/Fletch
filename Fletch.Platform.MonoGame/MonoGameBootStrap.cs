@@ -1,10 +1,12 @@
 ﻿using Fletch.Input.Abstractions.Backends;
 using Fletch.Input.MonoGame.Backend;
 using Fletch.Platform.Abstractions.Contexts;
+using Fletch.Platform.Abstractions.Lifecycle;
 using Fletch.Platform.Abstractions.Paths;
 using Fletch.Platform.Abstractions.Window;
 using Fletch.Platform.MonoGame.Contexts;
 using Fletch.Platform.MonoGame.Host;
+using Fletch.Platform.MonoGame.Lifecycle;
 using Fletch.Platform.MonoGame.Paths;
 using Fletch.Platform.MonoGame.Window;
 using Fletch.Rendering.Abstractions.Backends;
@@ -20,50 +22,40 @@ namespace Fletch.Platform.MonoGame
     {
         public static ServiceProvider CreateDefault(MonoGamePlatformOptions options)
         {
-            if (options == null) throw new ArgumentNullException(nameof(options));
+            if (options is null) throw new ArgumentNullException(nameof(options));
 
             ServiceCollection services = new ServiceCollection();
 
-            MonoGamePathProvider pathProvider = new MonoGamePathProvider(options.Title);
+            // Options + Paths
+            services.AddSingleton(options);
+            services.AddSingleton<IPathProvider>(sp => new MonoGamePathProvider(options.Title, options.MonoGameRootDirectory));
 
-            FletchMonoGame game = new FletchMonoGame(options, pathProvider);
+            // Game
+            services.AddSingleton<FletchMonoGame>();
+            services.AddSingleton<Game>(sp => sp.GetRequiredService<FletchMonoGame>());
 
-            services.AddSingleton(game);
-            services.AddSingleton<Game>(game);
+            // Lifetime comes from the game instance
+            services.AddSingleton<IApplicationLifetime, MonoGameAppLifetime>();
 
-            services.AddSingleton(pathProvider);
-            services.AddSingleton<IPathProvider>(pathProvider);
-
-            // Platform
-            services.AddSingleton<IPlatformContext, MonoGamePlatformContext>();
-            services.AddSingleton(game.ApplicationLifetime);
+            // Platform pieces
             services.AddSingleton<IWindow, MonoGameWindow>();
 
-            // Runtime
-            services.AddSingleton<IRuntime, FletchRuntime>();
-
-            // Input 
+            // Backends
             services.AddSingleton<IInputBackend, MonoGameInputBackend>();
+            services.AddSingleton<IRenderingBackend, MonoGameRenderingBackend>();
 
-            // Rendering
-            services.AddSingleton<MonoGameRenderingBackend>();
-            services.AddSingleton<IRenderingBackend>(sp =>
-                sp.GetRequiredService<MonoGameRenderingBackend>());
+            // Platform context container
+            services.AddSingleton<IPlatformContext, MonoGamePlatformContext>();
 
-            ServiceProvider provider = services.BuildServiceProvider(
-                new ServiceProviderOptions
-                {
-                    ValidateScopes = false,
-                    ValidateOnBuild = false
-                });
+            // Runtime (depends on IPlatformContext)
+            services.AddSingleton<IRuntime, FletchRuntime>();
+            services.AddSingleton<Func<IRuntime>>(sp => () => sp.GetRequiredService<IRuntime>());
 
-            game.provider = provider;
-
-            IRuntime runtime = provider.GetRequiredService<IRuntime>();
-
-            game.Runtime = runtime;
-
-            return provider;
+            return services.BuildServiceProvider(new ServiceProviderOptions
+            {
+                ValidateScopes = true,
+                ValidateOnBuild = true
+            });
         }
     }
 }

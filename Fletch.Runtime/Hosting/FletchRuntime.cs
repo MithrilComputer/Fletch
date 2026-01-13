@@ -27,6 +27,12 @@ namespace Fletch.Runtime.Hosting
 
         private readonly IInputBackend inputBackend;
 
+        public IPlatformContext Platform => throw new NotImplementedException();
+
+        public bool IsInitialized { get; private set; }
+
+        // TESTIN STUFFFFF __________________
+
         private Vector2 worldCenter = Vector2.Zero;
 
         private Vector2 cameraAxis;
@@ -48,9 +54,13 @@ namespace Fletch.Runtime.Hosting
 
         float spriteRotation = 0;
 
-        float rotationSpeed = 300;
+        float rotationSpeed = 5;
 
         float zoom = 1f;
+
+        float zoomSpeed = 1f;
+
+        // TESTIN STUFFFFF __________________
 
         public FletchRuntime(IPlatformContext platformContext)
         {
@@ -61,34 +71,36 @@ namespace Fletch.Runtime.Hosting
             inputBackend = platformContext.InputBackend;
         }
 
-        public IPlatformContext Platform => throw new NotImplementedException();
-
-        public bool IsInitialized { get; private set; }
-
-        public void FixedUpdate(FixedTimeStep time)
-        {
-            //if(!IsInitialized) Throw later
-            
-        }
-
         public void Initialize()
         {
-            IsInitialized = true;
-
             renderingBackend.FontFactory.RegisterFamily("Roboto", Path.Combine(pathProvider.AssetFolderDirectory, "Roboto-VariableFont.ttf"));
 
             testFont = renderingBackend.FontFactory.GetFont("Roboto", 64);
 
             testTexture = renderingBackend.TextureFactory.Load(Path.Combine(pathProvider.AssetFolderDirectory, "Rat.png"));
+
+            IsInitialized = true;
         }
 
         public void Pause()
         {
+            if (!IsInitialized)
+                return;
+
+        }
+
+        public void Start()
+        {
+            if (!IsInitialized)
+                return;
 
         }
 
         public void Render(FrameTime time)
         {
+            if (!IsInitialized)
+                return;
+
             inputBackend.UpdateBackend();
 
             renderingBackend.BeginFrame(Color.CornflowerBlue);
@@ -112,22 +124,20 @@ namespace Fletch.Runtime.Hosting
 
             renderingBackend.DebugRenderer.DrawLine(drawAxis, Vector2.UnitY * 300, 10, Color.Brown);
 
-            renderingBackend.SpriteBatcher.DrawString(testFont, "Hi :D", drawAxis, Color.Black);
+            renderingBackend.SpriteBatcher.DrawString(testFont, fps, drawAxis, Color.Black);
 
-            renderingBackend.SpriteBatcher.Draw(testTexture, drawAxis, new RectangleFloat(0,0, testTexture.Width, testTexture.Height), Color.White, spriteRotation, Vector2.Zero, Vector2.One, 0);
+            renderingBackend.SpriteBatcher.Draw(testTexture, drawAxis, new RectangleFloat(0,0, testTexture.Width, testTexture.Height), Color.White, spriteRotation, Vector2.Zero, Vector2.One, 0, testRatFlip);
 
             renderingBackend.EndCamera();
 
             renderingBackend.EndFrame();
         }
 
-        public void Start()
-        {
-            
-        }
-
         public void Update(FrameTime time)
         {
+            if (!IsInitialized)
+                return;
+
             if (inputBackend.KeyboardDevice.GetKeyDown(KeyCode.Escape))
             {
                 applicationLifeTime.RequestExit();
@@ -140,6 +150,8 @@ namespace Fletch.Runtime.Hosting
             if (timekeep >= 1)
             {
                 Debug.WriteLine(frameCountFps);
+
+                fps = frameCountFps.ToString();
 
                 frameCountFps = 0;
                 timekeep = 0;
@@ -210,18 +222,25 @@ namespace Fletch.Runtime.Hosting
 
             if (inputBackend.KeyboardDevice.GetKey(KeyCode.Z))
             {
-                zoom = zoom + (0.06f * time.Delta);
+                zoom += zoomSpeed * time.Delta * 0.1f;
             }
 
             if (inputBackend.KeyboardDevice.GetKey(KeyCode.X))
             {
-                zoom = zoom - (0.06f * time.Delta);
+                zoom -= zoomSpeed * time.Delta * 0.1f;
             }
 
             cameraAxis = new Vector2(xAxis, yAxis) * time.Delta * movespeed;
             drawAxis += new Vector2(xAxisTwo, yAxisTwo) * time.Delta * movespeed * 2;
 
             renderingBackend.MainCamera.MoveBy(cameraAxis);
+        }
+
+        public void FixedUpdate(FixedTimeStep time)
+        {
+            if (!IsInitialized)
+                return;
+
         }
     }
 }

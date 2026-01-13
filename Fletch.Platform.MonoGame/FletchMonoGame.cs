@@ -3,6 +3,7 @@ using Fletch.Platform.Abstractions.Paths;
 using Fletch.Platform.MonoGame.Host;
 using Fletch.Platform.MonoGame.Lifecycle;
 using Fletch.Platform.MonoGame.Loader;
+using Fletch.Rendering.Abstractions.Backends;
 using Fletch.Rendering.MonoGame.Backend;
 using Fletch.Runtime.Abstractions.Hosting;
 using Fletch.Runtime.Abstractions.Time;
@@ -29,17 +30,25 @@ namespace Fletch.Platform.MonoGame
 
         private float alpha = 0f;
 
+        private ServiceProvider serviceProvider;
+
         private readonly IPathProvider pathProvider;
 
-        public ServiceProvider provider;
+        private readonly Func<IRuntime> runtimeFactory;
 
-        public IRuntime? Runtime { get; set; }
+        private IRuntime runtime;
 
-        public IApplicationLifetime ApplicationLifetime { get; }
+        private readonly IApplicationLifetime applicationLifetime;
 
-        public FletchMonoGame(MonoGamePlatformOptions options, IPathProvider pathProvider)
+        private readonly IRenderingBackend renderingBackend;
+
+        public FletchMonoGame(MonoGamePlatformOptions options, IPathProvider pathProvider, IRenderingBackend renderingBackend, Func<IRuntime> runtimeFactory)
         {
             this.options = options;
+
+            this.runtimeFactory = runtimeFactory;
+
+            this.renderingBackend = renderingBackend;
 
             this.pathProvider = pathProvider;
 
@@ -50,7 +59,7 @@ namespace Fletch.Platform.MonoGame
 
             graphics.SynchronizeWithVerticalRetrace = options.VSync;
 
-            ApplicationLifetime = new MonoGameAppLifetime();
+            applicationLifetime = new MonoGameAppLifetime();
 
             Content.RootDirectory = pathProvider.BackendRoot;
 
@@ -65,7 +74,7 @@ namespace Fletch.Platform.MonoGame
         {
             base.Initialize();
 
-            nint icon = IconLoader.GetIcon(Path.Combine(AppContext.BaseDirectory, "Icon.ico"));
+            nint icon = IconLoader.GetIcon(Path.Combine(AppContext.BaseDirectory, "Icon.png"));
 
             SDL.SDL_SetWindowIcon(Window.Handle, icon);
             SDL.SDL_FreeSurface(icon);
@@ -73,13 +82,18 @@ namespace Fletch.Platform.MonoGame
 
         protected override void LoadContent()
         {
-            provider.GetRequiredService<MonoGameRenderingBackend>().Initialize(this);
-            Runtime?.Initialize();
+            if (renderingBackend is not MonoGameRenderingBackend renderer)
+                throw new InvalidCastException();
+
+            renderer.Initialize(this);
+
+            runtime = runtimeFactory();
+            runtime.Initialize();
         }
 
         protected override void Update(GameTime gameTime)
         {
-            if (ApplicationLifetime?.IsExitRequested == true)
+            if (applicationLifetime?.IsExitRequested == true)
             {
                 Exit();
             }
@@ -98,7 +112,7 @@ namespace Fletch.Platform.MonoGame
             {
                 fixedTotalTime += fixedStep;
 
-                Runtime?.FixedUpdate(new FixedTimeStep((float)fixedDelta, fixedTotalTime));
+                runtime?.FixedUpdate(new FixedTimeStep((float)fixedDelta, fixedTotalTime));
 
                 accumulatedTime -= fixedStep;
             }
@@ -109,14 +123,14 @@ namespace Fletch.Platform.MonoGame
             alpha = (float)(accumulatedTime.TotalSeconds / fixedStep.TotalSeconds);
             alpha = Math.Clamp(alpha, 0f, 1f);
 
-            Runtime?.Update(new FrameTime(frameDelta, fixedTotalTime));
+            runtime?.Update(new FrameTime(frameDelta, fixedTotalTime));
 
             base.Update(gameTime);
         }
 
         protected override void Draw(GameTime gameTime)
         {
-            Runtime?.Render(new FrameTime(frameDelta, fixedTotalTime, alpha));
+            runtime?.Render(new FrameTime(frameDelta, fixedTotalTime, alpha));
 
             base.Draw(gameTime);
         }

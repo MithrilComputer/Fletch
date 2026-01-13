@@ -23,9 +23,13 @@
     <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="10.0.1" />
     <PackageReference Include="MonoGame.Framework.DesktopGL" Version="3.8.*" />
     <PackageReference Include="MonoGame.Content.Builder.Task" Version="3.8.*" />
-    <PackageReference Include="ppy.SDL2-CS" Version="1.0.82" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\Fletch.Platform.MonoGame\Fletch.Platform.MonoGame.csproj" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Update="Icon.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
   </ItemGroup>
 </Project>

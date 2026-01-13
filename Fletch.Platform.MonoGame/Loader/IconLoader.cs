@@ -7,7 +7,6 @@ namespace Fletch.Platform.MonoGame.Loader
 {
     internal static class IconLoader
     {
-
         public static nint GetIcon(string path)
         {
             using Image<Rgba32> image = Image.Load<Rgba32>(path);
