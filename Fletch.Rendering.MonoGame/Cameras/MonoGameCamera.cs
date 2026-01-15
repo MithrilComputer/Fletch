@@ -60,7 +60,7 @@ namespace Fletch.Rendering.MonoGame.Cameras
 
         public void ResetViewport()
         {
-            adapter.Reset();
+            //adapter.Reset();
             // If bounds are active, re-clamp because VH/VW may have changed meaningfully.
             if (hasBounds)
                 ClampToBounds();

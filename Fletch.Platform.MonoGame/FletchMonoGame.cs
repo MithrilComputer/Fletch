@@ -1,5 +1,7 @@
-﻿using Fletch.Platform.Abstractions.Lifecycle;
+﻿using Fletch.Core.Diagnostics;
+using Fletch.Platform.Abstractions.Lifecycle;
 using Fletch.Platform.Abstractions.Paths;
+using Fletch.Platform.MonoGame.Diagnostics;
 using Fletch.Platform.MonoGame.Host;
 using Fletch.Platform.MonoGame.Lifecycle;
 using Fletch.Platform.MonoGame.Loader;
@@ -57,15 +59,23 @@ namespace Fletch.Platform.MonoGame
             graphics.PreferredBackBufferWidth = options.Width;
             graphics.PreferredBackBufferHeight = options.Height;
 
-            graphics.SynchronizeWithVerticalRetrace = options.VSync;
-
             applicationLifetime = new MonoGameAppLifetime();
 
             Content.RootDirectory = pathProvider.BackendRoot;
 
             Window.Title = options.Title;
 
-            IsFixedTimeStep = false;
+            graphics.SynchronizeWithVerticalRetrace = options.VSync;
+
+            if (options.TargetFramesPerSecond >= 1)
+            {
+                IsFixedTimeStep = true;
+
+                TargetElapsedTime = TimeSpan.FromSeconds(1.0 / options.TargetFramesPerSecond);
+            } else
+            {
+                IsFixedTimeStep = false;
+            }
 
             IsMouseVisible = true;
         }
@@ -73,6 +83,8 @@ namespace Fletch.Platform.MonoGame
         protected override void Initialize()
         {
             base.Initialize();
+
+            Log.Current = new VSLogger();
 
             nint icon = IconLoader.GetIcon(Path.Combine(AppContext.BaseDirectory, "Icon.png"));
 
