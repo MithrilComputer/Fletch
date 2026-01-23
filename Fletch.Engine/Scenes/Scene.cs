@@ -1,30 +1,149 @@
-﻿using Fletch.Core.Components.Update;
-using Fletch.Core.LifeCycle;
-using Fletch.Engine.Components.Updateable;
+﻿using Fletch.Core.Diagnostics;
+using Fletch.Engine.Abstractions.Factories;
+using Fletch.Engine.Components;
 using Fletch.Engine.Hierarchy;
 using Fletch.Engine.Model;
 using Fletch.Engine.Systems;
 
 namespace Fletch.Engine.Scenes
 {
-    public class Scene
+    public sealed class Scene : IDisposable
     {
-        private readonly List<IUpdateable> updateables = new List<IUpdateable>();
-        private readonly List<IFixedUpdateable> fixedUpdateables = new List<IFixedUpdateable>();
+        internal SystemScheduler SystemScheduler { get; }
 
-        private readonly Queue<IStartable> pendingStart = new Queue<IStartable>();
-        private readonly Queue<ILateStartable> lateStartables = new Queue<ILateStartable>();
+        private uint nextId;
+    
+        private readonly Queue<uint> freedIds = new Queue<uint>();
 
-        private readonly List<SystemEntry> subSystems = new List<SystemEntry>();
+        private readonly Dictionary<Type, List<Action<GameObject, Component, ComponentChangeType>>> componentCallBacks
+            = new Dictionary<Type, List<Action<GameObject, Component, ComponentChangeType>>>();
 
-        public readonly List<GameObject> gameObjects = new List<GameObject>();
+        private readonly List<GameObject> gameObjects = new List<GameObject>();
 
-        // TODO: Add Scene subsystem ordering.
-        // Use a SystemPhase enum (Input, FixedUpdate, Update, LateUpdate, Render)
-        // plus an int OrderOffset for fine-grain before/after control.
-        // Scene should rebuild per-phase execution lists on add/remove
-        // and execute phases in a fixed order.
+        private readonly IGameObjectFactory gameObjectFactory;
 
-        //TODO Add an ability for subSystems to register their component types to the Scene, so when a comp is added or removed, the right system gets the right info and can react
+        private readonly IFletchContextLogger<Scene> logger;
+
+        internal Scene(IFletchContextLogger<Scene> logger, IGameObjectFactory gameObjectFactory)
+        {
+            this.logger = logger;
+            
+            this.gameObjectFactory = gameObjectFactory;
+
+            SystemScheduler = new SystemScheduler();
+        }
+
+        public void AddSystemComponentRegistration(
+            Type componentType,
+            Action<GameObject, Component, ComponentChangeType> callback)
+        {
+            if (componentType == null) 
+                throw new ArgumentNullException(nameof(componentType));
+
+            if (callback == null) 
+                throw new ArgumentNullException(nameof(callback));
+
+            if (!componentCallBacks.TryGetValue(componentType, out List<Action<GameObject, Component, ComponentChangeType>> list))
+            {
+                list = new List<Action<GameObject, Component, ComponentChangeType>>();
+
+                componentCallBacks.Add(componentType, list);
+            }
+
+            list.Add(callback);
+        }
+
+        public void RemoveSystemComponentRegistration(
+            Type componentType,
+            Action<GameObject, Component, ComponentChangeType> callback)
+        {
+            if (componentType == null) throw new ArgumentNullException(nameof(componentType));
+
+            if (callback == null) throw new ArgumentNullException(nameof(callback));
+
+            if (!componentCallBacks.TryGetValue(componentType, out List<Action<GameObject, Component, ComponentChangeType>> list))
+            {
+                logger.LogWarning("Cant Remove A System Component Registration That has not been registered. Did you forget to register the system component?");
+
+                return;
+            }
+
+            list.Remove(callback);
+
+            if (list.Count == 0)
+                componentCallBacks.Remove(componentType);
+        }
+
+        public void OnComponentChange(GameObject gameObject, Component component, ComponentChangeType changeType)
+        {
+            if (gameObject == null || component == null)
+                return;
+
+            Type? componentType = component.GetType();
+
+            if (componentCallBacks.TryGetValue(componentType, out var callbacks))
+            {
+                foreach (var callback in callbacks.ToArray())
+                    callback(gameObject, component, changeType);
+            }
+        }
+
+        public GameObject CreateGameObject()
+        {
+            uint id;
+
+            if (freedIds.Count > 0)
+            {
+                id = freedIds.Dequeue();
+            }
+            else
+            {
+                id = nextId++;
+            }
+
+                GameObject gameObject = gameObjectFactory.BuildGameObject(id);
+
+            gameObjects.Add(gameObject);
+
+            gameObject.ComponentChanged += OnComponentChange;
+
+            return gameObject;
+        }
+
+        public void DestroyGameObject(GameObject gameObject)
+        {
+            if(gameObject == null)
+            {
+                logger.LogWarning("Cant Destroy A Null GameObject.");
+                return;
+            }
+
+            if(!gameObjects.Contains(gameObject))
+            {
+                logger.LogWarning("Cant Destroy A Non-Registered GameObject.");
+                return;
+            }
+
+            gameObjects.Remove(gameObject);
+
+            freedIds.Enqueue(gameObject.ID);
+
+            gameObject.ComponentChanged -= OnComponentChange;
+
+            gameObject.Dispose();
+        }
+
+        public void Dispose()
+        {
+            for (int i = gameObjects.Count - 1; i >= 0; i--)
+            {
+                DestroyGameObject(gameObjects[i]);
+            }
+
+            componentCallBacks.Clear();
+            freedIds.Clear();
+
+            SystemScheduler.Dispose();
+        }
     }
 }

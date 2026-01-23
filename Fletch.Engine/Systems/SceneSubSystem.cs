@@ -2,20 +2,18 @@
 
 namespace Fletch.Engine.Systems
 {
-    internal abstract class SceneSubsystem
+    public abstract class SceneSubsystem
     {
-        public virtual int Order => 0;
-
-        public Scene? Scene { get; private set; }
+        public Scene? LoadedScene { get; private set; }
 
         public virtual void AttachToScene(Scene scene)
         {
-            Scene = scene;
+            LoadedScene = scene;
         }
 
         public virtual void DetachFromScene()
         {
-            Scene = null;
+            LoadedScene = null;
         }
     }
 }

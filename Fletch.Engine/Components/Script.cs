@@ -6,6 +6,10 @@ namespace Fletch.Engine.Components
 {
     public abstract class Script : Component, IUpdateable, IFixedUpdateable, IStartable, ILateStartable
     {
+        public bool HasStarted { get; set; } = false;
+
+        public bool HasLateStarted { get; set; } = false;
+
         public virtual void OnStart() { }
 
         public virtual void OnLateStart() { }

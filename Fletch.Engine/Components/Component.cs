@@ -4,6 +4,8 @@ namespace Fletch.Engine.Components
 {
     public abstract class Component
     {
+        public bool IsEnabled { get; set; }
+
         public GameObject GameObject { get; private set; } = null!;
 
         protected Transform Transform => GameObject?.Transform ?? throw new InvalidOperationException("Component is not attached to a GameObject.");

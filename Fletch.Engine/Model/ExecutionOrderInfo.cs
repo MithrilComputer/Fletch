@@ -1,6 +1,6 @@
 ﻿namespace Fletch.Engine.Model
 {
-    internal readonly struct ExecutionOrderInfo
+    public readonly struct ExecutionOrderInfo
     {
         public SystemExecutionOrder Phase { get; }
         public int Order { get; }

@@ -1,10 +1,12 @@
-﻿using Fletch.Input.Abstractions.Backends;
+﻿using Fletch.Core.Diagnostics;
+using Fletch.Input.Abstractions.Backends;
 using Fletch.Input.MonoGame.Backend;
 using Fletch.Platform.Abstractions.Contexts;
 using Fletch.Platform.Abstractions.Lifecycle;
 using Fletch.Platform.Abstractions.Paths;
 using Fletch.Platform.Abstractions.Window;
 using Fletch.Platform.MonoGame.Contexts;
+using Fletch.Platform.MonoGame.Diagnostics;
 using Fletch.Platform.MonoGame.Host;
 using Fletch.Platform.MonoGame.Lifecycle;
 using Fletch.Platform.MonoGame.Paths;
@@ -25,6 +27,10 @@ namespace Fletch.Platform.MonoGame
             if (options is null) throw new ArgumentNullException(nameof(options));
 
             ServiceCollection services = new ServiceCollection();
+
+            // Logging
+            services.AddSingleton<IFletchLogger, VSLogger>();
+            services.AddSingleton(typeof(IFletchContextLogger<>), typeof(VSContextLogger<>));
 
             // Options + Paths
             services.AddSingleton(options);
@@ -47,7 +53,7 @@ namespace Fletch.Platform.MonoGame
             // Platform context container
             services.AddSingleton<IPlatformContext, MonoGamePlatformContext>();
 
-            // Runtime (depends on IPlatformContext)
+            // Runtime
             services.AddSingleton<IRuntime, FletchRuntime>();
             services.AddSingleton<Func<IRuntime>>(sp => () => sp.GetRequiredService<IRuntime>());
 

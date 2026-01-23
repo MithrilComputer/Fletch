@@ -1,7 +1,5 @@
-﻿using Fletch.Core.Diagnostics;
-using Fletch.Platform.Abstractions.Lifecycle;
+﻿using Fletch.Platform.Abstractions.Lifecycle;
 using Fletch.Platform.Abstractions.Paths;
-using Fletch.Platform.MonoGame.Diagnostics;
 using Fletch.Platform.MonoGame.Host;
 using Fletch.Platform.MonoGame.Lifecycle;
 using Fletch.Platform.MonoGame.Loader;
@@ -83,8 +81,6 @@ namespace Fletch.Platform.MonoGame
         protected override void Initialize()
         {
             base.Initialize();
-
-            Log.Current = new VSLogger();
 
             nint icon = IconLoader.GetIcon(Path.Combine(AppContext.BaseDirectory, "Icon.png"));
 

@@ -10,7 +10,6 @@ using Fletch.Rendering.Abstractions.Resources;
 using Fletch.Rendering.Model;
 using Fletch.Runtime.Abstractions.Hosting;
 using Fletch.Runtime.Abstractions.Time;
-using System.Diagnostics;
 using System.Numerics;
 
 namespace Fletch.Runtime.Hosting
@@ -142,97 +141,7 @@ namespace Fletch.Runtime.Hosting
             {
                 applicationLifeTime.RequestExit();
             }
-
-            timekeep += time.Delta;
-
-            frameCountFps++;
-
-            if (timekeep >= 1)
-            {
-                Debug.WriteLine(frameCountFps);
-
-                fps = frameCountFps.ToString();
-
-                frameCountFps = 0;
-                timekeep = 0;
-            }
-
-            float xAxis = 0f;
-            float yAxis = 0f;
-
-            float xAxisTwo = 0f;
-            float yAxisTwo = 0f;
-
-            if (inputBackend.KeyboardDevice.GetKeyDown(KeyCode.Escape))
-            {
-                applicationLifeTime.RequestExit();
-            }
-
-            if (inputBackend.KeyboardDevice.GetKey(KeyCode.A))
-            {
-                xAxis--;
-            }
-
-            if (inputBackend.KeyboardDevice.GetKey(KeyCode.D))
-            {
-                xAxis++;
-            }
-
-            if (inputBackend.KeyboardDevice.GetKey(KeyCode.W))
-            {
-                yAxis++;
-            }
-
-            if (inputBackend.KeyboardDevice.GetKey(KeyCode.S))
-            {
-                yAxis--;
-            }
-
-            if (inputBackend.KeyboardDevice.GetKey(KeyCode.Left))
-            {
-                xAxisTwo--;
-                testRatFlip = SpriteEffect.None;
-            }
-
-            if (inputBackend.KeyboardDevice.GetKey(KeyCode.Right))
-            {
-                xAxisTwo++;
-                testRatFlip = SpriteEffect.FlipHorizontally;
-            }
-
-            if (inputBackend.KeyboardDevice.GetKey(KeyCode.Up))
-            {
-                yAxisTwo++;
-            }
-
-            if (inputBackend.KeyboardDevice.GetKey(KeyCode.Down))
-            {
-                yAxisTwo--;
-            }
-
-            if (inputBackend.KeyboardDevice.GetKey(KeyCode.Q))
-            {
-                spriteRotation += rotationSpeed * time.Delta;
-            }
-
-            if (inputBackend.KeyboardDevice.GetKey(KeyCode.E))
-            {
-                spriteRotation -= rotationSpeed * time.Delta;
-            }
-
-            if (inputBackend.KeyboardDevice.GetKey(KeyCode.Z))
-            {
-                zoom += zoomSpeed * time.Delta * 0.1f;
-            }
-
-            if (inputBackend.KeyboardDevice.GetKey(KeyCode.X))
-            {
-                zoom -= zoomSpeed * time.Delta * 0.1f;
-            }
-
-            cameraAxis = new Vector2(xAxis, yAxis) * time.Delta * movespeed;
-            drawAxis += new Vector2(xAxisTwo, yAxisTwo) * time.Delta * movespeed * 2;
-
+            
             renderingBackend.MainCamera.MoveBy(cameraAxis);
         }
 
@@ -240,8 +149,6 @@ namespace Fletch.Runtime.Hosting
         {
             if (!IsInitialized)
                 return;
-
-
         }
     }
 }

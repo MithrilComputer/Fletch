@@ -3,5 +3,7 @@
     internal interface IStartable
     {
         void OnStart();
+
+        bool HasStarted { get; set; }
     }
 }
