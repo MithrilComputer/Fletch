@@ -1,12 +1,13 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using Fletch.Engine.Components;
+using System.Numerics;
 
 namespace Fletch.Rendering.Components
 {
-    internal class Camera2D
+    public class Camera2D : Component
     {
+
+        public Vector2 Position { get; set; }
+
+
     }
 }

@@ -1,12 +1,9 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using Fletch.Engine.Components;
 
 namespace Fletch.Rendering.Components
 {
-    internal class SpriteRenderer
+    internal sealed class SpriteRenderer : Component
     {
+
     }
 }

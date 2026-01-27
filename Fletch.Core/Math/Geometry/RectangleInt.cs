@@ -29,5 +29,7 @@
               other.Right < Left ||
               other.Top > Bottom ||
               other.Bottom < Top);
+
+
     }
 }

@@ -6,7 +6,9 @@ using Fletch.Engine.Model;
 using Fletch.Engine.Scenes;
 using Fletch.Engine.Systems;
 using Fletch.Rendering.Abstractions.Backends;
+using Fletch.Rendering.Abstractions.Managers;
 using Fletch.Rendering.Components;
+using Fletch.Rendering.Model;
 
 namespace Fletch.Rendering.Systems
 {
@@ -16,19 +18,19 @@ namespace Fletch.Rendering.Systems
 
         public readonly IFletchContextLogger<WorldRenderingSystem> logger;
 
-        private readonly Queue<SpriteRenderer> pendingSpriteAdds = new Queue<SpriteRenderer>();
-        private readonly Queue<SpriteRenderer> pendingSpriteRemoves = new Queue<SpriteRenderer>();
+        private readonly TrackedSet<SpriteRenderer> spriteRenderers = new TrackedSet<SpriteRenderer>();
 
-        private readonly Queue<Camera2D> pendingCameraAdds = new Queue<Camera2D>();
-        private readonly Queue<Camera2D> pendingCameraRemoves = new Queue<Camera2D>();
+        private readonly ICameraManager cameraManager;
 
-        private readonly List<Camera2D> cameras = new List<Camera2D>();
-        private readonly List<SpriteRenderer> spriteRenderers = new List<SpriteRenderer>();
+        //TODO Figure out how to get cameras to work, working on viewport stuff now
 
-        public WorldRenderingSystem(IFletchContextLogger<WorldRenderingSystem> logger, IRenderingBackend renderingBackend)
+        public Color ClearColor { get; set; } = Color.Gray;
+
+        public WorldRenderingSystem(IFletchContextLogger<WorldRenderingSystem> logger, IRenderingBackend renderingBackend, ICameraManager cameraManager)
         {
-            this.renderingBackend = renderingBackend;
             this.logger = logger;
+            this.renderingBackend = renderingBackend;
+            this.cameraManager = cameraManager;
         }
 
         public override void AttachToScene(Scene scene)
@@ -43,17 +45,40 @@ namespace Fletch.Rendering.Systems
 
         public void Update(float deltaTime)
         {
-            
+            cameraManager.FlushSafePoint();
+            spriteRenderers.Refresh();
         }
 
         private void OnSpriteRendererChange(GameObject gameObject, Component component, ComponentChangeType changeType)
         {
-            
+            switch(changeType)
+            {
+                case ComponentChangeType.Added:
+                    spriteRenderers.MarkToAdd((SpriteRenderer)component);
+                    break;
+                case ComponentChangeType.Removed:
+                    spriteRenderers.MarkToRemove((SpriteRenderer)component);
+                    break;
+
+                default: break;
+            }
         }
 
         private void OnCamera2DChange(GameObject gameObject, Component component, ComponentChangeType changeType)
         {
+            Camera2D cameraComponent = (Camera2D)component;
 
+            switch (changeType)
+            {
+                case ComponentChangeType.Added:
+                    cameraManager.MarkCameraCreation(cameraComponent);
+                    break;
+                case ComponentChangeType.Removed:
+                    cameraManager.MarkCameraRemoval(cameraComponent);
+                    break;
+
+                default: break;
+            }
         }
     }
 }
