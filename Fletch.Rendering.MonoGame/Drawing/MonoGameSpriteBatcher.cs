@@ -159,13 +159,18 @@ namespace Fletch.Rendering.MonoGame.Drawing
             XnaColor xnaColor = ConvertFromFletchType(color);
             XnaSpriteEffect effects = ConvertFromFletchType(spriteEffect) ^ XnaSpriteEffect.FlipVertically;
 
+            var originPixels = new XnaVector(
+                origin.X * rect.Width,
+                origin.Y * rect.Height
+            );
+
             spriteBatch.Draw(
                 texture: xnaTexture,
                 position: new XnaVector(position.X, position.Y),
                 sourceRectangle: xnaRectangle,
                 color: xnaColor,
                 rotation: rotation,
-                origin: new XnaVector(origin.X, origin.Y),
+                origin: new XnaVector(originPixels.X, originPixels.Y),
                 scale: new XnaVector(scale.X, scale.Y),
                 effects: effects,
                 layerDepth: layerDepth
@@ -253,40 +258,6 @@ namespace Fletch.Rendering.MonoGame.Drawing
                 scale: new SystemVector(1f, 1f),
                 layerDepth: layerDepth,
                 spriteEffect: spriteEffect);
-        }
-
-        /// <summary>
-        /// Draws a texture scaled to fit within the specified destination rectangle.
-        /// </summary>
-        /// <param name="texture">The texture to draw.</param>
-        /// <param name="destinationRectangle">
-        /// The rectangle in world space the texture will be scaled to fill.
-        /// </param>
-        /// <param name="color">The color tint to apply.</param>
-        /// <param name="layerDepth">Optional depth sorting value within the batch.</param>
-        /// <remarks>
-        /// The texture is uniformly scaled on the X and Y axes to fill the destination rectangle.
-        /// Rotation is not applied in this overload.
-        /// </remarks>
-        public void Draw(
-            ITexture texture,
-            RectangleFloat destinationRectangle,
-            FletchColor color,
-            float layerDepth = 0f,
-            FletchSpriteEffect spriteEffect = FletchSpriteEffect.None)
-        {
-            Draw(texture,
-                position: new SystemVector(destinationRectangle.X, destinationRectangle.Y),
-                sourceRectangle: null,
-                color: color,
-                rotation: 0f,
-                origin: SystemVector.Zero,
-                scale: new SystemVector(
-                    destinationRectangle.Width / texture.Width,
-                    destinationRectangle.Height / texture.Height),
-                layerDepth: layerDepth,
-                spriteEffect: spriteEffect
-                );
         }
 
         /// <summary>

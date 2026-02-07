@@ -102,23 +102,6 @@ namespace Fletch.Rendering.Abstractions.Drawing
             SpriteEffect spriteEffect = SpriteEffect.None);
 
         /// <summary>
-        /// Draws a texture scaled to fit within the specified destination rectangle.
-        /// </summary>
-        /// <param name="texture">The texture to draw.</param>
-        /// <param name="destinationRectangle">
-        /// The rectangle in world space the texture will be scaled to fill.
-        /// </param>
-        /// <param name="color">The color tint to apply.</param>
-        /// <param name="layerDepth">Optional depth sorting value within the batch.</param>
-        /// <param name="spriteEffect">Optional flip effect.</param>
-        void Draw(
-            ITexture texture,
-            RectangleFloat destinationRectangle,
-            Color color,
-            float layerDepth = 0f,
-            SpriteEffect spriteEffect = SpriteEffect.None);
-
-        /// <summary>
         /// Draws a specified region of a texture scaled to a destination rectangle.
         /// </summary>
         /// <param name="texture">The texture to draw from.</param>

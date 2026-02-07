@@ -1,4 +1,5 @@
-﻿using Fletch.Core.Math.Geometry;
+﻿using Fletch.Core.EngineConfig;
+using Fletch.Core.Math.Geometry;
 using Fletch.Rendering.Abstractions.Backends;
 using Fletch.Rendering.Abstractions.Cameras;
 using Fletch.Rendering.Abstractions.Drawing;
@@ -94,13 +95,11 @@ namespace Fletch.Rendering.MonoGame.Backend
                 graphicsDevice.PresentationParameters.BackBufferWidth,
                 graphicsDevice.PresentationParameters.BackBufferHeight);
 
-            //TODO Make this dynamic at runtime config, changes the worldview size (Sorta). Just compute a size * aspect ratio
-
             viewportAdapter = new BoxingViewportAdapter(
                 gameWindow,
                 graphicsDevice,
-                1280,
-                720
+                EngineConfig.VirtualResolution.X,
+                EngineConfig.VirtualResolution.Y
                 );
 
             mainCamera = new MonoGameCamera(viewportAdapter);

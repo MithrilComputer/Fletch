@@ -1,4 +1,5 @@
 ﻿using Fletch.Core.Diagnostics;
+using Fletch.Core.Platform;
 using Fletch.Input.Abstractions.Backends;
 using Fletch.Input.MonoGame.Backend;
 using Fletch.Platform.Abstractions.Contexts;
@@ -12,6 +13,8 @@ using Fletch.Platform.MonoGame.Lifecycle;
 using Fletch.Platform.MonoGame.Paths;
 using Fletch.Platform.MonoGame.Window;
 using Fletch.Rendering.Abstractions.Backends;
+using Fletch.Rendering.Abstractions.Managers;
+using Fletch.Rendering.Managers;
 using Fletch.Rendering.MonoGame.Backend;
 using Fletch.Runtime.Abstractions.Hosting;
 using Fletch.Runtime.Hosting;
@@ -49,6 +52,10 @@ namespace Fletch.Platform.MonoGame
             // Backends
             services.AddSingleton<IInputBackend, MonoGameInputBackend>();
             services.AddSingleton<IRenderingBackend, MonoGameRenderingBackend>();
+
+            //Rendering
+            services.AddSingleton<ICameraManager, CameraManager>();
+            services.AddSingleton<IRenderSurface, MonoGameRenderSurface>();
 
             // Platform context container
             services.AddSingleton<IPlatformContext, MonoGamePlatformContext>();

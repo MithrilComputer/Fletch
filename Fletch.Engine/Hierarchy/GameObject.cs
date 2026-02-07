@@ -18,7 +18,6 @@ namespace Fletch.Engine.Hierarchy
         private readonly IFletchContextLogger<GameObject> logger;
 
         public delegate void ComponentChangedHandler(
-            GameObject gameObject,
             Component component,
             ComponentChangeType changeType
         );
@@ -86,7 +85,7 @@ namespace Fletch.Engine.Hierarchy
 
             component.OnAdded(this);
 
-            ComponentChanged?.Invoke(this, component, ComponentChangeType.Added);
+            ComponentChanged?.Invoke(component, ComponentChangeType.Added);
 
             return true;
         }
@@ -103,7 +102,7 @@ namespace Fletch.Engine.Hierarchy
 
             components.Remove(component);
 
-            ComponentChanged?.Invoke(this, component, ComponentChangeType.Removed);
+            ComponentChanged?.Invoke(component, ComponentChangeType.Removed);
 
             return true;
         }
@@ -129,7 +128,7 @@ namespace Fletch.Engine.Hierarchy
 
             component.IsEnabled = true;
 
-            ComponentChanged?.Invoke(this, component, ComponentChangeType.Enabled);
+            ComponentChanged?.Invoke(component, ComponentChangeType.Enabled);
         }
 
         public void DisableComponent(Component component)
@@ -153,7 +152,7 @@ namespace Fletch.Engine.Hierarchy
 
             component.IsEnabled = false;
 
-            ComponentChanged?.Invoke(this, component, ComponentChangeType.Disabled);
+            ComponentChanged?.Invoke(component, ComponentChangeType.Disabled);
         }
 
         private void RequestComponentsDestroy()

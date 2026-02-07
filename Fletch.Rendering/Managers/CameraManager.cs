@@ -102,7 +102,12 @@ namespace Fletch.Rendering.Managers
 
         public void Dispose()
         {
-            //TODO
+            foreach (Camera2D camera in frontendCameras.Items)
+            {
+                QueueRemove(camera);
+            }
+
+            FlushSafePoint();
         }
     }
 }

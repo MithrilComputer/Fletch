@@ -1,4 +1,5 @@
-﻿using Fletch.Core.Math.Geometry;
+﻿using Fletch.Core.EngineConfig;
+using Fletch.Core.Math.Geometry;
 using Fletch.Rendering.Abstractions.Cameras;
 using Microsoft.Xna.Framework.Graphics;
 using MonoGame.Extended;
@@ -60,7 +61,6 @@ namespace Fletch.Rendering.MonoGame.Cameras
 
         public void ResetViewport()
         {
-            //adapter.Reset();
             // If bounds are active, re-clamp because VH/VW may have changed meaningfully.
             if (hasBounds)
                 ClampToBounds();
@@ -144,21 +144,15 @@ namespace Fletch.Rendering.MonoGame.Cameras
 
         private SysMatrix WorldToVirtualMatrix()
         {
-            // World (Y-up) -> Virtual (SpriteBatch coords: Y-down)
-            //
-            // view: move world relative to camera center, apply zoom/rotation
-            // center: put camera center into middle of virtual screen
-            // flipY: convert Y-up to Y-down in virtual space
+            float worldToPixelsScale = EngineConfig.WorldPixelsPerUnit * zoom;
+
             var view =
                 SysMatrix.CreateTranslation(-position) *
                 SysMatrix.CreateRotation(-rotation) *
-                SysMatrix.CreateScale(zoom);
+                SysMatrix.CreateScale(worldToPixelsScale);
 
             var center = SysMatrix.CreateTranslation(VirtualWidth * 0.5f, VirtualHeight * 0.5f);
 
-            // Flip Y-up world into Y-down virtual coords.
-            // With System.Numerics row-vector convention:
-            // v * (Scale * Translate) => scale then translate
             var flipY = SysMatrix.CreateScale(1f, -1f) * SysMatrix.CreateTranslation(0f, VirtualHeight);
 
             return view * center * flipY;

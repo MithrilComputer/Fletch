@@ -30,7 +30,12 @@ namespace Fletch.Rendering.Components
         /// Draw order relative to other sprites.
         /// Lower renders first.
         /// </summary>
-        public int ZIndex { get; set; } = 0;
+        public int ZHeight { get; set; } = 0;
+
+        /// <summary>
+        /// Internal use ZIndex for index sorting.
+        /// </summary>
+        internal int ZIndex { get; set; } = 0;
 
         /// <summary>
         /// Local position offset applied to the sprite, relative to the entity transform.
