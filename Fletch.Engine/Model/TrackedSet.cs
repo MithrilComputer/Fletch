@@ -43,5 +43,15 @@
             while (pendingRemoves.Count > 0)
                 items.Remove(pendingRemoves.Dequeue());
         }
+
+        /// <summary>
+        /// Sorts the internal list of items from a comparison method.
+        /// </summary>
+        /// <exception cref="ArgumentNullException"></exception>
+        public void Sort(Comparison<T> comparison)
+        {
+            if (comparison == null) throw new ArgumentNullException(nameof(comparison));
+            items.Sort(comparison);
+        }
     }
 }

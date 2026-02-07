@@ -7,7 +7,7 @@ using Fletch.Rendering.Components;
 
 namespace Fletch.Rendering.Managers
 {
-    internal class CameraManager : ICameraManager
+    internal sealed class CameraManager : ICameraManager, IDisposable
     {
         public IReadOnlyList<Camera2D> Cameras => frontendCameras.Items;
 
@@ -21,12 +21,14 @@ namespace Fletch.Rendering.Managers
 
         private readonly IRenderingBackend renderingBackend;
 
+        private int renderOrderIndex = 0;
+
         public CameraManager(IRenderingBackend renderingBackend)
         {
             this.renderingBackend = renderingBackend ?? throw new ArgumentNullException(nameof(renderingBackend));
         }
 
-        public void MarkCameraCreation(Camera2D cameraComponent)
+        public void QueueCreate(Camera2D cameraComponent)
         {
             if (cameraComponent == null)
                 throw new ArgumentNullException(nameof(cameraComponent));
@@ -38,7 +40,7 @@ namespace Fletch.Rendering.Managers
             pendingBackendCreation.Add(cameraComponent);
         }
 
-        public void MarkCameraRemoval(Camera2D cameraComponent)
+        public void QueueRemove(Camera2D cameraComponent)
         {
             if (cameraComponent == null)
                 throw new ArgumentNullException(nameof(cameraComponent));
@@ -59,6 +61,9 @@ namespace Fletch.Rendering.Managers
 
                 frontendCameras.MarkToAdd(camera);
                 cameraBindings[camera] = renderingBackend.CreateCamera();
+
+                camera.RenderIndex = renderOrderIndex;
+                renderOrderIndex++;
             }
 
             foreach (var camera in pendingBackendRemoval)
@@ -75,6 +80,29 @@ namespace Fletch.Rendering.Managers
             pendingBackendRemoval.Clear();
 
             frontendCameras.Refresh();
+
+            frontendCameras.Sort(SystemCompare);
+        }
+
+        public ICamera? GetBackendCameraFromBinding(Camera2D camera)
+        {
+            cameraBindings.TryGetValue(camera, out ICamera? backendCamera);
+
+            return backendCamera;
+        }
+
+        private static int SystemCompare(Camera2D a, Camera2D b)
+        {
+            int order = a.RenderOrder.CompareTo(b.RenderOrder);
+            if (order != 0)
+                return order;
+
+            return a.RenderIndex.CompareTo(b.RenderIndex);
+        }
+
+        public void Dispose()
+        {
+            //TODO
         }
     }
 }

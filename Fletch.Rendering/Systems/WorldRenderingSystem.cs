@@ -6,27 +6,34 @@ using Fletch.Engine.Model;
 using Fletch.Engine.Scenes;
 using Fletch.Engine.Systems;
 using Fletch.Rendering.Abstractions.Backends;
+using Fletch.Rendering.Abstractions.Cameras;
 using Fletch.Rendering.Abstractions.Managers;
 using Fletch.Rendering.Components;
 using Fletch.Rendering.Model;
+using Fletch.Core.Math.Geometry;
+
+using Fletch.Core.Platform;
+using System.Numerics;
 
 namespace Fletch.Rendering.Systems
 {
     internal class WorldRenderingSystem : SceneSubsystem, IUpdateable
     {
-        public readonly IRenderingBackend renderingBackend;
+        private readonly IRenderingBackend renderingBackend;
 
-        public readonly IFletchContextLogger<WorldRenderingSystem> logger;
+        private readonly IFletchContextLogger<WorldRenderingSystem> logger;
 
         private readonly TrackedSet<SpriteRenderer> spriteRenderers = new TrackedSet<SpriteRenderer>();
 
         private readonly ICameraManager cameraManager;
 
+        private readonly IRenderSurface screenSurface;
+
         //TODO Figure out how to get cameras to work, working on viewport stuff now
 
         public Color ClearColor { get; set; } = Color.Gray;
 
-        public WorldRenderingSystem(IFletchContextLogger<WorldRenderingSystem> logger, IRenderingBackend renderingBackend, ICameraManager cameraManager)
+        public WorldRenderingSystem(IFletchContextLogger<WorldRenderingSystem> logger, IRenderingBackend renderingBackend, ICameraManager cameraManager, IRenderSurface screenSurface)
         {
             this.logger = logger;
             this.renderingBackend = renderingBackend;
@@ -47,6 +54,63 @@ namespace Fletch.Rendering.Systems
         {
             cameraManager.FlushSafePoint();
             spriteRenderers.Refresh();
+
+            foreach (Camera2D frontendCamera in cameraManager.Cameras)
+            {
+                if(!frontendCamera.IsEnabled || !screenSurface.IsValid)
+                    continue;
+
+                ICamera? backendCamera = cameraManager.GetBackendCameraFromBinding(frontendCamera);
+
+                if (backendCamera == null)
+                {
+                    throw new InvalidOperationException(
+                        $"Camera2D has no backend binding. " +
+                        $"GameObject='{frontendCamera.GameObject?.Name ?? "<null>"}', " +
+                        $"IsMain={frontendCamera.IsMainCamera}.");
+                }
+
+                if (frontendCamera.IsMainCamera)
+                {
+                    renderingBackend.BeginCamera(
+                    backendCamera,
+                    new RectangleInt(0, 0, screenSurface.Width, screenSurface.Height),
+                    frontendCamera.BlendMode,
+                    frontendCamera.SamplerMode);
+                } 
+                else
+                {
+                    renderingBackend.BeginCamera(
+                    backendCamera,
+                    frontendCamera.Viewport,
+                    frontendCamera.BlendMode,
+                    frontendCamera.SamplerMode);
+                }
+
+                foreach (SpriteRenderer sprite in spriteRenderers.Items)
+                {
+                    if (!sprite.IsEnabled || sprite.Texture == null)
+                        continue;
+
+                    Vector2 drawPosition = sprite.GameObject.Transform.WorldPosition + sprite.PositionOffset;
+                    Vector2 drawScale = sprite.GameObject.Transform.WorldScale * sprite.ScaleOffset;
+                    float drawRotation = sprite.GameObject.Transform.WorldRotation.Radians + sprite.RotationOffset.Radians;
+
+                    renderingBackend.SpriteBatcher.Draw(
+                        texture: sprite.Texture,
+                        sourceRectangle: sprite.SourceRectangle,
+                        position: drawPosition,
+                        rotation: drawRotation,
+                        scale: drawScale,
+                        color: sprite.Color,
+                        origin: sprite.Origin, // TODO Later add a origin in local space to the transform
+                        layerDepth: sprite.ZIndex, //TODO add some form of list sorting later, tracked set plus order index should be fine enough.
+                        spriteEffect: sprite.Effect
+                        ); //TODO get the texture
+                }
+
+                renderingBackend.EndCamera();
+            }
         }
 
         private void OnSpriteRendererChange(GameObject gameObject, Component component, ComponentChangeType changeType)
@@ -71,10 +135,10 @@ namespace Fletch.Rendering.Systems
             switch (changeType)
             {
                 case ComponentChangeType.Added:
-                    cameraManager.MarkCameraCreation(cameraComponent);
+                    cameraManager.QueueCreate(cameraComponent);
                     break;
                 case ComponentChangeType.Removed:
-                    cameraManager.MarkCameraRemoval(cameraComponent);
+                    cameraManager.QueueRemove(cameraComponent);
                     break;
 
                 default: break;

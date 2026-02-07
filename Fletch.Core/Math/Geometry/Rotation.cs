@@ -8,9 +8,9 @@ namespace Fletch.Core.Math.Geometry
     /// </summary>
     public class Rotation
     {
-        private const float radToDeg = 180f / MathF.PI;
+        public const float radToDeg = 180f / MathF.PI;
 
-        private const float degToRad = MathF.PI / 180f;
+        public const float degToRad = MathF.PI / 180f;
 
         /// <summary>
         /// Current rotation angle in radians (-π to +π).
