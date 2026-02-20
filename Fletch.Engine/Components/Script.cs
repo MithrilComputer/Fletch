@@ -1,5 +1,6 @@
 ﻿using Fletch.Core.Components.Update;
 using Fletch.Core.LifeCycle;
+using Fletch.Core.Time;
 using Fletch.Engine.Components.Updateable;
 
 namespace Fletch.Engine.Components
@@ -16,6 +17,6 @@ namespace Fletch.Engine.Components
 
         public virtual void Update(float deltaTime) { }
 
-        public virtual void FixedUpdate(float deltaTime) { }
+        public virtual void FixedUpdate(FixedTimeStep deltaTime) { }
     }
 }

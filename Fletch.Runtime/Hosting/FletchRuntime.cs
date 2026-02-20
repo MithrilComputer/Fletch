@@ -1,15 +1,22 @@
-﻿using Fletch.Core.Math.Geometry;
+﻿using Fletch.Core.Colors;
+using Fletch.Core.EngineConfig;
+using Fletch.Core.Math.Geometry;
+using Fletch.Core.Time;
+using Fletch.Engine.Abstractions.Factories;
+using Fletch.Engine.Hierarchy;
+using Fletch.Engine.Scenes;
 using Fletch.Input.Abstractions.Backends;
-using Fletch.Input.Model;
+using Fletch.Input.Abstractions.InputDevices;
 using Fletch.Platform.Abstractions.Contexts;
 using Fletch.Platform.Abstractions.Lifecycle;
 using Fletch.Platform.Abstractions.Paths;
 using Fletch.Platform.Abstractions.Window;
 using Fletch.Rendering.Abstractions.Backends;
 using Fletch.Rendering.Abstractions.Resources;
-using Fletch.Rendering.Model;
+using Fletch.Rendering.Components;
+using Fletch.Rendering.Systems;
 using Fletch.Runtime.Abstractions.Hosting;
-using Fletch.Runtime.Abstractions.Time;
+using System.Diagnostics;
 using System.Numerics;
 
 namespace Fletch.Runtime.Hosting
@@ -26,57 +33,105 @@ namespace Fletch.Runtime.Hosting
 
         private readonly IInputBackend inputBackend;
 
+        private readonly ISceneFactory sceneFactory;
+
+        private readonly ISubSystemFactory subSystemFactory;
+
         public IPlatformContext Platform => throw new NotImplementedException();
 
         public bool IsInitialized { get; private set; }
 
-        // TESTIN STUFFFFF __________________
+        //Testing
 
-        private Vector2 worldCenter = Vector2.Zero;
+        private Scene testScene;
 
-        private Vector2 cameraAxis;
-        private Vector2 drawAxis = Vector2.Zero;
+        private GameObject gameObject;
 
-        private float movespeed = 200;
+        GameObject wallOne;
 
-        SpriteEffect testRatFlip = SpriteEffect.None;
+        GameObject wallTwo;
 
-        IFont testFont;
+        private GameObject cameraObject;
 
-        ITexture testTexture;
+        private Camera2D camera;
 
-        float timekeep = 0f;
+        private IGamepad gamepad;
 
-        string fps = "";
+        private float moveSpeed = 5f;
 
-        int frameCountFps = 0;
+        private float cameraSmooth = 2f;
 
-        float spriteRotation = 0;
+        private float timeKeep = 0f;
 
-        float rotationSpeed = 5;
+        private int frames = 0;
 
-        float zoom = 1f;
+        //Testing
 
-        float zoomSpeed = 1f;
-
-        // TESTIN STUFFFFF __________________
-
-        public FletchRuntime(IPlatformContext platformContext)
+        public FletchRuntime(IPlatformContext platformContext, ISceneFactory sceneFactory, ISubSystemFactory subSystemFactory)
         {
             window = platformContext.Window;
             applicationLifeTime = platformContext.Lifetime;
             pathProvider = platformContext.PathProvider;
             renderingBackend = platformContext.RenderingBackend;
             inputBackend = platformContext.InputBackend;
+            this.sceneFactory = sceneFactory;
+            this.subSystemFactory = subSystemFactory;
         }
 
         public void Initialize()
         {
             renderingBackend.FontFactory.RegisterFamily("Roboto", Path.Combine(pathProvider.AssetFolderDirectory, "Roboto-VariableFont.ttf"));
 
-            testFont = renderingBackend.FontFactory.GetFont("Roboto", 64);
+            testScene = sceneFactory.CreateEmptyScene();
 
-            testTexture = renderingBackend.TextureFactory.Load(Path.Combine(pathProvider.AssetFolderDirectory, "Rat.png"));
+            testScene.SystemManager.AddSubSystem<WorldRenderingSystem>();
+
+            gameObject = testScene.CreateGameObject();
+
+            wallOne = testScene.CreateGameObject();
+            wallTwo = testScene.CreateGameObject();
+            GameObject wallThree = testScene.CreateGameObject();
+
+            wallOne.Transform.LocalPosition += new Vector2(0, 0);
+            wallTwo.Transform.LocalPosition += new Vector2(10, 0);
+            wallThree.Transform.LocalPosition += new Vector2(-10, 0);
+
+            cameraObject = testScene.CreateGameObject();
+
+            SpriteRenderer sprite = gameObject.AddComponent<SpriteRenderer>();
+            SpriteRenderer wones = wallOne.AddComponent<SpriteRenderer>();
+            SpriteRenderer wtwos = wallTwo.AddComponent<SpriteRenderer>();
+            SpriteRenderer wthrees = wallThree.AddComponent<SpriteRenderer>();
+
+            camera = cameraObject.AddComponent<Camera2D>();
+
+            camera.BlendMode = Rendering.Model.BlendMode.Alpha;
+
+            /* testing
+            for (int i = 0; i < 10000; i++)
+            {
+                GameObject objjec = testScene.CreateGameObject();
+                SpriteRenderer sprited = objjec.AddComponent<SpriteRenderer>();
+                sprited.Texture = renderingBackend.TextureFactory.CreateSolidColor(1, 1, Color.Green);
+            }
+            */
+
+            camera.SamplerMode = Rendering.Model.SamplerMode.Point;
+
+            sprite.VisualResource.Texture = renderingBackend.TextureFactory.Load(Path.Combine(pathProvider.AssetFolderDirectory, "Rat.png"));
+            wones.VisualResource.Texture = renderingBackend.TextureFactory.CreateSolidColor(1, 1, Color.Green);
+            wtwos.VisualResource.Texture = renderingBackend.TextureFactory.CreateSolidColor(1, 10, Color.Black);
+            wthrees.VisualResource.Texture = renderingBackend.TextureFactory.CreateSolidColor(10, 1, Color.White);
+
+            wones.VisualResource.PixelPerWorldUnit = 1;
+
+            wtwos.VisualResource.PixelPerWorldUnit = 3;
+
+            wthrees.VisualResource.PixelPerWorldUnit = 5;
+
+            sprite.ZHeight = 1;
+
+            gamepad = inputBackend.GamepadSlots[0];
 
             IsInitialized = true;
         }
@@ -85,14 +140,54 @@ namespace Fletch.Runtime.Hosting
         {
             if (!IsInitialized)
                 return;
-
         }
 
         public void Start()
         {
             if (!IsInitialized)
                 return;
+        }
 
+        public void Update(FrameTime time)
+        {
+            if (!IsInitialized)
+                return;
+            inputBackend.UpdateBackend();
+
+            gameObject.Transform.LocalPosition += gamepad.LeftThumbstick * moveSpeed * time.Delta;
+
+            Vector2 atb = gameObject.Transform.LocalPosition - cameraObject.Transform.LocalPosition;
+
+            if (atb != Vector2.Zero)
+            {
+                cameraObject.Transform.LocalPosition += Vector2.Normalize(atb) * cameraSmooth * time.Delta * Vector2.Distance(gameObject.Transform.LocalPosition, cameraObject.Transform.LocalPosition);
+            }
+
+            wallOne.Transform.LocalPosition += gamepad.RightThumbstick * moveSpeed * time.Delta;
+
+            wallTwo.Transform.LocalRotation.RotateRadian(gamepad.RightTrigger * time.Delta * moveSpeed);
+
+            wallTwo.Transform.LocalRotation.RotateRadian(-gamepad.LeftTrigger * moveSpeed * time.Delta);
+
+            timeKeep += time.Delta;
+            frames++;
+
+            if (timeKeep >= 1)
+            {
+                timeKeep = 0;
+                Debug.WriteLine($"FPS: {frames}");
+                frames = 0;
+            }
+
+            testScene.Update(time);
+        }
+
+        public void FixedUpdate(FixedTimeStep time)
+        {
+            if (!IsInitialized)
+                return;
+
+            testScene.FixedUpdate(time);
         }
 
         public void Render(FrameTime time)
@@ -100,55 +195,11 @@ namespace Fletch.Runtime.Hosting
             if (!IsInitialized)
                 return;
 
-            inputBackend.UpdateBackend();
+            renderingBackend.BeginFrame(EngineConfig.ClearColor);
 
-            renderingBackend.BeginFrame(Color.CornflowerBlue);
-
-            renderingBackend.BeginCamera(renderingBackend.MainCamera, new RectangleInt(
-                0,
-                0,
-                window.Width,
-                window.Height
-                ));
-
-            renderingBackend.MainCamera.SetZoom(zoom);
-
-            renderingBackend.DebugRenderer.DrawCircle(worldCenter, 200, 5);
-
-            renderingBackend.DebugRenderer.DrawCross(worldCenter, 20000, 5, Color.Red);
-
-            renderingBackend.DebugRenderer.DrawCrosshair(worldCenter, 20000, 5, Color.Blue);
-
-            renderingBackend.DebugRenderer.DrawRectangle(drawAxis, Vector2.One * 150, 10, Color.Magenta);
-
-            renderingBackend.DebugRenderer.DrawLine(drawAxis, Vector2.UnitY * 300, 10, Color.Brown);
-
-            renderingBackend.SpriteBatcher.DrawString(testFont, fps, drawAxis, Color.Black);
-
-            renderingBackend.SpriteBatcher.Draw(testTexture, drawAxis, new RectangleFloat(0,0, testTexture.Width, testTexture.Height), Color.White, spriteRotation, Vector2.Zero, Vector2.One, 0, testRatFlip);
-
-            renderingBackend.EndCamera();
+            testScene.Render(time);
 
             renderingBackend.EndFrame();
-        }
-
-        public void Update(FrameTime time)
-        {
-            if (!IsInitialized)
-                return;
-
-            if (inputBackend.KeyboardDevice.GetKeyDown(KeyCode.Escape))
-            {
-                applicationLifeTime.RequestExit();
-            }
-            
-            renderingBackend.MainCamera.MoveBy(cameraAxis);
-        }
-
-        public void FixedUpdate(FixedTimeStep time)
-        {
-            if (!IsInitialized)
-                return;
         }
     }
 }

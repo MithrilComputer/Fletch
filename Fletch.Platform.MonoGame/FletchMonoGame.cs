@@ -1,4 +1,5 @@
-﻿using Fletch.Platform.Abstractions.Lifecycle;
+﻿using Fletch.Core.Time;
+using Fletch.Platform.Abstractions.Lifecycle;
 using Fletch.Platform.Abstractions.Paths;
 using Fletch.Platform.MonoGame.Host;
 using Fletch.Platform.MonoGame.Lifecycle;
@@ -6,7 +7,6 @@ using Fletch.Platform.MonoGame.Loader;
 using Fletch.Rendering.Abstractions.Backends;
 using Fletch.Rendering.MonoGame.Backend;
 using Fletch.Runtime.Abstractions.Hosting;
-using Fletch.Runtime.Abstractions.Time;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Xna.Framework;
 using SDL2;
@@ -64,6 +64,8 @@ namespace Fletch.Platform.MonoGame
             Window.Title = options.Title;
 
             graphics.SynchronizeWithVerticalRetrace = options.VSync;
+
+            Window.AllowUserResizing = true;
 
             if (options.TargetFramesPerSecond >= 1)
             {
@@ -131,7 +133,7 @@ namespace Fletch.Platform.MonoGame
             alpha = (float)(accumulatedTime.TotalSeconds / fixedStep.TotalSeconds);
             alpha = Math.Clamp(alpha, 0f, 1f);
 
-            runtime?.Update(new FrameTime(frameDelta, fixedTotalTime));
+            runtime?.Update(new FrameTime(frameDelta, fixedTotalTime)); // FixedTotal time should be replaced with alpha or somthin
 
             base.Update(gameTime);
         }

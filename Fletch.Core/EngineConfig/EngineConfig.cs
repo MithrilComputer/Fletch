@@ -1,4 +1,5 @@
-﻿using Fletch.Core.Math.Geometry;
+﻿using Fletch.Core.Colors;
+using Fletch.Core.Math.Geometry;
 
 namespace Fletch.Core.EngineConfig
 {
@@ -6,8 +7,10 @@ namespace Fletch.Core.EngineConfig
     {
         public static Vector2Int VirtualResolution { get; } = new Vector2Int(1280, 720);
 
-        public static int TemporaryImportPPU { get; } = 10; //TODO MAKE THIS USER CHANGEABLE
+        public static float WorldUnitsAcrossScreen { get; } = 20;
 
-        public static float WorldPixelsPerUnit { get; } = 128;
+        public static Color ClearColor { get; } = Color.CornflowerBlue;
+
+        public static int AudioSourcePoolSize { get; } = 128;
     }
 }

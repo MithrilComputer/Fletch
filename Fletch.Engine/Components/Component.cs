@@ -4,7 +4,7 @@ namespace Fletch.Engine.Components
 {
     public abstract class Component
     {
-        public bool IsEnabled { get; set; }
+        public bool IsEnabled { get; set; } = true;
 
         public GameObject GameObject { get; private set; } = null!;
 

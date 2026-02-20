@@ -1,5 +1,6 @@
 ﻿using Fletch.Core.Platform;
 using Fletch.Platform.Abstractions.Window;
+using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 
 namespace Fletch.Platform.MonoGame.Window
@@ -9,10 +10,10 @@ namespace Fletch.Platform.MonoGame.Window
         private IWindow window;
         private GraphicsDevice graphicsDevice;
 
-        public MonoGameRenderSurface(IWindow window, GraphicsDevice graphics)
+        public MonoGameRenderSurface(IWindow window, Game game)
         {
             this.window = window;
-            this.graphicsDevice = graphics;
+            this.graphicsDevice = game.GraphicsDevice;
         }
 
         public int Width => window.Width;

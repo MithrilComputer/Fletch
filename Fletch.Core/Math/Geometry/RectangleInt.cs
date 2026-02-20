@@ -1,6 +1,6 @@
 ﻿namespace Fletch.Core.Math.Geometry
 {
-    public readonly struct RectangleInt
+    public readonly struct RectangleInt : IEquatable<RectangleInt>
     {
         public int X { get; }
         public int Y { get; }
@@ -30,6 +30,14 @@
               other.Top > Bottom ||
               other.Bottom < Top);
 
+        public bool Equals(RectangleInt other)
+        {
+            return X == other.X &&
+                   Y == other.Y &&
+                   Width == other.Width &&
+                   Height == other.Height;
+        }
 
+        public static readonly RectangleInt Zero = new RectangleInt(0,0,0,0);
     }
 }

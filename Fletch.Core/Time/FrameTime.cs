@@ -1,6 +1,6 @@
-﻿namespace Fletch.Runtime.Abstractions.Time
+﻿namespace Fletch.Core.Time
 {
-    internal readonly struct FrameTime
+    public readonly struct FrameTime
     {
         public float Delta { get; }
         public TimeSpan Total { get; }

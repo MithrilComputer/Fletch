@@ -8,14 +8,17 @@ namespace Fletch.Engine.Factories
     {
         private readonly IFletchContextLogger<GameObject> gameObjectLogger;
 
-        public GameObjectFactory(IFletchContextLogger<GameObject> gameObjectLogger)
+        private readonly IComponentFactory componentFactory;
+
+        public GameObjectFactory(IFletchContextLogger<GameObject> gameObjectLogger, IComponentFactory componentFactory)
         {
             this.gameObjectLogger = gameObjectLogger;
+            this.componentFactory = componentFactory;
         }
 
         public GameObject BuildGameObject(uint gameObjectID)
         {
-            return new GameObject(gameObjectID, gameObjectLogger);
+            return new GameObject(gameObjectID, gameObjectLogger, componentFactory);
         }
     }
 }

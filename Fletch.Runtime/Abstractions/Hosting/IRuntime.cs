@@ -1,5 +1,5 @@
-﻿using Fletch.Platform.Abstractions.Contexts;
-using Fletch.Runtime.Abstractions.Time;
+﻿using Fletch.Core.Time;
+using Fletch.Platform.Abstractions.Contexts;
 
 namespace Fletch.Runtime.Abstractions.Hosting
 {

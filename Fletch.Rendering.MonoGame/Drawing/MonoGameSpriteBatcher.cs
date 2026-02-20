@@ -2,10 +2,10 @@
 using Fletch.Rendering.Abstractions.Drawing;
 using Fletch.Rendering.Abstractions.Resources;
 using Fletch.Rendering.Model;
-using Microsoft.Xna.Framework.Graphics;
 using FontStashSharp;
+using Microsoft.Xna.Framework.Graphics;
 using System.Numerics;
-using FletchColor = Fletch.Rendering.Model.Color;
+using FletchColor = Fletch.Core.Colors.Color;
 using FletchSpriteEffect = Fletch.Rendering.Model.SpriteEffect;
 using SystemVector = System.Numerics.Vector2;
 using XnaColor = Microsoft.Xna.Framework.Color;
@@ -13,7 +13,6 @@ using XnaMatrix = Microsoft.Xna.Framework.Matrix;
 using XnaRectangle = Microsoft.Xna.Framework.Rectangle;
 using XnaSpriteEffect = Microsoft.Xna.Framework.Graphics.SpriteEffects;
 using XnaVector = Microsoft.Xna.Framework.Vector2;
-using System.Drawing;
 
 namespace Fletch.Rendering.MonoGame.Drawing
 {
@@ -160,8 +159,8 @@ namespace Fletch.Rendering.MonoGame.Drawing
             XnaSpriteEffect effects = ConvertFromFletchType(spriteEffect) ^ XnaSpriteEffect.FlipVertically;
 
             var originPixels = new XnaVector(
-                origin.X * rect.Width,
-                origin.Y * rect.Height
+                origin.X * xnaRectangle.Width,
+                origin.Y * xnaRectangle.Height
             );
 
             spriteBatch.Draw(
@@ -226,7 +225,6 @@ namespace Fletch.Rendering.MonoGame.Drawing
                 layerDepth: layerDepth, 
                 spriteEffect: spriteEffect);
         }
-
 
         /// <summary>
         /// Draws a sub-region of a texture at the given position.

@@ -1,24 +1,29 @@
 ﻿using Fletch.Core.Math.Geometry;
+using Fletch.Engine.Attributes;
 using Fletch.Engine.Components;
+using Fletch.Engine.Hierarchy;
 using Fletch.Rendering.Model;
 using System.Numerics;
 
 namespace Fletch.Rendering.Components
 {
+    [DisallowMultipleComponentAttribute]
     public class Camera2D : Component
     {
-        public Vector2 Position { get; set; }
+        public Vector2 Position => GameObject.Transform.WorldPosition;
 
-        public int RenderOrder { get; set; }
+        public float Zoom { get; set; } = 1;
 
-        internal int RenderIndex { get; set; }
+        public int RenderOrder { get; set; } = 0;
 
-        public bool IsMainCamera { get; set; }
+        internal int RenderIndex { get; set; } = 0;
 
-        public RectangleInt Viewport { get; set; }
+        public bool IsMainCamera { get; set; } = true;
 
-        public BlendMode BlendMode { get; set; }
+        public RectangleInt Viewport { get; set; } = RectangleInt.Zero;
 
-        public SamplerMode SamplerMode { get; set; }
+        public BlendMode BlendMode { get; set; } = BlendMode.Alpha;
+
+        public SamplerMode SamplerMode { get; set; } = SamplerMode.Linear;
     }
 }

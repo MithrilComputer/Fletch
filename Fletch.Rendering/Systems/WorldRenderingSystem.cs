@@ -1,23 +1,24 @@
-﻿using Fletch.Core.Components.Update;
+﻿using Fletch.Core.Colors;
 using Fletch.Core.Diagnostics;
+using Fletch.Core.EngineConfig;
+using Fletch.Core.LifeCycle;
+using Fletch.Core.Math.Geometry;
+using Fletch.Core.Platform;
+using Fletch.Core.Time;
 using Fletch.Engine.Components;
-using Fletch.Engine.Hierarchy;
 using Fletch.Engine.Model;
 using Fletch.Engine.Scenes;
 using Fletch.Engine.Systems;
 using Fletch.Rendering.Abstractions.Backends;
 using Fletch.Rendering.Abstractions.Cameras;
 using Fletch.Rendering.Abstractions.Managers;
+using Fletch.Rendering.Abstractions.Resources;
 using Fletch.Rendering.Components;
-using Fletch.Rendering.Model;
-using Fletch.Core.Math.Geometry;
-using Fletch.Core.Platform;
 using System.Numerics;
-using Fletch.Core.EngineConfig;
 
 namespace Fletch.Rendering.Systems
 {
-    internal sealed class WorldRenderingSystem : SceneSubsystem, IUpdateable
+    internal sealed class WorldRenderingSystem : SceneSubsystem, IRenderable
     {
         private readonly IRenderingBackend renderingBackend;
 
@@ -45,14 +46,17 @@ namespace Fletch.Rendering.Systems
         {
             base.AttachToScene(scene);
 
-            scene.SystemScheduler.RegisterSystem(this, SystemExecutionOrder.Rendering, 0);
+            scene.SystemManager.RegisterSystem(this, SystemExecutionOrder.Rendering, 0);
 
             scene.AddSystemComponentRegistration(typeof(SpriteRenderer), (b, c) => OnSpriteRendererChange(b, c));
             scene.AddSystemComponentRegistration(typeof(Camera2D), (b, c) => OnCamera2DChange(b, c));
         }
 
-        public void Update(float deltaTime)
+        public void Render(FrameTime frameTime)
         {
+            //TODO, reduce complexity
+            //TODO, Add Time Alpha stuff
+
             cameraManager.FlushSafePoint();
             spriteRenderers.Refresh();
 
@@ -78,11 +82,11 @@ namespace Fletch.Rendering.Systems
 
                 RectangleFloat visibleArea = backendCamera.GetVisibleArea();
 
-                if (frontendCamera.IsMainCamera)
+                if (frontendCamera.IsMainCamera || frontendCamera.Viewport.Equals(RectangleInt.Zero))
                 {
                     renderingBackend.BeginCamera(
                         backendCamera,
-                        new RectangleInt(0, 0, screenSurface.Width, screenSurface.Height),
+                        new RectangleInt(0, 0, EngineConfig.VirtualResolution.X, EngineConfig.VirtualResolution.Y),
                         frontendCamera.BlendMode,
                         frontendCamera.SamplerMode
                     );
@@ -97,20 +101,30 @@ namespace Fletch.Rendering.Systems
                     );
                 }
 
+                backendCamera.SetZoom(frontendCamera.Zoom); // Replace later
+                backendCamera.SetPosition(frontendCamera.Position);
+
                 foreach (SpriteRenderer sprite in spriteRenderers.Items)
                 {
-                    if (!sprite.IsEnabled || sprite.Texture == null)
+                    if (!sprite.IsEnabled || sprite.VisualResource.Texture == null)
                         continue;
 
                     if(!IsSpriteVisible(visibleArea, sprite))
                         continue;
 
+                    float spritePPU = sprite.VisualResource.PixelPerWorldUnit;
+                    float worldUnitsPerPixelForThisSprite = 1.0f / spritePPU;
+
+                    Vector2 drawScale =
+                        sprite.GameObject.Transform.WorldScale *
+                        sprite.ScaleOffset *
+                        worldUnitsPerPixelForThisSprite;
+
                     Vector2 drawPosition = sprite.GameObject.Transform.WorldPosition + sprite.PositionOffset;
-                    Vector2 drawScale = sprite.GameObject.Transform.WorldScale * sprite.ScaleOffset;
                     float drawRotation = sprite.GameObject.Transform.WorldRotation.Radians + sprite.RotationOffset.Radians;
 
                     renderingBackend.SpriteBatcher.Draw(
-                        texture: sprite.Texture,
+                        texture: sprite.VisualResource.Texture,
                         sourceRectangle: sprite.SourceRectangle,
                         position: drawPosition,
                         rotation: drawRotation,
@@ -128,7 +142,7 @@ namespace Fletch.Rendering.Systems
 
         private static bool IsSpriteVisible(RectangleFloat worldArea, SpriteRenderer sprite)
         {
-            if (sprite.Texture == null)
+            if (sprite.VisualResource.Texture == null)
                 return false;
 
             RectangleFloat spriteBounds = GetSpriteWorldBounds(sprite);
@@ -137,10 +151,10 @@ namespace Fletch.Rendering.Systems
 
         private static RectangleFloat GetSpriteWorldBounds(SpriteRenderer sprite)
         {
-            float pixelWidth = sprite.SourceRectangle?.Width ?? sprite.Texture!.Width;
-            float pixelHeight = sprite.SourceRectangle?.Height ?? sprite.Texture!.Height;
+            float pixelWidth = sprite.SourceRectangle?.Width ?? sprite.VisualResource.Texture!.Width;
+            float pixelHeight = sprite.SourceRectangle?.Height ?? sprite.VisualResource.Texture!.Height;
 
-            float importPixelsPerUnit = EngineConfig.TemporaryImportPPU; //TODO change this to use a dynamic thingy
+            float importPixelsPerUnit = sprite.VisualResource.PixelPerWorldUnit; //TODO change this to use a dynamic thingy
             float widthUnits = pixelWidth / importPixelsPerUnit;
             float heightUnits = pixelHeight / importPixelsPerUnit;
 
@@ -161,7 +175,7 @@ namespace Fletch.Rendering.Systems
                 sprite.GameObject.Transform.WorldRotation.Radians +
                 sprite.RotationOffset.Radians;
 
-            if (rotation != 0f)
+            if (rotation < 0.000001f || rotation > 0.0001)
             {
                 float cos = MathF.Abs(MathF.Cos(rotation));
                 float sin = MathF.Abs(MathF.Sin(rotation));

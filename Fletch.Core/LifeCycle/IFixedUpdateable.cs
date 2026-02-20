@@ -1,7 +1,9 @@
-﻿namespace Fletch.Engine.Components.Updateable
+﻿using Fletch.Core.Time;
+
+namespace Fletch.Engine.Components.Updateable
 {
     internal interface IFixedUpdateable
     {
-        void FixedUpdate(float deltaTime);
+        void FixedUpdate(FixedTimeStep deltaTime);
     }
 }

@@ -2,7 +2,7 @@
 using Fletch.Rendering.Abstractions.Resources;
 using Fletch.Rendering.MonoGame.Resources;
 using Microsoft.Xna.Framework.Graphics;
-using FletchColor = Fletch.Rendering.Model.Color;
+using FletchColor = Fletch.Core.Colors.Color;
 using XnaColor = Microsoft.Xna.Framework.Color;
 
 namespace Fletch.Rendering.MonoGame.Factories

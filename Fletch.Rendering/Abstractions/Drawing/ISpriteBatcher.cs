@@ -1,4 +1,5 @@
-﻿using Fletch.Core.Math.Geometry;
+﻿using Fletch.Core.Colors;
+using Fletch.Core.Math.Geometry;
 using Fletch.Rendering.Abstractions.Resources;
 using Fletch.Rendering.Model;
 using System.Numerics;

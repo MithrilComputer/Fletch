@@ -1,4 +1,5 @@
-﻿using Fletch.Rendering.Model;
+﻿using Fletch.Core.Colors;
+using Fletch.Rendering.Model;
 using System.Numerics;
 
 namespace Fletch.Rendering.Abstractions.Drawing

@@ -1,5 +1,7 @@
 ﻿using Fletch.Core.Diagnostics;
 using Fletch.Core.Platform;
+using Fletch.Engine.Abstractions.Factories;
+using Fletch.Engine.Factories;
 using Fletch.Input.Abstractions.Backends;
 using Fletch.Input.MonoGame.Backend;
 using Fletch.Platform.Abstractions.Contexts;
@@ -16,6 +18,7 @@ using Fletch.Rendering.Abstractions.Backends;
 using Fletch.Rendering.Abstractions.Managers;
 using Fletch.Rendering.Managers;
 using Fletch.Rendering.MonoGame.Backend;
+using Fletch.Rendering.Systems;
 using Fletch.Runtime.Abstractions.Hosting;
 using Fletch.Runtime.Hosting;
 using Microsoft.Extensions.DependencyInjection;
@@ -56,6 +59,7 @@ namespace Fletch.Platform.MonoGame
             //Rendering
             services.AddSingleton<ICameraManager, CameraManager>();
             services.AddSingleton<IRenderSurface, MonoGameRenderSurface>();
+            services.AddTransient<WorldRenderingSystem>();
 
             // Platform context container
             services.AddSingleton<IPlatformContext, MonoGamePlatformContext>();
@@ -63,6 +67,12 @@ namespace Fletch.Platform.MonoGame
             // Runtime
             services.AddSingleton<IRuntime, FletchRuntime>();
             services.AddSingleton<Func<IRuntime>>(sp => () => sp.GetRequiredService<IRuntime>());
+
+            // Engine Factories
+            services.AddSingleton<IGameObjectFactory, GameObjectFactory>();
+            services.AddSingleton<ISceneFactory, SceneFactory>();
+            services.AddSingleton<ISubSystemFactory, SubSystemFactory>();
+            services.AddSingleton<IComponentFactory, ComponentFactory>();
 
             return services.BuildServiceProvider(new ServiceProviderOptions
             {

@@ -1,4 +1,5 @@
 ﻿using Fletch.Core.Diagnostics;
+using Fletch.Core.Time;
 using Fletch.Engine.Abstractions.Factories;
 using Fletch.Engine.Components;
 using Fletch.Engine.Hierarchy;
@@ -9,7 +10,7 @@ namespace Fletch.Engine.Scenes
 {
     public sealed class Scene : IDisposable
     {
-        internal SystemScheduler SystemScheduler { get; }
+        internal SubSystemManager SystemManager { get; }
 
         private uint nextId;
     
@@ -24,15 +25,35 @@ namespace Fletch.Engine.Scenes
 
         private readonly IFletchContextLogger<Scene> logger;
 
-        internal Scene(IFletchContextLogger<Scene> logger, IGameObjectFactory gameObjectFactory)
+        internal Scene(IFletchContextLogger<Scene> logger, IGameObjectFactory gameObjectFactory, ISubSystemFactory subSystemFactory)
         {
             this.logger = logger;
             
             this.gameObjectFactory = gameObjectFactory;
 
-            SystemScheduler = new SystemScheduler();
+            SystemManager = new SubSystemManager(subSystemFactory, this);
         }
 
+        public void Update(FrameTime frameTime)
+        {
+            SystemManager.UpdateSystems(frameTime.Delta);
+        }
+
+        public void FixedUpdate(FixedTimeStep fixedTime)
+        {
+            SystemManager.UpdateFixedSystems(fixedTime);
+        }
+
+        public void Render(FrameTime frameTime)
+        {
+            SystemManager.UpdateRenderables(frameTime);
+        }
+
+        /// <summary>
+        /// Used to register a component change event to a <see cref="SceneSubsystem"/>. Only use this method inside the <see cref="SceneSubsystem.AttachToScene(Scene)"/> of a <see cref="SceneSubsystem"/> to avoid misuse.
+        /// </summary>
+        /// <exception cref="ArgumentNullException"></exception>
+        /// <exception cref="InvalidOperationException"></exception>
         public void AddSystemComponentRegistration(
             Type componentType,
             Action<Component, ComponentChangeType> callback)
@@ -101,7 +122,7 @@ namespace Fletch.Engine.Scenes
                 id = nextId++;
             }
 
-                GameObject gameObject = gameObjectFactory.BuildGameObject(id);
+            GameObject gameObject = gameObjectFactory.BuildGameObject(id);
 
             gameObjects.Add(gameObject);
 
@@ -143,7 +164,7 @@ namespace Fletch.Engine.Scenes
             componentCallBacks.Clear();
             freedIds.Clear();
 
-            SystemScheduler.Dispose();
+            SystemManager.Dispose();
         }
     }
 }

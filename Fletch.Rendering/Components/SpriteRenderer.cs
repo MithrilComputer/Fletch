@@ -1,4 +1,6 @@
-﻿using Fletch.Core.Math.Geometry;
+﻿using Fletch.Core.Colors;
+using Fletch.Core.Math.Geometry;
+using Fletch.Engine.Attributes;
 using Fletch.Engine.Components;
 using Fletch.Rendering.Abstractions.Resources;
 using Fletch.Rendering.Model;
@@ -9,17 +11,20 @@ namespace Fletch.Rendering.Components
     /// <summary>
     /// Renders a 2D sprite for an GameObject
     /// </summary>
+    [DisallowMultipleComponentAttribute]
     internal sealed class SpriteRenderer : Component
     {
         /// <summary>
         /// The sprite or texture to render.
         /// </summary>
-        public ITexture? Texture { get; set; } = null;
+        public VisualResource VisualResource { get; set; } = new VisualResource();
 
         /// <summary>
         /// Optional source rectangle within the sprite texture.
         /// </summary>
         public RectangleFloat? SourceRectangle { get; set; } = null;
+
+        public float PixelsPerUnit { get; set; } = 32f;
 
         /// <summary>
         /// Tint color applied to the sprite.

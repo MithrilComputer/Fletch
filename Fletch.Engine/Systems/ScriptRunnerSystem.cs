@@ -1,5 +1,6 @@
 ﻿using Fletch.Core.Components.Update;
 using Fletch.Core.Diagnostics;
+using Fletch.Core.Time;
 using Fletch.Engine.Components;
 using Fletch.Engine.Components.Updateable;
 using Fletch.Engine.Hierarchy;
@@ -31,12 +32,12 @@ namespace Fletch.Engine.Systems
         {
             base.AttachToScene(scene);
 
-            scene.SystemScheduler.RegisterSystem(this, SystemExecutionOrder.Update, 0);
+            scene.SystemManager.RegisterSystem(this, SystemExecutionOrder.Update, 0);
 
-            scene.AddSystemComponentRegistration(typeof(Script), (a, b, c) => OnScriptChange(a,b,c)); //TODO, I need to make a try add so I dont double register later
+            scene.AddSystemComponentRegistration(typeof(Script), (b, c) => OnScriptChange(b,c)); //TODO, I need to make a try add so I dont double register later
         }
 
-        public void FixedUpdate(float deltaTime)
+        public void FixedUpdate(FixedTimeStep deltaTime)
         {
             FlushPendingAddsAndRemoves();
 
@@ -149,7 +150,7 @@ namespace Fletch.Engine.Systems
             return this;
         }
 
-        private void OnScriptChange(GameObject gameObject, Component script, ComponentChangeType changeType)
+        private void OnScriptChange(Component script, ComponentChangeType changeType)
         {
             switch (changeType)
             {

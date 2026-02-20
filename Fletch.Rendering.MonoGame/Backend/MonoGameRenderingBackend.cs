@@ -12,7 +12,7 @@ using Fletch.Rendering.MonoGame.Factories;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using MonoGame.Extended.ViewportAdapters;
-using FletchColor = Fletch.Rendering.Model.Color;
+using FletchColor = Fletch.Core.Colors.Color;
 using XnaColor = Microsoft.Xna.Framework.Color;
 using XnaViewport = Microsoft.Xna.Framework.Graphics.Viewport;
 
@@ -126,11 +126,11 @@ namespace Fletch.Rendering.MonoGame.Backend
         /// Must be followed by a call to <see cref="EndCamera"/>.
         /// </summary>
         /// <param name="camera">Camera whose view matrix will be applied.</param>
-        /// <param name="viewport">Viewport rectangle in back-buffer coordinates.</param>
+        /// <param name="virtualViewport">Viewport rectangle in back-buffer coordinates.</param>
         /// <param name="blendMode">Blend mode to use for sprite rendering.</param>
         /// <param name="samplerMode">Texture sampling mode.</param>
         /// <exception cref="InvalidOperationException">Thrown if a camera is already active.</exception>
-        public void BeginCamera(ICamera camera, RectangleInt viewport, BlendMode blendMode = BlendMode.Alpha, SamplerMode samplerMode = SamplerMode.Linear)
+        public void BeginCamera(ICamera camera, RectangleInt virtualViewport, BlendMode blendMode = BlendMode.Alpha, SamplerMode samplerMode = SamplerMode.Linear)
         {
             if(!isInitialized)
                 throw new InvalidOperationException("Backend Not Initialized Yet!");
@@ -143,7 +143,10 @@ namespace Fletch.Rendering.MonoGame.Backend
 
             currentCamera = camera;
 
-            graphicsDevice.Viewport = new XnaViewport(viewport.X, viewport.Y, viewport.Width, viewport.Height);
+            // Covert virtual viewport to real viewport
+            XnaViewport realViewport = VirtualViewportToRealViewport(virtualViewport);
+
+            graphicsDevice.Viewport = new XnaViewport(realViewport.X, realViewport.Y, realViewport.Width, realViewport.Height);
 
             spriteBatcher.Begin(currentCamera.GetViewMatrix(), blendMode, samplerMode);
         }
@@ -163,12 +166,6 @@ namespace Fletch.Rendering.MonoGame.Backend
             spriteBatcher.End();
 
             currentCamera = null;
-
-            graphicsDevice.Viewport = new XnaViewport(
-                fullViewport.X,
-                fullViewport.Y,
-                fullViewport.Width,
-                fullViewport.Height);
         }
 
         /// <summary>
@@ -186,7 +183,11 @@ namespace Fletch.Rendering.MonoGame.Backend
 
             graphicsDevice.SetRenderTarget(null);
 
-            graphicsDevice.Viewport = new Viewport(fullViewport.X, fullViewport.Y, fullViewport.Width, fullViewport.Height);
+            graphicsDevice.Viewport = new Viewport(
+                0,
+                0,
+                fullViewport.Width,
+                fullViewport.Height);
 
             XnaColor xnaColor = new XnaColor(
                 clearColor.R,
@@ -275,6 +276,41 @@ namespace Fletch.Rendering.MonoGame.Backend
             return renderTargetFactory.Create(width, height);
         }
 
+        /// <summary>
+        /// Converts a camera's viewport defined in VIRTUAL coordinates (inside the virtual resolution)
+        /// into a REAL GraphicsDevice Viewport (inside the backbuffer), respecting BoxingViewportAdapter.
+        /// </summary>
+        private Viewport VirtualViewportToRealViewport(RectangleInt virtualViewportRect)
+        {
+            // This is the real boxed area (already centered with black bars)
+            Viewport boxedReal = graphicsDevice.Viewport;
+
+            // Uniform scale used by boxing
+            float scaleX = boxedReal.Width / (float)viewportAdapter.VirtualWidth;
+            float scaleY = boxedReal.Height / (float)viewportAdapter.VirtualHeight;
+
+            // In boxing these should match; use X (or Min to be safe)
+            float scale = MathF.Min(scaleX, scaleY);
+
+            int realX = boxedReal.X + (int)MathF.Round(virtualViewportRect.X * scale);
+            int realY = boxedReal.Y + (int)MathF.Round(virtualViewportRect.Y * scale);
+
+            int realW = (int)MathF.Round(virtualViewportRect.Width * scale);
+            int realH = (int)MathF.Round(virtualViewportRect.Height * scale);
+
+            // Clamp so you never spill outside the boxed area (nice for edge rounding)
+            int maxX = boxedReal.X + boxedReal.Width;
+            int maxY = boxedReal.Y + boxedReal.Height;
+
+            if (realX < boxedReal.X) realX = boxedReal.X;
+            if (realY < boxedReal.Y) realY = boxedReal.Y;
+
+            if (realX + realW > maxX) realW = maxX - realX;
+            if (realY + realH > maxY) realH = maxY - realY;
+
+            return new Viewport(realX, realY, realW, realH);
+        }
+
         private void OnResize(object? sender, EventArgs e)
         {
             if (!isInitialized)
@@ -283,8 +319,6 @@ namespace Fletch.Rendering.MonoGame.Backend
             XnaViewport viewport = graphicsDevice.Viewport;
 
             fullViewport = new RectangleInt(viewport.X, viewport.Y, viewport.Width, viewport.Height);
-
-            viewportAdapter.Reset();
         }
 
         public void Dispose()

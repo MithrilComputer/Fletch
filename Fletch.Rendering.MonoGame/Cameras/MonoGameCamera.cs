@@ -2,12 +2,9 @@
 using Fletch.Core.Math.Geometry;
 using Fletch.Rendering.Abstractions.Cameras;
 using Microsoft.Xna.Framework.Graphics;
-using MonoGame.Extended;
 using MonoGame.Extended.ViewportAdapters;
-using System.Numerics;
 using SysMatrix = System.Numerics.Matrix3x2;
 using SysVector2 = System.Numerics.Vector2;
-using XnaMatrix = Microsoft.Xna.Framework.Matrix;
 
 namespace Fletch.Rendering.MonoGame.Cameras
 {
@@ -138,13 +135,9 @@ namespace Fletch.Rendering.MonoGame.Cameras
 
         public float GetZoom() => zoom;
 
-        // -------------------------
-        // Internals
-        // -------------------------
-
         private SysMatrix WorldToVirtualMatrix()
         {
-            float worldToPixelsScale = EngineConfig.WorldPixelsPerUnit * zoom;
+            float worldToPixelsScale = (EngineConfig.VirtualResolution.X / EngineConfig.WorldUnitsAcrossScreen) * zoom;
 
             var view =
                 SysMatrix.CreateTranslation(-position) *

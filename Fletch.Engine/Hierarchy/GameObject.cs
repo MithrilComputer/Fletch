@@ -1,4 +1,6 @@
 ﻿using Fletch.Core.Diagnostics;
+using Fletch.Engine.Abstractions.Factories;
+using Fletch.Engine.Attributes;
 using Fletch.Engine.Components;
 using Fletch.Engine.Model;
 
@@ -24,13 +26,40 @@ namespace Fletch.Engine.Hierarchy
 
         public event ComponentChangedHandler? ComponentChanged;
 
-        public GameObject(uint id, IFletchContextLogger<GameObject> logger)
+        private readonly IComponentFactory componentFactory;
+
+        internal GameObject(uint id, IFletchContextLogger<GameObject> logger, IComponentFactory componentFactory)
         {
             this.logger = logger;
+
+            this.componentFactory = componentFactory;
 
             ID = id;
 
             Transform = new Transform();
+        }
+
+        public T? AddComponent<T>() where T : Component
+        {
+            Type type = typeof(T);
+
+            bool disallowMultiple = Attribute.IsDefined(type, typeof(DisallowMultipleComponentAttribute));
+
+            if (disallowMultiple && components.Any(c => c.GetType() == type))
+            {
+                logger.LogWarning($"{type.Name} does not allow multiple instances.");
+                return GetComponent<T>();
+            }
+
+            Component component = componentFactory.CreateNewComponent<T>();
+
+            components.Add(component);
+
+            component.OnAdded(this);
+
+            ComponentChanged?.Invoke(component, ComponentChangeType.Added);
+
+            return (T)component;
         }
 
         public T? GetComponent<T>() where T : Component
@@ -71,25 +100,6 @@ namespace Fletch.Engine.Hierarchy
             return typedComponents;
         }
 
-        public bool TryAddComponent(Component component)
-        {
-            if (component == null)
-                return false;
-
-            Type? type = component.GetType();
-
-            if (components.Any(c => c.GetType() == type))
-                return false;
-
-            components.Add(component);
-
-            component.OnAdded(this);
-
-            ComponentChanged?.Invoke(component, ComponentChangeType.Added);
-
-            return true;
-        }
-
         public bool TryRemoveComponent(Component component)
         {
             if (component == null)
@@ -111,14 +121,14 @@ namespace Fletch.Engine.Hierarchy
         {
             if (component == null)
             {
-                logger.LogWarning($"Cant Enable a Null Component. {Name}, {ID}, {component?.GetType().Name}");
+                logger.LogWarning($"Can't Enable a Null Component. {Name}, {ID}, {component?.GetType().Name}");
 
                 return;
             }
 
             if (!components.Contains(component))
             {
-                logger.LogWarning($"Cant Enable a Component that the GameObject does not own. {Name}, {ID}, {component.GetType().Name}");
+                logger.LogWarning($"Can't Enable a Component that the GameObject does not own. {Name}, {ID}, {component.GetType().Name}");
 
                 return;
             }

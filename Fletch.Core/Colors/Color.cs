@@ -1,4 +1,4 @@
-﻿namespace Fletch.Rendering.Model
+﻿namespace Fletch.Core.Colors
 {
     /// <summary>
     /// Represents a color with red, green, blue, and alpha components.

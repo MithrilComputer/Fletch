@@ -1,21 +1,34 @@
 ﻿using Fletch.Core.Components.Update;
+using Fletch.Core.LifeCycle;
+using Fletch.Core.Time;
+using Fletch.Engine.Abstractions.Factories;
 using Fletch.Engine.Components.Updateable;
 using Fletch.Engine.Model;
 using Fletch.Engine.Scenes;
 
 namespace Fletch.Engine.Systems
 {
-    public sealed class SystemScheduler : IDisposable
+    internal sealed class SubSystemManager : IDisposable
     {
         private readonly List<SystemEntry> systemEntries = new List<SystemEntry>();
 
-        private Scene? loadedScene;
+        private readonly Scene loadedScene;
+
+        private readonly ISubSystemFactory subSystemFactory;
 
         private int executionOrderIndex = 0;
 
-        public SystemScheduler()
+        public SubSystemManager(ISubSystemFactory subSystemFactory, Scene loadedScene)
         {
+            this.subSystemFactory = subSystemFactory ;
+            this.loadedScene = loadedScene;
+        }
 
+        public void AddSubSystem<T>() where T : SceneSubsystem
+        {
+            T instance = subSystemFactory.CreateSubSystem<T>();
+
+            instance.AttachToScene(loadedScene);
         }
 
         public void UpdateSystems(float deltaTime)
@@ -31,7 +44,7 @@ namespace Fletch.Engine.Systems
             }
         }
 
-        public void UpdateFixedSystems(float deltaTime)
+        public void UpdateFixedSystems(FixedTimeStep deltaTime)
         {
             for (int i = 0; i < systemEntries.Count; i++)
             {
@@ -44,27 +57,24 @@ namespace Fletch.Engine.Systems
             }
         }
 
-        public void SetLoadedScene(Scene scene)
+        public void UpdateRenderables(FrameTime frameTime)
         {
-            if (scene == null)
-                throw new ArgumentNullException(nameof(scene));
-
-            if (loadedScene == scene)
-                return;
-
-            if (loadedScene != null)
-            {
-                for (int i = 0; i < systemEntries.Count; i++)
-                {
-                    systemEntries[i].System.DetachFromScene();
-                }
-            }
-
-            loadedScene = scene;
-
             for (int i = 0; i < systemEntries.Count; i++)
             {
-                systemEntries[i].System.AttachToScene(scene);
+                SceneSubsystem system = systemEntries[i].System;
+
+                if (system is IRenderable renderables)
+                {
+                    renderables.Render(frameTime);
+                }
+            }
+        }
+
+        private void DetachSubSystemsFromScene()
+        {
+            for (int i = 0; i < systemEntries.Count; i++)
+            {
+                systemEntries[i].System.DetachFromScene();
             }
         }
 
@@ -73,13 +83,11 @@ namespace Fletch.Engine.Systems
             if (system == null)
                 throw new ArgumentNullException(nameof(system));
 
-            var entry = new SystemEntry(system, new ExecutionOrderInfo(phase, order, executionOrderIndex));
+            SystemEntry entry = new SystemEntry(system, new ExecutionOrderInfo(phase, order, executionOrderIndex));
+
             systemEntries.Add(entry);
 
             executionOrderIndex++;
-
-            if (loadedScene != null)
-                system.AttachToScene(loadedScene);
 
             systemEntries.Sort(SystemCompare);
         }
@@ -115,6 +123,8 @@ namespace Fletch.Engine.Systems
 
         public void Dispose()
         {
+            DetachSubSystemsFromScene();
+
             foreach (var entry in systemEntries)
             {
                 if(entry.System is IDisposable disposable)

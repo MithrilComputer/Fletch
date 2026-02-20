@@ -1,4 +1,4 @@
-﻿namespace Fletch.Runtime.Abstractions.Time
+﻿namespace Fletch.Core.Time
 {
     /// <summary>
     /// Represents timing information for a fixed-step update.
