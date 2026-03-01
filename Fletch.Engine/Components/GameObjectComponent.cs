@@ -1,8 +1,9 @@
 ﻿using Fletch.Engine.Hierarchy;
+using Fletch.Engine.Model;
 
 namespace Fletch.Engine.Components
 {
-    public abstract class Component
+    public abstract class GameObjectComponent
     {
         public bool IsEnabled { get; set; } = true;
 
@@ -20,6 +21,14 @@ namespace Fletch.Engine.Components
                     $"{GetType().Name} is already attached to a GameObject.");
 
             GameObject = gameObject;
+        }
+
+        protected void NotifyComponentChanged()
+        {
+            if (GameObject == null)
+                return;
+
+            GameObject.NotifyComponentChanged(this, ComponentChangeType.Modified);
         }
 
         internal virtual void OnRemoved()

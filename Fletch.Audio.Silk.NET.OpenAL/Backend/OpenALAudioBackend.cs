@@ -1,6 +1,5 @@
 ﻿using Fletch.Audio.Abstractions.Backend;
 using Fletch.Audio.Model;
-using Fletch.Audio.Silk.NET.OpenAL.Natives;
 using Silk.NET.OpenAL;
 
 namespace Fletch.Audio.Silk.NET.OpenAL.Backend
@@ -13,14 +12,12 @@ namespace Fletch.Audio.Silk.NET.OpenAL.Backend
 
         public OpenALAudioBackend()
         {
-            openALNative = new OpenALNative(); //Starts backend device and context
-
             alContext = ALContext.GetApi();
 
 
         }
         
-        public SoundHandle? QueueCommand(AudioCommand command)
+        public ISoundHandle? QueueCommand(AudioCommand command)
         {
 
         }

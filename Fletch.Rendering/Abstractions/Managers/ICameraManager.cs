@@ -15,5 +15,6 @@ namespace Fletch.Rendering.Abstractions.Managers
 
         void FlushSafePoint();
 
+        void MarkDirty();
     }
 }

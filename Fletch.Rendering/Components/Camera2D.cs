@@ -8,12 +8,12 @@ using System.Numerics;
 namespace Fletch.Rendering.Components
 {
     [DisallowMultipleComponentAttribute]
-    public class Camera2D : Component
+    public class Camera2D : GameObjectComponent
     {
         public Vector2 Position => GameObject.Transform.WorldPosition;
 
         public float Zoom { get; set; } = 1;
-
+        //TODO MAKE IT REPORT DIRTY with Component.NotifyComponentChanged() when modified
         public int RenderOrder { get; set; } = 0;
 
         internal int RenderIndex { get; set; } = 0;

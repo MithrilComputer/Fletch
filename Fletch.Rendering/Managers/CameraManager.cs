@@ -21,11 +21,18 @@ namespace Fletch.Rendering.Managers
 
         private readonly IRenderingBackend renderingBackend;
 
+        private bool cameraOrderDirty = true;
+
         private int renderOrderIndex = 0;
 
         public CameraManager(IRenderingBackend renderingBackend)
         {
             this.renderingBackend = renderingBackend ?? throw new ArgumentNullException(nameof(renderingBackend));
+        }
+
+        public void MarkDirty()
+        {
+            cameraOrderDirty = true;
         }
 
         public void QueueCreate(Camera2D cameraComponent)
@@ -38,6 +45,8 @@ namespace Fletch.Rendering.Managers
 
             pendingBackendRemoval.Remove(cameraComponent);
             pendingBackendCreation.Add(cameraComponent);
+
+            cameraOrderDirty = true;
         }
 
         public void QueueRemove(Camera2D cameraComponent)
@@ -50,6 +59,8 @@ namespace Fletch.Rendering.Managers
             if (!cameraBindings.ContainsKey(cameraComponent)) return;
 
             pendingBackendRemoval.Add(cameraComponent);
+
+            cameraOrderDirty = true;
         }
 
         public void FlushSafePoint()
@@ -81,7 +92,10 @@ namespace Fletch.Rendering.Managers
 
             frontendCameras.Refresh();
 
-            frontendCameras.Sort(SystemCompare);
+            if(cameraOrderDirty)
+            {
+                frontendCameras.Sort(SystemCompare);
+            }
         }
 
         public ICamera? GetBackendCameraFromBinding(Camera2D camera)

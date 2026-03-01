@@ -12,7 +12,6 @@ using Fletch.Engine.Systems;
 using Fletch.Rendering.Abstractions.Backends;
 using Fletch.Rendering.Abstractions.Cameras;
 using Fletch.Rendering.Abstractions.Managers;
-using Fletch.Rendering.Abstractions.Resources;
 using Fletch.Rendering.Components;
 using System.Numerics;
 
@@ -29,6 +28,8 @@ namespace Fletch.Rendering.Systems
         private readonly ICameraManager cameraManager;
 
         private readonly IRenderSurface screenSurface;
+
+        bool spriteOrderDirty = true;
 
         private int zSpriteIndex = 0;
 
@@ -63,7 +64,11 @@ namespace Fletch.Rendering.Systems
             if (!screenSurface.IsValid)
                 return;
 
-            spriteRenderers.Sort(SystemCompare);
+            if(spriteOrderDirty)
+            {
+                spriteRenderers.Sort(SystemCompare);
+                spriteOrderDirty = false;
+            }
 
             foreach (Camera2D frontendCamera in cameraManager.Cameras)
             {
@@ -175,7 +180,7 @@ namespace Fletch.Rendering.Systems
                 sprite.GameObject.Transform.WorldRotation.Radians +
                 sprite.RotationOffset.Radians;
 
-            if (rotation < 0.000001f || rotation > 0.0001)
+            if (MathF.Abs(rotation) > 0.0001f)
             {
                 float cos = MathF.Abs(MathF.Cos(rotation));
                 float sin = MathF.Abs(MathF.Sin(rotation));
@@ -211,14 +216,18 @@ namespace Fletch.Rendering.Systems
             return a.ZIndex.CompareTo(b.ZIndex);
         }
 
-        private void OnSpriteRendererChange(Component component, ComponentChangeType changeType)
+        private void OnSpriteRendererChange(GameObjectComponent component, ComponentChangeType changeType)
         {
-            SpriteRenderer sprite = (SpriteRenderer)component;
+            if (component is not SpriteRenderer sprite)
+            {
+                throw new InvalidOperationException($"Expected component of type {typeof(SpriteRenderer)}, but got {component.GetType()}.");
+            }
 
             switch (changeType)
             {
                 case ComponentChangeType.Added:
                     spriteRenderers.MarkToAdd(sprite);
+                    spriteOrderDirty = true;
 
                     sprite.ZIndex = zSpriteIndex;
                     zSpriteIndex++;
@@ -226,23 +235,36 @@ namespace Fletch.Rendering.Systems
                     break;
                 case ComponentChangeType.Removed:
                     spriteRenderers.MarkToRemove(sprite);
+                    spriteOrderDirty = true;
+                    break;
+
+                case ComponentChangeType.Modified:
+                    spriteOrderDirty = true;
                     break;
 
                 default: break;
             }
         }
 
-        private void OnCamera2DChange(Component component, ComponentChangeType changeType)
+        private void OnCamera2DChange(GameObjectComponent component, ComponentChangeType changeType)
         {
-            Camera2D cameraComponent = (Camera2D)component;
+            if(component is not Camera2D cameraComponent)
+            {
+                throw new InvalidOperationException($"Expected component of type {typeof(Camera2D)}, but got {component.GetType()}.");
+            }
 
             switch (changeType)
             {
                 case ComponentChangeType.Added:
                     cameraManager.QueueCreate(cameraComponent);
+
                     break;
                 case ComponentChangeType.Removed:
                     cameraManager.QueueRemove(cameraComponent);
+                    break;
+
+                case ComponentChangeType.Modified:
+                    cameraManager.MarkDirty();
                     break;
 
                 default: break;

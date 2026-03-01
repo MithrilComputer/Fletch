@@ -16,8 +16,8 @@ namespace Fletch.Engine.Scenes
     
         private readonly Queue<uint> freedIds = new Queue<uint>();
 
-        private readonly Dictionary<Type, List<Action< Component, ComponentChangeType>>> componentCallBacks
-            = new Dictionary<Type, List<Action<Component, ComponentChangeType>>>();
+        private readonly Dictionary<Type, List<Action< GameObjectComponent, ComponentChangeType>>> componentCallBacks
+            = new Dictionary<Type, List<Action<GameObjectComponent, ComponentChangeType>>>();
 
         private readonly List<GameObject> gameObjects = new List<GameObject>();
 
@@ -56,7 +56,7 @@ namespace Fletch.Engine.Scenes
         /// <exception cref="InvalidOperationException"></exception>
         public void AddSystemComponentRegistration(
             Type componentType,
-            Action<Component, ComponentChangeType> callback)
+            Action<GameObjectComponent, ComponentChangeType> callback)
         {
             if (componentType == null) 
                 throw new ArgumentNullException(nameof(componentType));
@@ -64,9 +64,9 @@ namespace Fletch.Engine.Scenes
             if (callback == null) 
                 throw new ArgumentNullException(nameof(callback));
 
-            if (!componentCallBacks.TryGetValue(componentType, out List<Action<Component, ComponentChangeType>> list))
+            if (!componentCallBacks.TryGetValue(componentType, out List<Action<GameObjectComponent, ComponentChangeType>> list))
             {
-                list = new List<Action<Component, ComponentChangeType>>();
+                list = new List<Action<GameObjectComponent, ComponentChangeType>>();
 
                 componentCallBacks.Add(componentType, list);
             }
@@ -76,13 +76,13 @@ namespace Fletch.Engine.Scenes
 
         public void RemoveSystemComponentRegistration(
             Type componentType,
-            Action<Component, ComponentChangeType> callback)
+            Action<GameObjectComponent, ComponentChangeType> callback)
         {
             if (componentType == null) throw new ArgumentNullException(nameof(componentType));
 
             if (callback == null) throw new ArgumentNullException(nameof(callback));
 
-            if (!componentCallBacks.TryGetValue(componentType, out List<Action<Component, ComponentChangeType>> list))
+            if (!componentCallBacks.TryGetValue(componentType, out List<Action<GameObjectComponent, ComponentChangeType>> list))
             {
                 logger.LogWarning("Cant Remove A System Component Registration That has not been registered. Did you forget to register the system component?");
 
@@ -95,7 +95,7 @@ namespace Fletch.Engine.Scenes
                 componentCallBacks.Remove(componentType);
         }
 
-        public void OnComponentChange(Component component, ComponentChangeType changeType)
+        public void OnComponentChange(GameObjectComponent component, ComponentChangeType changeType)
         {
             if (component.GameObject == null || component == null)
                 return;

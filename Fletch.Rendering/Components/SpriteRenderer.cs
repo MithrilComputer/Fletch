@@ -12,13 +12,13 @@ namespace Fletch.Rendering.Components
     /// Renders a 2D sprite for an GameObject
     /// </summary>
     [DisallowMultipleComponentAttribute]
-    internal sealed class SpriteRenderer : Component
+    internal sealed class SpriteRenderer : GameObjectComponent
     {
         /// <summary>
         /// The sprite or texture to render.
         /// </summary>
         public VisualResource VisualResource { get; set; } = new VisualResource();
-
+        //TODO MAKE IT REPORT DIRTY with Component.NotifyComponentChanged() when modified
         /// <summary>
         /// Optional source rectangle within the sprite texture.
         /// </summary>

@@ -4,6 +4,6 @@ namespace Fletch.Engine.Abstractions.Factories
 {
     internal interface IComponentFactory
     {
-        Component CreateNewComponent<T>() where T : Component;
+        GameObjectComponent CreateNewComponent<T>() where T : GameObjectComponent;
     }
 }

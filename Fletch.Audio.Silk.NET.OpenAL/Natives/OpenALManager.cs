@@ -15,7 +15,7 @@ namespace Fletch.Audio.Silk.NET.OpenAL.Natives
 
         private AL al;
 
-        private readonly Queue<uint> sourcePool = new Queue<uint>();
+        private readonly ConcurrentQueue<uint> sourcePool = new ConcurrentQueue<uint>();
 
         private readonly ConcurrentQueue<AudioCommand> commandQueue = new ConcurrentQueue<AudioCommand>();
 
@@ -27,7 +27,7 @@ namespace Fletch.Audio.Silk.NET.OpenAL.Natives
             worker.Start();
         }
 
-        public SoundHandle? QueueCommand(AudioCommand command)
+        public ISoundHandle? QueueCommand(AudioCommand command)
         {
             commandQueue.Enqueue(command);
         }

@@ -1,4 +1,5 @@
-﻿using Fletch.Input.Abstractions.Backends;
+﻿using Fletch.Audio.Abstractions.Backend;
+using Fletch.Input.Abstractions.Backends;
 using Fletch.Platform.Abstractions.Lifecycle;
 using Fletch.Platform.Abstractions.Paths;
 using Fletch.Platform.Abstractions.Window;
@@ -35,5 +36,10 @@ namespace Fletch.Platform.Abstractions.Contexts
         /// Gets the active input backend.
         /// </summary>
         IInputBackend InputBackend { get; }
+
+        /// <summary>
+        /// Gets the audio backend in use.
+        /// </summary>
+        IAudioBackend AudioBackend { get; }
     }
 }

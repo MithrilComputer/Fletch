@@ -1,6 +1,5 @@
 ﻿using Fletch.Core.Colors;
 using Fletch.Core.EngineConfig;
-using Fletch.Core.Math.Geometry;
 using Fletch.Core.Time;
 using Fletch.Engine.Abstractions.Factories;
 using Fletch.Engine.Hierarchy;
@@ -12,7 +11,6 @@ using Fletch.Platform.Abstractions.Lifecycle;
 using Fletch.Platform.Abstractions.Paths;
 using Fletch.Platform.Abstractions.Window;
 using Fletch.Rendering.Abstractions.Backends;
-using Fletch.Rendering.Abstractions.Resources;
 using Fletch.Rendering.Components;
 using Fletch.Rendering.Systems;
 using Fletch.Runtime.Abstractions.Hosting;
@@ -21,8 +19,14 @@ using System.Numerics;
 
 namespace Fletch.Runtime.Hosting
 {
+    /// <summary>
+    /// Setup just for debuging!!! Ignore this, it will be removed in the future. This is just to test the engine and make sure everything is working as expected.
+    /// </summary>
     internal class FletchRuntime : IRuntime
     {
+
+
+
         private readonly IWindow window;
 
         private readonly IApplicationLifetime applicationLifeTime;

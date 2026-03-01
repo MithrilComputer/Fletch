@@ -15,12 +15,12 @@ namespace Fletch.Engine.Hierarchy
         public Transform Transform { get; }
 
         // TODO At some point convert this into a Dictionary<typeof(Component), list<Component>> for faster lookups
-        private readonly List<Component> components = new List<Component>();
+        private readonly List<GameObjectComponent> components = new List<GameObjectComponent>();
 
         private readonly IFletchContextLogger<GameObject> logger;
 
         public delegate void ComponentChangedHandler(
-            Component component,
+            GameObjectComponent component,
             ComponentChangeType changeType
         );
 
@@ -39,7 +39,7 @@ namespace Fletch.Engine.Hierarchy
             Transform = new Transform();
         }
 
-        public T? AddComponent<T>() where T : Component
+        public T? AddComponent<T>() where T : GameObjectComponent
         {
             Type type = typeof(T);
 
@@ -51,7 +51,7 @@ namespace Fletch.Engine.Hierarchy
                 return GetComponent<T>();
             }
 
-            Component component = componentFactory.CreateNewComponent<T>();
+            GameObjectComponent component = componentFactory.CreateNewComponent<T>();
 
             components.Add(component);
 
@@ -62,14 +62,14 @@ namespace Fletch.Engine.Hierarchy
             return (T)component;
         }
 
-        public T? GetComponent<T>() where T : Component
+        public T? GetComponent<T>() where T : GameObjectComponent
         {
             if (components.Count == 0)
             {
                 return null;
             }
 
-            foreach (Component component in components)
+            foreach (GameObjectComponent component in components)
             {
                 if(component is T typedComponent)
                 {
@@ -80,7 +80,7 @@ namespace Fletch.Engine.Hierarchy
             return null;
         }
 
-        public List<T> GetComponents<T>() where T : Component
+        public List<T> GetComponents<T>() where T : GameObjectComponent
         {
             if (components.Count == 0)
             {
@@ -89,7 +89,7 @@ namespace Fletch.Engine.Hierarchy
 
             List<T> typedComponents = new List<T>();
 
-            foreach (Component component in components)
+            foreach (GameObjectComponent component in components)
             {
                 if (component is T typedComponent)
                 {
@@ -100,7 +100,7 @@ namespace Fletch.Engine.Hierarchy
             return typedComponents;
         }
 
-        public bool TryRemoveComponent(Component component)
+        public bool TryRemoveComponent(GameObjectComponent component)
         {
             if (component == null)
                 return false;
@@ -117,7 +117,7 @@ namespace Fletch.Engine.Hierarchy
             return true;
         }
 
-        public void EnableComponent(Component component)
+        public void EnableComponent(GameObjectComponent component)
         {
             if (component == null)
             {
@@ -141,7 +141,7 @@ namespace Fletch.Engine.Hierarchy
             ComponentChanged?.Invoke(component, ComponentChangeType.Enabled);
         }
 
-        public void DisableComponent(Component component)
+        public void DisableComponent(GameObjectComponent component)
         {
             if (component == null)
             {
@@ -165,9 +165,28 @@ namespace Fletch.Engine.Hierarchy
             ComponentChanged?.Invoke(component, ComponentChangeType.Disabled);
         }
 
+        internal void NotifyComponentChanged(GameObjectComponent component, ComponentChangeType changeType)
+        {
+            if (component == null)
+            {
+                logger.LogWarning($"Can not notify a system about a Null Component. {Name}, {ID}, {component?.GetType().Name}");
+
+                return;
+            }
+
+            if (!components.Contains(component))
+            {
+                logger.LogWarning($"Can not notify a system about a component that the GameObject does not own. {Name}, {ID}, {component.GetType().Name}");
+
+                return;
+            }
+
+            ComponentChanged?.Invoke(component, ComponentChangeType.Disabled);
+        }
+
         private void RequestComponentsDestroy()
         {
-            foreach (Component component in components.ToArray())
+            foreach (GameObjectComponent component in components.ToArray())
             {
                 if (!TryRemoveComponent(component))
                 {

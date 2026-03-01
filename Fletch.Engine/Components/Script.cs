@@ -5,7 +5,7 @@ using Fletch.Engine.Components.Updateable;
 
 namespace Fletch.Engine.Components
 {
-    public abstract class Script : Component, IUpdateable, IFixedUpdateable, IStartable, ILateStartable
+    public abstract class Script : GameObjectComponent, IUpdateable, IFixedUpdateable, IStartable, ILateStartable
     {
         public bool HasStarted { get; set; } = false;
 

@@ -13,7 +13,7 @@ namespace Fletch.Engine.Factories
             this.serviceProvider = serviceProvider;
         }
 
-        public Component CreateNewComponent<T>() where T : Component
+        public GameObjectComponent CreateNewComponent<T>() where T : GameObjectComponent
         {
             return ActivatorUtilities.CreateInstance<T>(serviceProvider);
         }

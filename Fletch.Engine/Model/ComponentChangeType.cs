@@ -6,5 +6,6 @@
         Removed = 1,
         Enabled = 2,
         Disabled = 3,
+        Modified = 4
     }
 }
