@@ -1,69 +1,62 @@
-﻿using Fletch.Audio.Model;
-using Fletch.Core.EngineConfig;
+﻿using Fletch.Audio.Model.SoundListenerCommands;
+using Fletch.Audio.Model.SoundPlayerCommands;
 using Silk.NET.OpenAL;
-using System.Collections.Concurrent;
 
 namespace Fletch.Audio.Silk.NET.OpenAL.Natives
 {
-    internal class OpenALManager : IAsyncDisposable
+    internal sealed class OpenALManager : IDisposable
     {
-        private readonly Thread worker;
+        private readonly Thread audioThread;
 
-        private bool isRunning = true;
+        private bool running = false;
+        private bool disposed = false;
 
-        private ALContext context;
-
-        private AL al;
-
-        private readonly ConcurrentQueue<uint> sourcePool = new ConcurrentQueue<uint>();
-
-        private readonly ConcurrentQueue<AudioCommand> commandQueue = new ConcurrentQueue<AudioCommand>();
+        private Queue<SoundPlayerCommand> soundPlayerCommands = new Queue<SoundPlayerCommand>();
+        private Queue<SoundListenerCommand> soundListenerCommands = new Queue<SoundListenerCommand>();
 
         public OpenALManager()
         {
-            worker = new Thread(AudioWorker);
-
-            worker.IsBackground = true;
-            worker.Start();
+            audioThread = new Thread(AudioThreadMain);
+            audioThread.IsBackground = true;
+            audioThread.Name = "OpenAL Audio Thread";
         }
 
-        public ISoundHandle? QueueCommand(AudioCommand command)
+        public void Start()
         {
-            commandQueue.Enqueue(command);
+            if (running)
+                return;
+
+            running = true;
+
+            audioThread.Start();
         }
 
-        private void AudioWorker()
+        private void AudioThreadMain()
         {
-            OpenALNative openAL = new OpenALNative(); // Creates and sets the audio device and AL context
+            using OpenALContextManager contextManager = new OpenALContextManager();
+            using AL al = AL.GetApi();
+            using OpenALRuntime runtime = new OpenALRuntime(al);
 
-            context = ALContext.GetApi();
-
-            al = AL.GetApi();
-
-            for(int i = 0; i < EngineConfig.AudioSourcePoolSize; i++)
+            while (running)
             {
-                sourcePool.Enqueue(al.GenSource());
+                //TODO Send command queue to the runtime for working
+
+                Thread.Sleep(1);
+            }
+        }
+        public void Dispose()
+        {
+            if (disposed)
+            {
+                return;
             }
 
-            while (isRunning)
+            disposed = true;
+            running = false;
+
+            if (audioThread.IsAlive)
             {
-                
-
-                // Create and process a queue of different types, like pending adds, removes, Plays and so on.
-                // Might need to create the buffers on this thread. See if that true
-                // When you make a buffer, you get back an uint ID that is used to identify what buffer youd like to play
-            }
-
-            openAL.Shutdown();
-        }
-
-        public async ValueTask DisposeAsync()
-        {
-            isRunning = false;
-
-            while(worker.IsAlive)
-            {
-                await Task.Delay(10);
+                audioThread.Join();
             }
         }
     }

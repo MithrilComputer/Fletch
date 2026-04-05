@@ -10,4 +10,8 @@
     <ProjectReference Include="..\Fletch.Engine\Fletch.Engine.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Folder Include="Abstractions\Factories\" />
+  </ItemGroup>
+
 </Project>

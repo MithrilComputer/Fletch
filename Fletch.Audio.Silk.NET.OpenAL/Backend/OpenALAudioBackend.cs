@@ -1,23 +1,13 @@
 ﻿using Fletch.Audio.Abstractions.Backend;
 using Fletch.Audio.Model;
-using Silk.NET.OpenAL;
+using Fletch.Audio.Model.SoundListenerCommands;
+using Fletch.Audio.Model.SoundPlayerCommands;
 
 namespace Fletch.Audio.Silk.NET.OpenAL.Backend
 {
     internal sealed class OpenALAudioBackend : IAudioBackend, IDisposable
     {
-        private readonly ALContext alContext;
-
-        private readonly Thread thread;
-
         public OpenALAudioBackend()
-        {
-            alContext = ALContext.GetApi();
-
-
-        }
-        
-        public ISoundHandle? QueueCommand(AudioCommand command)
         {
 
         }
@@ -25,13 +15,41 @@ namespace Fletch.Audio.Silk.NET.OpenAL.Backend
         public void Initialize()
         {
 
-            
+        }
 
+        public ISoundBufferHandle AcquireSound(string localSoundPath)
+        {
+            throw new NotImplementedException();
+        }
+
+        public void ReleaseSound(ISoundBufferHandle soundHandle)
+        {
+            throw new NotImplementedException();
+        }
+
+        public ISoundSourceHandle CreateSoundPlayer()
+        {
+            throw new NotImplementedException();
+        }
+
+        public void DestroySoundPlayer(ISoundSourceHandle soundPlayerHandle)
+        {
+            throw new NotImplementedException();
+        }
+
+        public void SendSoundPlayerCommand(SoundPlayerCommand command)
+        {
+            throw new NotImplementedException();
+        }
+
+        public void SendSoundListenerCommand(SoundListenerCommand command)
+        {
+            throw new NotImplementedException();
         }
 
         public void Dispose()
         {
-            openALNative.Shutdown();
+
         }
     }
 }

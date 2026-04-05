@@ -1,50 +1,52 @@
-﻿using Fletch.Audio.Abstractions.Factories;
-using Fletch.Audio.Model;
-using Fletch.Audio.Model.Commands;
+﻿using Fletch.Audio.Model;
+using Fletch.Audio.Model.SoundListenerCommands;
+using Fletch.Audio.Model.SoundPlayerCommands;
 
 namespace Fletch.Audio.Abstractions.Backend
 {
     /// <summary>
-    /// The IAudioBackend interface defines the contract for audio backends in the Fletch audio system. It provides methods for managing sound players, sending audio commands, and applying audio effects. Implementations of this interface will handle the actual audio processing and playback logic, allowing for flexibility in choosing different audio libraries or platforms while maintaining a consistent API for the rest of the system.
+    /// Defines the contract for an audio backend, providing methods to manage sound resources, sound players, audio
+    /// commands, and effects.
     /// </summary>
     internal interface IAudioBackend
     {
         /// <summary>
-        /// Gets the factory used to create sound handle instances.
+        /// Loads a sound resource for engine use.
+        /// This call may block depending on backend and file format.
+        /// Higher engine layers are responsible for deciding whether to call it on a worker thread.
         /// </summary>
-        ISoundHandleFactory SoundHandleFactory { get; }
+        /// <param name="localSoundPath">The path to the local sound file.</param>
+        /// <returns>An ISoundHandle representing the loaded sound.</returns>
+        ISoundBufferHandle AcquireSound(string localSoundPath);
 
         /// <summary>
-        /// Creates and returns a new sound player instance identifier.
+        /// Releases resources associated with the specified sound handle.
         /// </summary>
-        /// <returns>An int representing the ID of the sound player.</returns>
-        ISoundPlayerHandle CreateNewSoundPlayer();
+        /// <param name="soundHandle">The sound handle to release.</param>
+        void ReleaseSound(ISoundBufferHandle soundHandle);
+
+        /// <summary>
+        /// Creates a new sound player handle.
+        /// </summary>
+        /// <returns>A handle to the newly created sound player.</returns>
+        ISoundSourceHandle CreateSoundPlayer();
 
         /// <summary>
         /// Releases resources associated with the specified sound player.
         /// </summary>
-        /// <param name="soundPlayerID">The identifier of the sound player to dispose.</param>
-        void DisposeSoundPlayer(ISoundPlayerHandle soundPlayerID);
+        /// <param name="soundPlayerHandle">The identifier of the sound player to dispose.</param>
+        void DestroySoundPlayer(ISoundSourceHandle soundPlayerHandle);
 
         /// <summary>
         /// Sends a specified audio command to the sound player by the given sound player ID.
         /// </summary>
-        /// <param name="soundPlayerID">The id of the sound player to receive the command.</param>
         /// <param name="command">The audio command to send to the sound player.</param>
-        void SendSoundPlayerCommand(uint soundPlayerID, AudioCommand command);
+        void SendSoundPlayerCommand(SoundPlayerCommand command);
 
         /// <summary>
-        /// Applies an audio effect to the specified sound player.
+        /// Sends a command to the sound listener.
         /// </summary>
-        /// <param name="soundPlayerID">The unique identifier of the sound player.</param>
-        /// <param name="effect">The audio effect to apply.</param>
-        void AddEffectToSoundPlayer(uint soundPlayerID, AudioEffect effect);
-
-        /// <summary>
-        /// Removes an audio effect from the specified sound player.
-        /// </summary>
-        /// <param name="soundPlayerID">The unique identifier of the sound player.</param>
-        /// <param name="effect">The audio effect to remove.</param>
-        bool RemoveEffectFromSoundPlayer(uint soundPlayerID, AudioEffect effect);
+        /// <param name="command">The command to be sent to the sound listener.</param>
+        void SendSoundListenerCommand(SoundListenerCommand command);
     }
 }
