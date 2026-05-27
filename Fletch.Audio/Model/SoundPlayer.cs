@@ -18,12 +18,12 @@ namespace Fletch.Audio.Model
         public bool IsPlaying { get; private set; } = false;
 
 
-        internal ISoundSourceHandle PlayerHandle { get; }
+        internal ISoundSourceHandle SourceHandle { get; }
 
-        internal ISoundBufferHandle? AssetHandle { get; private set; }
+        internal ISoundBufferHandle? BufferHandle { get; private set; }
 
 
-        private bool SoundHandleAssigned => AssetHandle != null;
+        private bool SoundHandleAssigned => BufferHandle != null;
 
 
         private bool preLoadPlayCommanded = false;
@@ -35,7 +35,7 @@ namespace Fletch.Audio.Model
 
         internal SoundPlayer(ISoundSourceHandle playerHandle)
         {
-            PlayerHandle = playerHandle ?? throw new ArgumentNullException(nameof(playerHandle));
+            SourceHandle = playerHandle ?? throw new ArgumentNullException(nameof(playerHandle));
         }
 
         /// <summary>
@@ -53,11 +53,11 @@ namespace Fletch.Audio.Model
         /// Called after the audio backend has loaded the sound asset and assigned it an ISoundHandle. This allows the SoundPlayer to know when it's ready to play the sound, and to trigger playback if PlaySound was called before the asset was loaded.
         /// </summary>
         /// <exception cref="ArgumentNullException"></exception>
-        internal void AssignSoundAsset(ISoundBufferHandle assetHandle)
+        internal void AssignSoundBuffer(ISoundBufferHandle assetHandle)
         {
             CheckInitialized();
 
-            AssetHandle = assetHandle ?? throw new ArgumentNullException(nameof(assetHandle));
+            BufferHandle = assetHandle ?? throw new ArgumentNullException(nameof(assetHandle));
 
             if (preLoadPlayCommanded)
             {

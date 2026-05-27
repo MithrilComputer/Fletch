@@ -25,8 +25,6 @@ namespace Fletch.Runtime.Hosting
     internal class FletchRuntime : IRuntime
     {
 
-
-
         private readonly IWindow window;
 
         private readonly IApplicationLifetime applicationLifeTime;

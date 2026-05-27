@@ -3,6 +3,8 @@ using Fletch.Audio.Components;
 using Fletch.Audio.Model;
 using Fletch.Audio.Model.SoundListenerCommands;
 using Fletch.Audio.Model.SoundPlayerCommands;
+using Fletch.Audio.Model.SoundPlayerCommands.Buffer;
+using Fletch.Audio.Model.SoundPlayerCommands.Source;
 using Fletch.Core.Components.Update;
 using Fletch.Engine.Components;
 using Fletch.Engine.Model;
@@ -152,12 +154,12 @@ namespace Fletch.Audio.Systems
             if (soundPlayer == null)
                 throw new ArgumentNullException(nameof(soundPlayer));
 
-            if (soundPlayer.PlayerHandle == null)
+            if (soundPlayer.SourceHandle == null)
                 throw new InvalidOperationException("SoundPlayer does not have a valid player handle.");
 
             soundPlayers.MarkToRemove(soundPlayer);
 
-            audioBackend.DestroySoundPlayer(soundPlayer.PlayerHandle);
+            audioBackend.DestroySoundPlayer(soundPlayer.SourceHandle);
         }
 
         /// <summary>
@@ -171,13 +173,13 @@ namespace Fletch.Audio.Systems
             if (soundPlayer == null)
                 throw new ArgumentNullException(nameof(soundPlayer));
 
-            if (soundPlayer.PlayerHandle == null)
+            if (soundPlayer.SourceHandle == null)
                 throw new InvalidOperationException("SoundPlayer does not have a valid player handle.");
 
-            if (soundPlayer.AssetHandle == null)
+            if (soundPlayer.BufferHandle == null)
                 throw new InvalidOperationException("SoundPlayer does not have a valid sound asset assigned.");
 
-            PlayPlayerCommand playCommand = new PlayPlayerCommand(soundPlayer.PlayerHandle);
+            PlayPlayerCommand playCommand = new PlayPlayerCommand(soundPlayer.SourceHandle);
 
             audioBackend.SendSoundPlayerCommand(playCommand);
         }
@@ -187,10 +189,10 @@ namespace Fletch.Audio.Systems
             if (soundPlayer == null)
                 throw new ArgumentNullException(nameof(soundPlayer));
 
-            if (soundPlayer.PlayerHandle == null)
+            if (soundPlayer.SourceHandle == null)
                 throw new InvalidOperationException("SoundPlayer does not have a valid player handle.");
 
-            StopPlayerCommand stopCommand = new StopPlayerCommand(soundPlayer.PlayerHandle);
+            StopPlayerCommand stopCommand = new StopPlayerCommand(soundPlayer.SourceHandle);
 
             audioBackend.SendSoundPlayerCommand(stopCommand);
         }
@@ -200,10 +202,10 @@ namespace Fletch.Audio.Systems
             if (soundPlayer == null)
                 throw new ArgumentNullException(nameof(soundPlayer));
 
-            if (soundPlayer.PlayerHandle == null)
+            if (soundPlayer.SourceHandle == null)
                 throw new InvalidOperationException("SoundPlayer does not have a valid player handle.");
 
-            PausePlayerCommand pauseCommand = new PausePlayerCommand(soundPlayer.PlayerHandle);
+            PausePlayerCommand pauseCommand = new PausePlayerCommand(soundPlayer.SourceHandle);
 
             audioBackend.SendSoundPlayerCommand(pauseCommand);
         }
@@ -219,13 +221,13 @@ namespace Fletch.Audio.Systems
 
                 Vector2 position = soundPlayer.ParentAudioSource.GameObject.Transform.WorldPosition;
 
-                SetPlayerPositionCommand setPositionCommand = new SetPlayerPositionCommand(soundPlayer.PlayerHandle, position);
+                SetPlayerPositionCommand setPositionCommand = new SetPlayerPositionCommand(soundPlayer.SourceHandle, position);
 
-                SetPlayerPitchCommand pitchCommand = new SetPlayerPitchCommand(soundPlayer.PlayerHandle, soundPlayer.Pitch);
+                SetPlayerPitchCommand pitchCommand = new SetPlayerPitchCommand(soundPlayer.SourceHandle, soundPlayer.Pitch);
 
-                SetPlayerLoopingCommand loopingCommand = new SetPlayerLoopingCommand(soundPlayer.PlayerHandle, soundPlayer.IsLooping);
+                SetPlayerLoopingCommand loopingCommand = new SetPlayerLoopingCommand(soundPlayer.SourceHandle, soundPlayer.IsLooping);
 
-                SetPlayerVolumeCommand volumeCommand = new SetPlayerVolumeCommand(soundPlayer.PlayerHandle, soundPlayer.Volume);
+                SetPlayerVolumeCommand volumeCommand = new SetPlayerVolumeCommand(soundPlayer.SourceHandle, soundPlayer.Volume);
 
                 audioBackend.SendSoundPlayerCommand(setPositionCommand); //TODO Use Dirty detection to avoid sending this every frame.
                 audioBackend.SendSoundPlayerCommand(pitchCommand); //TODO Use Dirty detection to avoid sending this every frame.
@@ -277,11 +279,15 @@ namespace Fletch.Audio.Systems
 
             //TODO marshal assignment back to the engine/audio safe point.
 
-            ISoundBufferHandle? soundHandle = audioBackend.AcquireSound(soundKey);
+            RequestNewBufferHandleCommand requestCommand = new RequestNewBufferHandleCommand(soundKey, new TaskCompletionSource<ISoundBufferHandle>());
 
-            if (soundHandle != null)
+            audioBackend.SendSoundPlayerCommand(requestCommand);
+
+            ISoundBufferHandle bufferHandle = await requestCommand.Result.Task;
+
+            if (bufferHandle != null)
             {
-                player.AssignSoundAsset(soundHandle);
+                player.AssignSoundBuffer(bufferHandle);
             }
         }
     }
