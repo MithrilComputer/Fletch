@@ -1,6 +1,8 @@
-﻿using Fletch.Audio.Model.SoundListenerCommands;
+﻿using Fletch.Audio.Model;
+using Fletch.Audio.Model.SoundListenerCommands;
 using Fletch.Audio.Model.SoundPlayerCommands;
 using Silk.NET.OpenAL;
+using System.Threading.Channels;
 
 namespace Fletch.Audio.Silk.NET.OpenAL.Natives
 {
@@ -11,11 +13,12 @@ namespace Fletch.Audio.Silk.NET.OpenAL.Natives
         private bool running = false;
         private bool disposed = false;
 
-        private Queue<SoundPlayerCommand> soundPlayerCommands = new Queue<SoundPlayerCommand>();
-        private Queue<SoundListenerCommand> soundListenerCommands = new Queue<SoundListenerCommand>();
+        private readonly Channel<AudioCommand> audioCommands;
 
         public OpenALManager()
         {
+            audioCommands = Channel.CreateUnbounded<AudioCommand>();
+
             audioThread = new Thread(AudioThreadMain);
             audioThread.IsBackground = true;
             audioThread.Name = "OpenAL Audio Thread";
@@ -35,13 +38,16 @@ namespace Fletch.Audio.Silk.NET.OpenAL.Natives
         {
             using OpenALContextManager contextManager = new OpenALContextManager();
             using AL al = AL.GetApi();
-            using OpenALRuntime runtime = new OpenALRuntime(al);
+            using OpenALRuntime runtime = new OpenALRuntime(al); 
 
-            while (running)
+            ChannelReader<AudioCommand> reader = audioCommands.Reader;
+
+            while(reader.WaitToReadAsync().AsTask().GetAwaiter().GetResult())
             {
-                //TODO Send command queue to the runtime for working
-
-                Thread.Sleep(1);
+                while (reader.TryRead(out AudioCommand? command))
+                {
+                    
+                }
             }
         }
         public void Dispose()

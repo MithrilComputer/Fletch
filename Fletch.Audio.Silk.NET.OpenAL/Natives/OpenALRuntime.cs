@@ -1,4 +1,6 @@
 ﻿using Fletch.Audio.Model;
+using Fletch.Audio.Model.SoundListenerCommands;
+using Fletch.Audio.Model.SoundPlayerCommands;
 using Fletch.Audio.Silk.NET.OpenAL.Model;
 using Silk.NET.OpenAL;
 
@@ -20,17 +22,33 @@ namespace Fletch.Audio.Silk.NET.OpenAL.Natives
             this.al = al;
         }
 
-        public void CreateSource(OpenALSourceHandle sourceHandle)
+        public void HandleAudioCommand(AudioCommand command)
         {
             ThrowIfDisposed();
 
-            if (sourceHandles.ContainsKey(sourceHandle))
+            switch (command)
             {
-                return;
-            }
+                case SoundPlayerCommand playerCommand:
+                    HandlePlayerCommand(playerCommand);
+                    break;
 
-            uint source = GetOrCreateSource();
-            sourceHandles.Add(sourceHandle, source);
+                case SoundListenerCommand listenerCommand:
+                    HandleListenerCommand(listenerCommand);
+                    break;
+
+                default:
+                    throw new InvalidOperationException($"Unknown audio command type: {command.GetType().FullName}");
+            }
+        }
+
+        private void HandlePlayerCommand(SoundPlayerCommand command)
+        {
+            //TODO
+        }
+
+        private void HandleListenerCommand(SoundListenerCommand command)
+        {
+            //TODO
         }
 
         private void ThrowIfDisposed()
