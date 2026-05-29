@@ -10,6 +10,8 @@ namespace Fletch.Audio.Silk.NET.OpenAL.Natives
     {
         private readonly AL al;
 
+        private const int SourcePoolSize = 64; // TODO replace later with a configurable value, and dynamic pool management
+
         private readonly Queue<uint> sourcePool = new Queue<uint>();
 
         private readonly Dictionary<OpenALSourceHandle, uint> sourceHandles = new Dictionary<OpenALSourceHandle, uint>();
@@ -20,6 +22,12 @@ namespace Fletch.Audio.Silk.NET.OpenAL.Natives
         public OpenALRuntime(AL al)
         {
             this.al = al;
+
+            for (int i = 0; i < SourcePoolSize; i++)
+            {
+                uint sourceId = al.GenSource();
+                sourcePool.Enqueue(sourceId);
+            }
         }
 
         public void HandleAudioCommand(AudioCommand command)

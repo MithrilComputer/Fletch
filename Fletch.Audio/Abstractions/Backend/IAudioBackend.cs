@@ -1,5 +1,4 @@
-﻿using Fletch.Audio.Model.SoundListenerCommands;
-using Fletch.Audio.Model.SoundPlayerCommands;
+﻿using Fletch.Audio.Model;
 
 namespace Fletch.Audio.Abstractions.Backend
 {
@@ -10,15 +9,9 @@ namespace Fletch.Audio.Abstractions.Backend
     internal interface IAudioBackend
     {
         /// <summary>
-        /// Sends a specified audio command to the sound player by the given sound player ID.
+        /// Sends an audio command to the backend for processing. This method is responsible for handling various audio commands, such as playing sounds, updating listener properties, and applying audio effects.
         /// </summary>
-        /// <param name="command">The audio command to send to the sound player.</param>
-        void SendSoundPlayerCommand(SoundPlayerCommand command);
-
-        /// <summary>
-        /// Sends a command to the sound listener.
-        /// </summary>
-        /// <param name="command">The command to be sent to the sound listener.</param>
-        void SendSoundListenerCommand(SoundListenerCommand command);
+        /// <param name="command">The audio command to be processed by the backend.</param>
+        void SendCommand(AudioCommand command);
     }
 }
