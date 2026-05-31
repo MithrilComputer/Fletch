@@ -181,7 +181,7 @@ namespace Fletch.Engine.Hierarchy
                 return;
             }
 
-            ComponentChanged?.Invoke(component, ComponentChangeType.Disabled);
+            ComponentChanged?.Invoke(component, changeType);
         }
 
         private void RequestComponentsDestroy()

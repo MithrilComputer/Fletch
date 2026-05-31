@@ -181,7 +181,7 @@ namespace Fletch.Audio.Systems
 
             PlayPlayerCommand playCommand = new PlayPlayerCommand(soundPlayer.SourceHandle);
 
-            audioBackend.SendSoundPlayerCommand(playCommand);
+            audioBackend.SendCommand(playCommand);
         }
 
         public void StopSoundPlayer(SoundPlayer soundPlayer)
@@ -194,7 +194,7 @@ namespace Fletch.Audio.Systems
 
             StopPlayerCommand stopCommand = new StopPlayerCommand(soundPlayer.SourceHandle);
 
-            audioBackend.SendSoundPlayerCommand(stopCommand);
+            audioBackend.SendCommand(stopCommand);
         }
 
         public void PauseSoundPlayer(SoundPlayer soundPlayer)
@@ -207,7 +207,7 @@ namespace Fletch.Audio.Systems
 
             PausePlayerCommand pauseCommand = new PausePlayerCommand(soundPlayer.SourceHandle);
 
-            audioBackend.SendSoundPlayerCommand(pauseCommand);
+            audioBackend.SendCommand(pauseCommand);
         }
 
         private void UpdatePlayers()
@@ -229,10 +229,10 @@ namespace Fletch.Audio.Systems
 
                 SetPlayerVolumeCommand volumeCommand = new SetPlayerVolumeCommand(soundPlayer.SourceHandle, soundPlayer.Volume);
 
-                audioBackend.SendSoundPlayerCommand(setPositionCommand); //TODO Use Dirty detection to avoid sending this every frame.
-                audioBackend.SendSoundPlayerCommand(pitchCommand); //TODO Use Dirty detection to avoid sending this every frame.
-                audioBackend.SendSoundPlayerCommand(loopingCommand); //TODO Use Dirty detection to avoid sending this every frame.
-                audioBackend.SendSoundPlayerCommand(volumeCommand); //TODO Use Dirty detection to avoid sending this every frame.
+                audioBackend.SendCommand(setPositionCommand); //TODO Use Dirty detection to avoid sending this every frame.
+                audioBackend.SendCommand(pitchCommand); //TODO Use Dirty detection to avoid sending this every frame.
+                audioBackend.SendCommand(loopingCommand); //TODO Use Dirty detection to avoid sending this every frame.
+                audioBackend.SendCommand(volumeCommand); //TODO Use Dirty detection to avoid sending this every frame.
             }
         }
 
@@ -252,14 +252,14 @@ namespace Fletch.Audio.Systems
                 SetListenerGainCommand gainCommand = new SetListenerGainCommand(activeListener.Gain); //TODO Use Dirty detection to avoid sending this every frame.
                 SetListenerPositionCommand positionCommand = new SetListenerPositionCommand(activeListener.GameObject.Transform.WorldPosition); //TODO Use Dirty detection to avoid sending this every frame.
 
-                audioBackend.SendSoundListenerCommand(gainCommand); //TODO Use Dirty detection to avoid sending this every frame.
-                audioBackend.SendSoundListenerCommand(positionCommand); //TODO Use Dirty detection to avoid sending this every frame.
+                audioBackend.SendCommand(gainCommand); //TODO Use Dirty detection to avoid sending this every frame.
+                audioBackend.SendCommand(positionCommand); //TODO Use Dirty detection to avoid sending this every frame.
             }
             else
             {
                 SetListenerGainCommand gainCommand = new SetListenerGainCommand(0f); //TODO Use Dirty detection to avoid sending this every frame.
 
-                audioBackend.SendSoundListenerCommand(gainCommand); //TODO Use Dirty detection to avoid sending this every frame.
+                audioBackend.SendCommand(gainCommand); //TODO Use Dirty detection to avoid sending this every frame.
             }
         }
 
@@ -281,7 +281,7 @@ namespace Fletch.Audio.Systems
 
             RequestNewBufferHandleCommand requestCommand = new RequestNewBufferHandleCommand(soundKey, new TaskCompletionSource<ISoundBufferHandle>());
 
-            audioBackend.SendSoundPlayerCommand(requestCommand);
+            audioBackend.SendCommand(requestCommand);
 
             ISoundBufferHandle bufferHandle = await requestCommand.Result.Task;
 

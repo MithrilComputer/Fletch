@@ -46,7 +46,7 @@ namespace Fletch.Audio.Silk.NET.OpenAL.Natives
             {
                 while (reader.TryRead(out AudioCommand? command))
                 {
-                    
+                    runtime.HandleAudioCommand(command);
                 }
             }
         }

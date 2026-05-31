@@ -333,13 +333,13 @@ namespace Fletch.Rendering.MonoGame.Backend
 
             currentCamera = null;
 
-            cameras.Clear();
-
             foreach (var camera in cameras)
             {
                 if (camera is IDisposable disposable)
                     disposable.Dispose();
             }
+
+            cameras.Clear();
         }
     }
 }

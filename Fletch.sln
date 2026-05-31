@@ -36,6 +36,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Fletch.Audio", "Fletch.Audi
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Fletch.Audio.Silk.NET.OpenAL", "Fletch.Audio.Silk.NET.OpenAL\Fletch.Audio.Silk.NET.OpenAL.csproj", "{F6AEFD01-87E8-4D29-B07C-70490D993F6E}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Fletch.Assets", "Fletch.Assets\Fletch.Assets.csproj", "{28FAF6DE-2150-4BF8-B889-0FD4BE1EFC68}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -98,6 +100,10 @@ Global
 		{F6AEFD01-87E8-4D29-B07C-70490D993F6E}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{F6AEFD01-87E8-4D29-B07C-70490D993F6E}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{F6AEFD01-87E8-4D29-B07C-70490D993F6E}.Release|Any CPU.Build.0 = Release|Any CPU
+		{28FAF6DE-2150-4BF8-B889-0FD4BE1EFC68}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{28FAF6DE-2150-4BF8-B889-0FD4BE1EFC68}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{28FAF6DE-2150-4BF8-B889-0FD4BE1EFC68}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{28FAF6DE-2150-4BF8-B889-0FD4BE1EFC68}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
