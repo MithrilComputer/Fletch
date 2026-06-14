@@ -6,6 +6,7 @@ using Fletch.Engine.Hierarchy;
 using Fletch.Engine.Scenes;
 using Fletch.Input.Abstractions.Backends;
 using Fletch.Input.Abstractions.InputDevices;
+using Fletch.Input.Model;
 using Fletch.Platform.Abstractions.Contexts;
 using Fletch.Platform.Abstractions.Lifecycle;
 using Fletch.Platform.Abstractions.Paths;
@@ -59,6 +60,8 @@ namespace Fletch.Runtime.Hosting
 
         private IGamepad gamepad;
 
+        private IKeyboard keyboard;
+
         private float moveSpeed = 5f;
 
         private float cameraSmooth = 2f;
@@ -82,7 +85,7 @@ namespace Fletch.Runtime.Hosting
 
         public void Initialize()
         {
-            renderingBackend.FontFactory.RegisterFamily("Roboto", Path.Combine(pathProvider.AssetFolderDirectory, "Roboto-VariableFont.ttf"));
+            renderingBackend.FontFactory.RegisterFamily("Roboto", Path.Combine(pathProvider.AssetFolderDirectory, "Roboto-VariableFont_wdth,wght.ttf"));
 
             testScene = sceneFactory.CreateEmptyScene();
 
@@ -95,8 +98,8 @@ namespace Fletch.Runtime.Hosting
             GameObject wallThree = testScene.CreateGameObject();
 
             wallOne.Transform.LocalPosition += new Vector2(0, 0);
-            wallTwo.Transform.LocalPosition += new Vector2(10, 0);
-            wallThree.Transform.LocalPosition += new Vector2(-10, 0);
+            wallTwo.Transform.LocalPosition += new Vector2(5, 0);
+            wallThree.Transform.LocalPosition += new Vector2(-5, 0);
 
             cameraObject = testScene.CreateGameObject();
 
@@ -125,15 +128,19 @@ namespace Fletch.Runtime.Hosting
             wtwos.VisualResource.Texture = renderingBackend.TextureFactory.CreateSolidColor(1, 10, Color.Black);
             wthrees.VisualResource.Texture = renderingBackend.TextureFactory.CreateSolidColor(10, 1, Color.White);
 
-            wones.VisualResource.PixelPerWorldUnit = 1;
+            wones.VisualResource.PixelPerWorldUnit = 3;
 
             wtwos.VisualResource.PixelPerWorldUnit = 3;
 
             wthrees.VisualResource.PixelPerWorldUnit = 5;
 
+            sprite.VisualResource.PixelPerWorldUnit = 32;
+
             sprite.ZHeight = 1;
 
             gamepad = inputBackend.GamepadSlots[0];
+
+            keyboard = inputBackend.KeyboardDevice;
 
             IsInitialized = true;
         }
@@ -157,6 +164,30 @@ namespace Fletch.Runtime.Hosting
             inputBackend.UpdateBackend();
 
             gameObject.Transform.LocalPosition += gamepad.LeftThumbstick * moveSpeed * time.Delta;
+
+            Vector2 moveAxisKey = new Vector2();
+
+            if(keyboard.GetKey(KeyCode.A))
+            {
+                moveAxisKey.X = -1;
+            }
+
+            if (keyboard.GetKey(KeyCode.D))
+            {
+                moveAxisKey.X = 1;
+            }
+
+            if (keyboard.GetKey(KeyCode.W))
+            {
+                moveAxisKey.Y = 1;
+            }
+
+            if (keyboard.GetKey(KeyCode.S))
+            {
+                moveAxisKey.Y = -1;
+            }
+
+            gameObject.Transform.LocalPosition += moveAxisKey * moveSpeed * time.Delta;
 
             Vector2 atb = gameObject.Transform.LocalPosition - cameraObject.Transform.LocalPosition;
 

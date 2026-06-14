@@ -127,6 +127,7 @@ namespace Fletch.Audio.Systems
         /// <returns>A new SoundPlayer instance if creation succeeds; otherwise, null.</returns>
         public SoundPlayer? RequestNewSoundPlayer(string soundKey)
         {
+            /*
             ISoundSourceHandle? playerHandle = audioBackend.CreateSoundPlayer();
 
             if (playerHandle == null)
@@ -141,6 +142,9 @@ namespace Fletch.Audio.Systems
             soundPlayers.MarkToAdd(soundPlayer);
 
             return soundPlayer;
+            */
+
+            return null;
         }
 
         /// <summary>
@@ -151,6 +155,7 @@ namespace Fletch.Audio.Systems
         /// <exception cref="InvalidOperationException">Thrown if soundPlayer does not have a valid player handle.</exception>
         public void ReleaseSoundPlayer(SoundPlayer soundPlayer)
         {
+            /*
             if (soundPlayer == null)
                 throw new ArgumentNullException(nameof(soundPlayer));
 
@@ -160,6 +165,7 @@ namespace Fletch.Audio.Systems
             soundPlayers.MarkToRemove(soundPlayer);
 
             audioBackend.DestroySoundPlayer(soundPlayer.SourceHandle);
+            */
         }
 
         /// <summary>
