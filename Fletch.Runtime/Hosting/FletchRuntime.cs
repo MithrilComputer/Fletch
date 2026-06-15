@@ -25,7 +25,6 @@ namespace Fletch.Runtime.Hosting
     /// </summary>
     internal class FletchRuntime : IRuntime
     {
-
         private readonly IWindow window;
 
         private readonly IApplicationLifetime applicationLifeTime;
@@ -113,11 +112,12 @@ namespace Fletch.Runtime.Hosting
             camera.BlendMode = Rendering.Model.BlendMode.Alpha;
 
             /* testing
+              
             for (int i = 0; i < 10000; i++)
             {
                 GameObject objjec = testScene.CreateGameObject();
                 SpriteRenderer sprited = objjec.AddComponent<SpriteRenderer>();
-                sprited.Texture = renderingBackend.TextureFactory.CreateSolidColor(1, 1, Color.Green);
+                sprited.VisualResource.Texture = renderingBackend.TextureFactory.CreateSolidColor(1, 1, Color.Green);
             }
             */
 

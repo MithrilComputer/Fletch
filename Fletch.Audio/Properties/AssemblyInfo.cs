@@ -5,3 +5,4 @@
 [assembly: InternalsVisibleTo("Fletch.Platform")]
 [assembly: InternalsVisibleTo("Fletch.Runtime")]
 [assembly: InternalsVisibleTo("Fletch.Audio.Silk.NET.OpenAL")]
+[assembly: InternalsVisibleTo("Fletch.Assets")]

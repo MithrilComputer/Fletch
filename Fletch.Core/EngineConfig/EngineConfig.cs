@@ -9,7 +9,7 @@ namespace Fletch.Core.EngineConfig
 
         public static float WorldUnitsAcrossScreen { get; } = 20;
 
-        public static Color ClearColor { get; } = Color.CornflowerBlue;
+        public static Color ClearColor { get; } = Color.SkyBlue;
 
         public static int AudioSourcePoolSize { get; } = 128;
     }
