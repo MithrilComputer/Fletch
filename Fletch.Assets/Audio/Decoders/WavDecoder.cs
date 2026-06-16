@@ -2,7 +2,7 @@
 
 namespace Fletch.Assets.Audio.Decoders
 {
-    internal class WavDecoder : IAssetDecoder
+    internal class WavDecoder : IAudioDecoder
     {
 
 

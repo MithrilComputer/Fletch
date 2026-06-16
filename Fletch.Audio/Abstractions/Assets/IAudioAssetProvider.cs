@@ -1,7 +1,9 @@
-﻿namespace Fletch.Audio.Abstractions.Assets
+﻿using Fletch.Audio.Model.AudioData;
+
+namespace Fletch.Audio.Abstractions.Assets
 {
     internal interface IAudioAssetProvider
     {
-        //TODO
+        PCMAudioData LoadAudioData(string key);
     }
 }
