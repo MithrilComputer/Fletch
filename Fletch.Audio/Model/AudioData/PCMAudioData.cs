@@ -4,7 +4,7 @@
     {
         public byte[] Data { get; }
 
-        public int SampleRate { get; }
+        public uint SampleRate { get; }
 
         public byte Channels { get; }
 
@@ -26,7 +26,7 @@
             }
         }
 
-        public PCMAudioData(byte[] data, int sampleRate, byte channels, AudioSampleFormat sampleFormat)
+        public PCMAudioData(byte[] data, uint sampleRate, byte channels, AudioSampleFormat sampleFormat)
         {
             if (data == null)
                 throw new ArgumentNullException(nameof(data));

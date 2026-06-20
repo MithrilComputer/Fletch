@@ -1,4 +1,5 @@
-﻿using Fletch.Input.Abstractions.Backends;
+﻿using Fletch.Audio.Abstractions.Backend;
+using Fletch.Input.Abstractions.Backends;
 using Fletch.Platform.Abstractions.Contexts;
 using Fletch.Platform.Abstractions.Lifecycle;
 using Fletch.Platform.Abstractions.Paths;
@@ -37,19 +38,26 @@ namespace Fletch.Platform.MonoGame.Contexts
         /// Gets the active input backend.
         /// </summary>
         public IInputBackend InputBackend { get; }
+        
+        /// <summary>
+        /// Gets
+        /// </summary>
+        public IAudioBackend AudioBackend { get; }
 
         public MonoGamePlatformContext(
             IWindow window,
             IApplicationLifetime lifetime,
             IPathProvider paths,
             IRenderingBackend rendering,
-            IInputBackend input)
+            IInputBackend input,
+            IAudioBackend audio)
         {
             Window = window ?? throw new ArgumentNullException(nameof(window));
             Lifetime = lifetime ?? throw new ArgumentNullException(nameof(lifetime));
             PathProvider = paths ?? throw new ArgumentNullException(nameof(paths));
             RenderingBackend = rendering ?? throw new ArgumentNullException(nameof(rendering));
             InputBackend = input ?? throw new ArgumentNullException(nameof(input));
+            AudioBackend = audio ?? throw new ArgumentNullException(nameof(audio));
         }
     }
 }

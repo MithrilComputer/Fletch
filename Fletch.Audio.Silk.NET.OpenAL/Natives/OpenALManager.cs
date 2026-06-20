@@ -1,6 +1,5 @@
-﻿using Fletch.Audio.Model;
-using Fletch.Audio.Model.SoundListenerCommands;
-using Fletch.Audio.Model.SoundPlayerCommands;
+﻿using Fletch.Audio.Abstractions.Assets;
+using Fletch.Audio.Model;
 using Silk.NET.OpenAL;
 using System.Threading.Channels;
 
@@ -15,8 +14,12 @@ namespace Fletch.Audio.Silk.NET.OpenAL.Natives
 
         private readonly Channel<AudioCommand> audioCommands;
 
-        public OpenALManager()
+        private readonly IAudioAssetProvider audioAssetProvider;
+
+        public OpenALManager(IAudioAssetProvider audioAssetProvider)
         {
+            this.audioAssetProvider = audioAssetProvider;
+
             audioCommands = Channel.CreateUnbounded<AudioCommand>();
 
             audioThread = new Thread(AudioThreadMain);
@@ -38,7 +41,7 @@ namespace Fletch.Audio.Silk.NET.OpenAL.Natives
         {
             using OpenALContextManager contextManager = new OpenALContextManager();
             using AL al = AL.GetApi();
-            using OpenALRuntime runtime = new OpenALRuntime(al); 
+            using OpenALRuntime runtime = new OpenALRuntime(al, audioAssetProvider); 
 
             ChannelReader<AudioCommand> reader = audioCommands.Reader;
 
@@ -50,6 +53,12 @@ namespace Fletch.Audio.Silk.NET.OpenAL.Natives
                 }
             }
         }
+
+        public void QueueCommand(AudioCommand audioCommand)
+        {
+            audioCommands.Writer.TryWrite(audioCommand); //TODO add some error detection and logging
+        }
+
         public void Dispose()
         {
             if (disposed)

@@ -6,7 +6,6 @@ namespace Fletch.Assets.Audio.Abstractions
     {
         bool CanDecode(string path);
 
-
         PCMAudioData Decode(string path);
     }
 }

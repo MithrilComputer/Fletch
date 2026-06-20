@@ -1,6 +1,9 @@
-﻿using Fletch.Audio.Model;
+﻿using Fletch.Audio.Abstractions.Assets;
+using Fletch.Audio.Model;
 using Fletch.Audio.Model.SoundListenerCommands;
 using Fletch.Audio.Model.SoundPlayerCommands;
+using Fletch.Audio.Model.SoundPlayerCommands.Buffer;
+using Fletch.Audio.Model.SoundPlayerCommands.Source;
 using Fletch.Audio.Silk.NET.OpenAL.Model;
 using Silk.NET.OpenAL;
 
@@ -17,11 +20,15 @@ namespace Fletch.Audio.Silk.NET.OpenAL.Natives
         private readonly Dictionary<OpenALSourceHandle, uint> sourceHandles = new Dictionary<OpenALSourceHandle, uint>();
         private readonly Dictionary<OpenALSoundBufferHandle, uint> bufferHandles = new Dictionary<OpenALSoundBufferHandle, uint>();
 
+        private readonly IAudioAssetProvider audioAssetProvider;
+
         private bool isDisposed = false;
 
-        public OpenALRuntime(AL al)
+        public OpenALRuntime(AL al, IAudioAssetProvider audioAssetProvider)
         {
             this.al = al;
+
+            this.audioAssetProvider = audioAssetProvider;
 
             for (int i = 0; i < SourcePoolSize; i++)
             {
@@ -51,12 +58,28 @@ namespace Fletch.Audio.Silk.NET.OpenAL.Natives
 
         private void HandlePlayerCommand(SoundPlayerCommand command)
         {
-            //TODO
+            switch (command)
+            {
+                case RequestNewSourceCommand requestNewSourceCommand:
+
+                    break;
+
+                case RequestNewBufferHandleCommand requestNewBufferHandleCommand:
+
+                    break;
+
+                case PlayPlayerCommand playPlayerCommand:
+                    
+                    break;
+            }
         }
 
         private void HandleListenerCommand(SoundListenerCommand command)
         {
-            //TODO
+            switch (command)
+            {
+                
+            }
         }
 
         private void ThrowIfDisposed()

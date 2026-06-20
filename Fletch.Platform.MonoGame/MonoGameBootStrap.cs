@@ -1,4 +1,5 @@
-﻿using Fletch.Core.Diagnostics;
+﻿using Fletch.Audio.Abstractions.Assets;
+using Fletch.Core.Diagnostics;
 using Fletch.Core.Platform;
 using Fletch.Engine.Abstractions.Factories;
 using Fletch.Engine.Factories;
@@ -23,6 +24,9 @@ using Fletch.Runtime.Abstractions.Hosting;
 using Fletch.Runtime.Hosting;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Xna.Framework;
+using Fletch.Assets.Audio.Providers;
+using Fletch.Audio.Abstractions.Backend;
+using Fletch.Audio.Silk.NET.OpenAL.Backend;
 
 namespace Fletch.Platform.MonoGame
 {
@@ -60,6 +64,12 @@ namespace Fletch.Platform.MonoGame
             services.AddSingleton<ICameraManager, CameraManager>();
             services.AddSingleton<IRenderSurface, MonoGameRenderSurface>();
             services.AddTransient<WorldRenderingSystem>();
+
+            // Audio
+            services.AddSingleton<IAudioBackend, OpenALAudioBackend>();
+
+            // Asset Providers
+            services.AddSingleton<IAudioAssetProvider, AudioAssetProvider>();
 
             // Platform context container
             services.AddSingleton<IPlatformContext, MonoGamePlatformContext>();

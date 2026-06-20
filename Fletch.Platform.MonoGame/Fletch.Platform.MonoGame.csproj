@@ -7,9 +7,13 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\Fletch.Assets\Fletch.Assets.csproj" />
+    <ProjectReference Include="..\Fletch.Audio.Silk.NET.OpenAL\Fletch.Audio.Silk.NET.OpenAL.csproj" />
+    <ProjectReference Include="..\Fletch.Audio\Fletch.Audio.csproj" />
     <ProjectReference Include="..\Fletch.Core\Fletch.Core.csproj" />
     <ProjectReference Include="..\Fletch.Input.MonoGame\Fletch.Input.MonoGame.csproj" />
     <ProjectReference Include="..\Fletch.Input\Fletch.Input.csproj" />
+    <ProjectReference Include="..\Fletch.Physics\Fletch.Physics.csproj" />
     <ProjectReference Include="..\Fletch.Platform\Fletch.Platform.csproj" />
     <ProjectReference Include="..\Fletch.Rendering.MonoGame\Fletch.Rendering.MonoGame.csproj" />
     <ProjectReference Include="..\Fletch.Rendering\Fletch.Rendering.csproj" />

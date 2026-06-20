@@ -18,7 +18,7 @@ namespace Fletch.Audio.Model
         public bool IsPlaying { get; private set; } = false;
 
 
-        internal ISoundSourceHandle SourceHandle { get; }
+        internal ISoundSourceHandle? SourceHandle { get; private set; }
 
         internal ISoundBufferHandle? BufferHandle { get; private set; }
 
@@ -32,11 +32,6 @@ namespace Fletch.Audio.Model
 
         
         private readonly List<AudioEffect> effects = new List<AudioEffect>();
-
-        internal SoundPlayer(ISoundSourceHandle playerHandle)
-        {
-            SourceHandle = playerHandle ?? throw new ArgumentNullException(nameof(playerHandle));
-        }
 
         /// <summary>
         /// Called by the parent AudioSource when the SoundPlayer is created. This allows the SoundPlayer to have a reference to its parent AudioSource, which it can use to trigger playback and apply effects through the audio system.
@@ -53,11 +48,27 @@ namespace Fletch.Audio.Model
         /// Called after the audio backend has loaded the sound asset and assigned it an ISoundHandle. This allows the SoundPlayer to know when it's ready to play the sound, and to trigger playback if PlaySound was called before the asset was loaded.
         /// </summary>
         /// <exception cref="ArgumentNullException"></exception>
-        internal void AssignSoundBuffer(ISoundBufferHandle assetHandle)
+        internal void AssignSoundBuffer(ISoundBufferHandle bufferHandle)
         {
             CheckInitialized();
 
-            BufferHandle = assetHandle ?? throw new ArgumentNullException(nameof(assetHandle));
+            BufferHandle = bufferHandle ?? throw new ArgumentNullException(nameof(bufferHandle));
+
+            if (preLoadPlayCommanded)
+            {
+                PlaySound();
+            }
+        }
+
+        /// <summary>
+        /// Called after the audio backend has loaded the sound asset and assigned it an ISoundHandle. This allows the SoundPlayer to know when it's ready to play the sound, and to trigger playback if PlaySound was called before the asset was loaded.
+        /// </summary>
+        /// <exception cref="ArgumentNullException"></exception>
+        internal void AssignSoundSource(ISoundSourceHandle sourceHandle)
+        {
+            CheckInitialized();
+
+            SourceHandle = sourceHandle ?? throw new ArgumentNullException(nameof(sourceHandle));
 
             if (preLoadPlayCommanded)
             {

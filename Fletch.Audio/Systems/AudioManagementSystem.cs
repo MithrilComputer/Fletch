@@ -1,5 +1,6 @@
 ﻿using Fletch.Audio.Abstractions.Backend;
 using Fletch.Audio.Components;
+using Fletch.Audio.Factories.SoundPlayers;
 using Fletch.Audio.Model;
 using Fletch.Audio.Model.SoundListenerCommands;
 using Fletch.Audio.Model.SoundPlayerCommands;
@@ -26,9 +27,13 @@ namespace Fletch.Audio.Systems
 
         private AudioListener? activeListener = null;
 
+        private readonly SoundPlayerFactory soundPlayerFactory;
+
         public AudioManagementSystem(IAudioBackend audioBackend)
         {
             this.audioBackend = audioBackend;
+
+            soundPlayerFactory = new SoundPlayerFactory(audioBackend);
         }
 
         /// <summary>
@@ -127,24 +132,11 @@ namespace Fletch.Audio.Systems
         /// <returns>A new SoundPlayer instance if creation succeeds; otherwise, null.</returns>
         public SoundPlayer? RequestNewSoundPlayer(string soundKey)
         {
-            /*
-            ISoundSourceHandle? playerHandle = audioBackend.CreateSoundPlayer();
-
-            if (playerHandle == null)
-            {
-                return null;
-            }
-
-            SoundPlayer soundPlayer = new SoundPlayer(playerHandle);
-
-            Task.Run(() => LoadSoundAssetToPlayer(soundPlayer, soundKey));
+            SoundPlayer soundPlayer = soundPlayerFactory.Create(soundKey);
 
             soundPlayers.MarkToAdd(soundPlayer);
 
             return soundPlayer;
-            */
-
-            return null;
         }
 
         /// <summary>
@@ -185,7 +177,7 @@ namespace Fletch.Audio.Systems
             if (soundPlayer.BufferHandle == null)
                 throw new InvalidOperationException("SoundPlayer does not have a valid sound asset assigned.");
 
-            PlayPlayerCommand playCommand = new PlayPlayerCommand(soundPlayer.SourceHandle);
+            PlayPlayerCommand playCommand = new PlayPlayerCommand(soundPlayer.SourceHandle, soundPlayer.BufferHandle);
 
             audioBackend.SendCommand(playCommand);
         }
@@ -272,29 +264,6 @@ namespace Fletch.Audio.Systems
         private static int ListenerCompare(AudioListener a, AudioListener b)
         {
             return a.priority.CompareTo(b.priority);
-        }
-
-        /// <summary>
-        /// Loads a sound asset identified by the specified key and assigns it to the given sound player.
-        /// </summary>
-        /// <param name="player">The sound player to assign the loaded sound asset to.</param>
-        /// <param name="soundKey">The key identifying the sound asset to load.</param>
-        /// <returns>A task representing the asynchronous operation.</returns>
-        private async Task LoadSoundAssetToPlayer(SoundPlayer player, string soundKey)
-        {
-
-            //TODO marshal assignment back to the engine/audio safe point.
-
-            RequestNewBufferHandleCommand requestCommand = new RequestNewBufferHandleCommand(soundKey, new TaskCompletionSource<ISoundBufferHandle>());
-
-            audioBackend.SendCommand(requestCommand);
-
-            ISoundBufferHandle bufferHandle = await requestCommand.Result.Task;
-
-            if (bufferHandle != null)
-            {
-                player.AssignSoundBuffer(bufferHandle);
-            }
         }
     }
 }
