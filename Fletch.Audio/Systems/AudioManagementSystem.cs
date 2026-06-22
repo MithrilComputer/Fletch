@@ -4,9 +4,8 @@ using Fletch.Audio.Factories.SoundPlayers;
 using Fletch.Audio.Model;
 using Fletch.Audio.Model.SoundListenerCommands;
 using Fletch.Audio.Model.SoundPlayerCommands;
-using Fletch.Audio.Model.SoundPlayerCommands.Buffer;
-using Fletch.Audio.Model.SoundPlayerCommands.Source;
 using Fletch.Core.Components.Update;
+using Fletch.Core.Diagnostics;
 using Fletch.Engine.Components;
 using Fletch.Engine.Model;
 using Fletch.Engine.Scenes;
@@ -29,9 +28,13 @@ namespace Fletch.Audio.Systems
 
         private readonly SoundPlayerFactory soundPlayerFactory;
 
-        public AudioManagementSystem(IAudioBackend audioBackend)
+        private readonly IFletchContextLogger<AudioManagementSystem> logger;
+
+        public AudioManagementSystem(IAudioBackend audioBackend, IFletchContextLogger<AudioManagementSystem> logger)
         {
             this.audioBackend = audioBackend;
+
+            this.logger = logger;
 
             soundPlayerFactory = new SoundPlayerFactory(audioBackend);
         }
@@ -68,10 +71,12 @@ namespace Fletch.Audio.Systems
             {
                 case ComponentChangeType.Added:
                     audioSources.MarkToAdd(audioSource);
+                    audioSource.AssignAudioManager(this);
                     break;
 
                 case ComponentChangeType.Removed:
                     audioSources.MarkToRemove(audioSource);
+                    audioSource.AssignAudioManager(this);
                     break;
 
                 default: break;
@@ -178,6 +183,8 @@ namespace Fletch.Audio.Systems
                 throw new InvalidOperationException("SoundPlayer does not have a valid sound asset assigned.");
 
             PlayPlayerCommand playCommand = new PlayPlayerCommand(soundPlayer.SourceHandle, soundPlayer.BufferHandle);
+
+            logger.Log("Playing Sound");
 
             audioBackend.SendCommand(playCommand);
         }

@@ -1,4 +1,8 @@
-﻿using Fletch.Core.Colors;
+﻿using Fletch.Audio.Abstractions.Backend;
+using Fletch.Audio.Components;
+using Fletch.Audio.Model;
+using Fletch.Audio.Systems;
+using Fletch.Core.Colors;
 using Fletch.Core.EngineConfig;
 using Fletch.Core.Time;
 using Fletch.Engine.Abstractions.Factories;
@@ -35,6 +39,8 @@ namespace Fletch.Runtime.Hosting
 
         private readonly IInputBackend inputBackend;
 
+        private readonly IAudioBackend audioBackend;
+
         private readonly ISceneFactory sceneFactory;
 
         private readonly ISubSystemFactory subSystemFactory;
@@ -44,6 +50,8 @@ namespace Fletch.Runtime.Hosting
         public bool IsInitialized { get; private set; }
 
         //Testing
+
+        private SoundPlayer TestSound;
 
         private Scene testScene;
 
@@ -78,6 +86,7 @@ namespace Fletch.Runtime.Hosting
             pathProvider = platformContext.PathProvider;
             renderingBackend = platformContext.RenderingBackend;
             inputBackend = platformContext.InputBackend;
+            audioBackend = platformContext.AudioBackend;
             this.sceneFactory = sceneFactory;
             this.subSystemFactory = subSystemFactory;
         }
@@ -87,6 +96,8 @@ namespace Fletch.Runtime.Hosting
             renderingBackend.FontFactory.RegisterFamily("Roboto", Path.Combine(pathProvider.AssetFolderDirectory, "Roboto-VariableFont_wdth,wght.ttf"));
 
             testScene = sceneFactory.CreateEmptyScene();
+
+            testScene.SystemManager.AddSubSystem<AudioManagementSystem>();
 
             testScene.SystemManager.AddSubSystem<WorldRenderingSystem>();
 
@@ -106,6 +117,10 @@ namespace Fletch.Runtime.Hosting
             SpriteRenderer wones = wallOne.AddComponent<SpriteRenderer>();
             SpriteRenderer wtwos = wallTwo.AddComponent<SpriteRenderer>();
             SpriteRenderer wthrees = wallThree.AddComponent<SpriteRenderer>();
+
+            gameObject.AddComponent<AudioSource>().TryCreateSoundPlayer(Path.Combine(pathProvider.AssetFolderDirectory, "bloop.wav"), out SoundPlayer soundplayer);
+
+            TestSound = soundplayer;
 
             camera = cameraObject.AddComponent<Camera2D>();
 
@@ -166,6 +181,11 @@ namespace Fletch.Runtime.Hosting
             gameObject.Transform.LocalPosition += gamepad.LeftThumbstick * moveSpeed * time.Delta;
 
             Vector2 moveAxisKey = new Vector2();
+
+            if(keyboard.GetKeyDown(KeyCode.Space))
+            {
+                TestSound.PlaySound();
+            }
 
             if(keyboard.GetKey(KeyCode.A))
             {

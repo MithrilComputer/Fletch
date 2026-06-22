@@ -2,7 +2,7 @@
 
 namespace Fletch.Audio.Silk.NET.OpenAL.Model
 {
-    internal class OpenALSourceHandle : ISoundBufferHandle
+    internal class OpenALSourceHandle : ISoundSourceHandle
     {
         public uint Id { get; }
 

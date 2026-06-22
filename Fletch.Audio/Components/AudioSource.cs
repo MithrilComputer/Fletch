@@ -1,5 +1,4 @@
-﻿using Fletch.Audio.Abstractions.Backend;
-using Fletch.Audio.Model;
+﻿using Fletch.Audio.Model;
 using Fletch.Audio.Systems;
 using Fletch.Engine.Components;
 
@@ -11,11 +10,21 @@ namespace Fletch.Audio.Components
 
         private readonly List<SoundPlayer> soundPlayers = new List<SoundPlayer>();
 
-        internal readonly AudioManagementSystem audioManagementSystem;
+        private AudioManagementSystem audioManagementSystem;
 
-        internal AudioSource(AudioManagementSystem audioManagementSystem)
+
+
+        internal void AssignAudioManager(AudioManagementSystem audioManagementSystem)
         {
-            this.audioManagementSystem = audioManagementSystem ?? throw new ArgumentNullException(nameof(audioManagementSystem));
+            this.audioManagementSystem = audioManagementSystem;
+        }
+
+        private void ReadyCheck()
+        {
+            if(audioManagementSystem == null)
+            {
+                throw new Exception();
+            }
         }
 
         /// <summary>
@@ -26,6 +35,8 @@ namespace Fletch.Audio.Components
         /// <returns>True if a SoundPlayer was successfully created and initialized; otherwise, false.</returns>
         public bool TryCreateSoundPlayer(string soundKey, out SoundPlayer? soundPlayer)
         {
+            ReadyCheck();
+
             soundPlayer = audioManagementSystem.RequestNewSoundPlayer(soundKey);
 
             if (soundPlayer == null)
@@ -40,6 +51,8 @@ namespace Fletch.Audio.Components
 
         public void ReleaseSoundPlayer(SoundPlayer soundPlayer)
         {
+            ReadyCheck();
+
             if (!soundPlayers.Contains(soundPlayer))
             {
                 throw new InvalidOperationException("The specified SoundPlayer does not belong to this AudioSource.");
@@ -67,16 +80,22 @@ namespace Fletch.Audio.Components
 
         internal void PlaySoundPlayer(SoundPlayer player)
         {
+            ReadyCheck();
+
             audioManagementSystem.PlaySoundPlayer(player);
         }
 
         internal void StopSoundPlayer(SoundPlayer player)
         {
+            ReadyCheck();
+
             audioManagementSystem.StopSoundPlayer(player);
         }
 
         internal void PauseSoundPlayer(SoundPlayer player)
         {
+            ReadyCheck();
+
             audioManagementSystem.PauseSoundPlayer(player);
         }
 
