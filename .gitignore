@@ -184,3 +184,6 @@ FodyWeavers.xsd
 
 # JetBrains Rider solution file
 *.sln.iml
+
+# Libs
+!Fletch.Audio.Silk.NET.OpenAL/OpenAL32.dll

@@ -1,5 +1,6 @@
 ﻿using Fletch.Audio.Model;
 using Fletch.Audio.Systems;
+using Fletch.Core.Diagnostics;
 using Fletch.Engine.Components;
 
 namespace Fletch.Audio.Components
@@ -13,6 +14,14 @@ namespace Fletch.Audio.Components
         private AudioManagementSystem audioManagementSystem;
 
 
+        IFletchContextLogger<AudioSource> logger;
+
+        internal AudioSource(IFletchContextLogger<AudioSource> logger)
+        {
+
+            this.logger = logger;
+
+        }
 
         internal void AssignAudioManager(AudioManagementSystem audioManagementSystem)
         {
@@ -81,6 +90,8 @@ namespace Fletch.Audio.Components
         internal void PlaySoundPlayer(SoundPlayer player)
         {
             ReadyCheck();
+
+            logger.Log("Playing");
 
             audioManagementSystem.PlaySoundPlayer(player);
         }

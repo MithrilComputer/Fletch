@@ -81,6 +81,8 @@ namespace Fletch.Audio.Silk.NET.OpenAL.Natives
 
                     UploadBuffer(bufferRequestHandle, PCMData); // TODO This is unsafe, please deal with ASAP, testing for now
 
+                    bufferHandleRequest.SetResult(bufferRequestHandle);
+
                     break;
 
                 case PlayPlayerCommand playPlayerCommand:

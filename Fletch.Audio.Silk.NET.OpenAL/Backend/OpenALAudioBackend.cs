@@ -12,6 +12,7 @@ namespace Fletch.Audio.Silk.NET.OpenAL.Backend
         public OpenALAudioBackend(IAudioAssetProvider audioAssetProvider)
         {
             openALManager = new OpenALManager(audioAssetProvider);
+            openALManager.Start();
         }
 
         public void SendCommand(AudioCommand command)

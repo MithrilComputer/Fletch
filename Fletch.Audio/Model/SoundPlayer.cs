@@ -1,4 +1,5 @@
 ﻿using Fletch.Audio.Components;
+using Fletch.Core.Diagnostics;
 
 namespace Fletch.Audio.Model
 {
@@ -33,6 +34,15 @@ namespace Fletch.Audio.Model
         
         private readonly List<AudioEffect> effects = new List<AudioEffect>();
 
+        private readonly IFletchContextLogger<SoundPlayer> logger;
+
+        internal SoundPlayer(IFletchContextLogger<SoundPlayer> logger)
+        {
+
+            this.logger = logger;
+
+        }
+
         /// <summary>
         /// Called by the parent AudioSource when the SoundPlayer is created. This allows the SoundPlayer to have a reference to its parent AudioSource, which it can use to trigger playback and apply effects through the audio system.
         /// </summary>
@@ -50,14 +60,15 @@ namespace Fletch.Audio.Model
         /// <exception cref="ArgumentNullException"></exception>
         internal void AssignSoundBuffer(ISoundBufferHandle bufferHandle)
         {
-            CheckInitialized();
-
+            
             BufferHandle = bufferHandle ?? throw new ArgumentNullException(nameof(bufferHandle));
 
             if (preLoadPlayCommanded)
             {
                 PlaySound();
             }
+
+            logger.Log("Buffer Assigned!");
         }
 
         /// <summary>
@@ -66,14 +77,14 @@ namespace Fletch.Audio.Model
         /// <exception cref="ArgumentNullException"></exception>
         internal void AssignSoundSource(ISoundSourceHandle sourceHandle)
         {
-            CheckInitialized();
-
             SourceHandle = sourceHandle ?? throw new ArgumentNullException(nameof(sourceHandle));
 
             if (preLoadPlayCommanded)
             {
                 PlaySound();
             }
+
+            logger.Log("Source Assigned!");
         }
 
         /// <summary>
@@ -82,7 +93,7 @@ namespace Fletch.Audio.Model
         public void PlaySound()
         {
             CheckInitialized();
-
+            
             if (!SoundHandleAssigned)
             {
                 if(!preLoadPlayCommanded)
@@ -92,6 +103,8 @@ namespace Fletch.Audio.Model
 
                 return;
             }
+
+            logger.Log("Playing sound");
 
             ParentAudioSource?.PlaySoundPlayer(this);
 
