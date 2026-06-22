@@ -2,6 +2,7 @@
 using Fletch.Audio.Model;
 using Fletch.Audio.Model.SoundPlayerCommands.Buffer;
 using Fletch.Audio.Model.SoundPlayerCommands.Source;
+using System.Reflection.Metadata;
 
 namespace Fletch.Audio.Factories.SoundPlayers
 {
