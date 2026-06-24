@@ -9,7 +9,6 @@ namespace Fletch.Audio.Model
 
         public AudioSource? ParentAudioSource { get; private set; } 
 
-
         public float Volume { get; set; } = 1f;
 
         public float Pitch { get; set; } = 1f;
@@ -34,14 +33,7 @@ namespace Fletch.Audio.Model
         
         private readonly List<AudioEffect> effects = new List<AudioEffect>();
 
-        private readonly IFletchContextLogger<SoundPlayer> logger;
-
-        internal SoundPlayer(IFletchContextLogger<SoundPlayer> logger)
-        {
-
-            this.logger = logger;
-
-        }
+        internal SoundPlayer() { }
 
         /// <summary>
         /// Called by the parent AudioSource when the SoundPlayer is created. This allows the SoundPlayer to have a reference to its parent AudioSource, which it can use to trigger playback and apply effects through the audio system.
@@ -68,7 +60,6 @@ namespace Fletch.Audio.Model
                 PlaySound();
             }
 
-            logger.Log("Buffer Assigned!");
         }
 
         /// <summary>
@@ -83,8 +74,6 @@ namespace Fletch.Audio.Model
             {
                 PlaySound();
             }
-
-            logger.Log("Source Assigned!");
         }
 
         /// <summary>
@@ -103,8 +92,6 @@ namespace Fletch.Audio.Model
 
                 return;
             }
-
-            logger.Log("Playing sound");
 
             ParentAudioSource?.PlaySoundPlayer(this);
 

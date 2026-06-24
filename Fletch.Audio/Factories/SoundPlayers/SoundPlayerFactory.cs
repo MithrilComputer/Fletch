@@ -11,17 +11,14 @@ namespace Fletch.Audio.Factories.SoundPlayers
     {
         private readonly IAudioBackend audioBackend;
 
-        private readonly IFletchContextLogger<SoundPlayer> soundPlayerLogger;
-
-        public SoundPlayerFactory(IAudioBackend audioBackend, IFletchContextLogger<SoundPlayer> soundPlayerLogger) 
+        public SoundPlayerFactory(IAudioBackend audioBackend) 
         {
             this.audioBackend = audioBackend;
-            this.soundPlayerLogger = soundPlayerLogger;
         }
 
         public SoundPlayer Create(string key) 
         { 
-            SoundPlayer player = new SoundPlayer(soundPlayerLogger);
+            SoundPlayer player = new SoundPlayer();
 
             Task.Run(() => LoadSoundAssetsToPlayer(player, key));
 
@@ -36,44 +33,33 @@ namespace Fletch.Audio.Factories.SoundPlayers
         /// <returns>A task representing the asynchronous operation.</returns>
         private async Task LoadSoundAssetsToPlayer(SoundPlayer player, string soundKey)
         {
-            try
+            //TODO marshal the assignment back to the engine to complete at a safe point.
+
+            TaskCompletionSource<ISoundSourceHandle> sourceSource = new TaskCompletionSource<ISoundSourceHandle>(); // Soure of the Audio Source
+
+            RequestNewSourceCommand sourceRequest = new RequestNewSourceCommand(sourceSource);
+
+            audioBackend.SendCommand(sourceRequest);
+
+            ISoundSourceHandle soundSourceHandle = await sourceSource.Task;
+
+            if (soundSourceHandle != null) // TODO throw an error if null
             {
-                //TODO marshal the assignment back to the engine to complete at a safe point.
-
-                soundPlayerLogger.Log($"Geting source");
-
-                TaskCompletionSource<ISoundSourceHandle> sourceSource = new TaskCompletionSource<ISoundSourceHandle>(); // Soure of the Audio Source
-
-                RequestNewSourceCommand sourceRequest = new RequestNewSourceCommand(sourceSource);
-
-                audioBackend.SendCommand(sourceRequest);
-
-                ISoundSourceHandle soundSourceHandle = await sourceSource.Task;
-
-                if (soundSourceHandle != null) // TODO throw an error if null
-                {
-                    player.AssignSoundSource(soundSourceHandle); 
-                }
-
-                soundPlayerLogger.Log($"Getting Buffer");
-
-                TaskCompletionSource<ISoundBufferHandle> bufferSource = new TaskCompletionSource<ISoundBufferHandle>();
-
-                RequestNewBufferHandleCommand bufferRequest =
-                    new RequestNewBufferHandleCommand(soundKey, bufferSource);
-
-                audioBackend.SendCommand(bufferRequest);
-
-                ISoundBufferHandle bufferHandle = await bufferRequest.Result.Task;
-
-                if (bufferHandle != null) // TODO throw an error if null
-                {
-                    player.AssignSoundBuffer(bufferHandle);
-                }
+                player.AssignSoundSource(soundSourceHandle); 
             }
-            catch (Exception exception)
+
+            TaskCompletionSource<ISoundBufferHandle> bufferSource = new TaskCompletionSource<ISoundBufferHandle>();
+
+            RequestNewBufferHandleCommand bufferRequest =
+                new RequestNewBufferHandleCommand(soundKey, bufferSource);
+
+            audioBackend.SendCommand(bufferRequest);
+
+            ISoundBufferHandle bufferHandle = await bufferRequest.Result.Task;
+
+            if (bufferHandle != null) // TODO throw an error if null
             {
-                soundPlayerLogger.LogError($"Failed to load sound '{soundKey}'.");
+                player.AssignSoundBuffer(bufferHandle);
             }
         }
     }

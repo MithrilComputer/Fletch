@@ -77,6 +77,8 @@ namespace Fletch.Runtime.Hosting
 
         private int frames = 0;
 
+        Random random = new Random();
+
         //Testing
 
         public FletchRuntime(IPlatformContext platformContext, ISceneFactory sceneFactory, ISubSystemFactory subSystemFactory)
@@ -118,7 +120,7 @@ namespace Fletch.Runtime.Hosting
             SpriteRenderer wtwos = wallTwo.AddComponent<SpriteRenderer>();
             SpriteRenderer wthrees = wallThree.AddComponent<SpriteRenderer>();
 
-            gameObject.AddComponent<AudioSource>().TryCreateSoundPlayer(Path.Combine(pathProvider.AssetFolderDirectory, "bloop.wav"), out SoundPlayer soundplayer);
+            gameObject.AddComponent<AudioSource>().TryCreateSoundPlayer(Path.Combine(pathProvider.AssetFolderDirectory, "bloop_mono.wav"), out SoundPlayer soundplayer);
 
             TestSound = soundplayer;
 
@@ -184,6 +186,7 @@ namespace Fletch.Runtime.Hosting
 
             if(keyboard.GetKeyDown(KeyCode.Space))
             {
+                TestSound.Pitch = random.NextSingle() + 0.5f;
                 TestSound.PlaySound();
             }
 

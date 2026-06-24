@@ -13,15 +13,7 @@ namespace Fletch.Audio.Components
 
         private AudioManagementSystem audioManagementSystem;
 
-
-        IFletchContextLogger<AudioSource> logger;
-
-        internal AudioSource(IFletchContextLogger<AudioSource> logger)
-        {
-
-            this.logger = logger;
-
-        }
+        internal AudioSource() { }
 
         internal void AssignAudioManager(AudioManagementSystem audioManagementSystem)
         {
@@ -90,8 +82,6 @@ namespace Fletch.Audio.Components
         internal void PlaySoundPlayer(SoundPlayer player)
         {
             ReadyCheck();
-
-            logger.Log("Playing");
 
             audioManagementSystem.PlaySoundPlayer(player);
         }

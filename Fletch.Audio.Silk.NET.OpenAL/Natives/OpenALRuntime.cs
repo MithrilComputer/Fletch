@@ -7,10 +7,11 @@ using Fletch.Audio.Model.SoundPlayerCommands.Buffer;
 using Fletch.Audio.Model.SoundPlayerCommands.Source;
 using Fletch.Audio.Silk.NET.OpenAL.Model;
 using Silk.NET.OpenAL;
+using System.Numerics;
 
 namespace Fletch.Audio.Silk.NET.OpenAL.Natives
 {
-    internal sealed class OpenALRuntime : IDisposable
+    internal sealed class OpenALRuntime : IDisposable 
     {
         private readonly AL al;
 
@@ -41,6 +42,9 @@ namespace Fletch.Audio.Silk.NET.OpenAL.Natives
         public void HandleAudioCommand(AudioCommand command)
         {
             ThrowIfDisposed();
+
+            // TODO Later perhapse break down the commands to a dictionary dispatch system and register commands to functions
+            // Can help keep growth scalable and keep up response speed, a switch is fine, but still
 
             switch (command)
             {
@@ -101,6 +105,61 @@ namespace Fletch.Audio.Silk.NET.OpenAL.Natives
                         alPlayBufferHandle.Id);
 
                     al.SourcePlay(alPlaySourceHandle.Id);
+
+                    break;
+
+                case PausePlayerCommand pausePlayerCommand:
+
+                    pausePlayerCommand.Deconstruct(out ISoundSourceHandle pauseSourceHandle);
+
+                    if (pauseSourceHandle is not OpenALSourceHandle pauseALSourceHandle)
+                        throw new InvalidCastException();
+
+                    al.SourcePause(pauseALSourceHandle.Id);
+
+                    break;
+
+                case SetPlayerVolumeCommand setPlayerVolume:
+
+                    setPlayerVolume.Deconstruct(out ISoundSourceHandle volumeSoureHandle, out float volume);
+
+                    if (volumeSoureHandle is not OpenALSourceHandle volumeALSourceHandle)
+                        throw new InvalidCastException();
+
+                    al.SetSourceProperty(volumeALSourceHandle.Id, SourceFloat.Gain, volume);
+
+                    break;
+
+                case SetPlayerLoopingCommand setPlayerLoopingCommand:
+
+                    setPlayerLoopingCommand.Deconstruct(out ISoundSourceHandle isLoopingSource, out bool isLooping);
+
+                    if (isLoopingSource is not OpenALSourceHandle isLoopingAlSource)
+                        throw new InvalidCastException();
+
+                    al.SetSourceProperty(isLoopingAlSource.Id, SourceBoolean.Looping, isLooping);
+
+                    break;
+
+                case SetPlayerPitchCommand setPlayerPitchCommand:
+
+                    setPlayerPitchCommand.Deconstruct(out ISoundSourceHandle pitchSoundSoruce, out float pitch);
+
+                    if (pitchSoundSoruce is not OpenALSourceHandle pitchALSource)
+                        throw new InvalidCastException();
+
+                    al.SetSourceProperty(pitchALSource.Id, SourceFloat.Pitch, pitch);
+
+                    break;
+
+                case SetPlayerPositionCommand setPlayerPositionCommand:
+
+                    setPlayerPositionCommand.Deconstruct(out ISoundSourceHandle positionSoundSoruce, out Vector2 position);
+
+                    if (positionSoundSoruce is not OpenALSourceHandle positionALSoundSoruce)
+                        throw new InvalidCastException();
+
+                    al.SetSourceProperty(positionALSoundSoruce.Id, SourceVector3.Position, position.X, position.Y, 0f);
 
                     break;
             }
