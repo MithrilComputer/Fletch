@@ -169,7 +169,21 @@ namespace Fletch.Audio.Silk.NET.OpenAL.Natives
         {
             switch (command)
             {
-                
+                case SetListenerGainCommand setListenerGainCommand:
+
+                    setListenerGainCommand.Deconstruct(out float gain);
+
+                    al.SetListenerProperty(ListenerFloat.Gain, gain);
+
+                    break;
+
+                case SetListenerPositionCommand setListenerPositionCommand:
+
+                    setListenerPositionCommand.Deconstruct(out Vector2 position);
+
+                    al.SetListenerProperty(ListenerVector3.Position, position.X, position.Y, 0);
+
+                    break;
             }
         }
 

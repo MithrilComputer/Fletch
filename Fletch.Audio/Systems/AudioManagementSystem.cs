@@ -264,20 +264,20 @@ namespace Fletch.Audio.Systems
                 SetListenerGainCommand gainCommand = new SetListenerGainCommand(activeListener.Gain); //TODO Use Dirty detection to avoid sending this every frame.
                 SetListenerPositionCommand positionCommand = new SetListenerPositionCommand(activeListener.GameObject.Transform.WorldPosition); //TODO Use Dirty detection to avoid sending this every frame.
 
-                //audioBackend.SendCommand(gainCommand); //TODO Use Dirty detection to avoid sending this every frame.
-                //audioBackend.SendCommand(positionCommand); //TODO Use Dirty detection to avoid sending this every frame.
+                audioBackend.SendCommand(gainCommand); //TODO Use Dirty detection to avoid sending this every frame.
+                audioBackend.SendCommand(positionCommand); //TODO Use Dirty detection to avoid sending this every frame.
             }
             else
             {
                 SetListenerGainCommand gainCommand = new SetListenerGainCommand(0f); //TODO Use Dirty detection to avoid sending this every frame.
 
-                //audioBackend.SendCommand(gainCommand); //TODO Use Dirty detection to avoid sending this every frame.
+                audioBackend.SendCommand(gainCommand); //TODO Use Dirty detection to avoid sending this every frame.
             }
         }
 
         private static int ListenerCompare(AudioListener a, AudioListener b)
         {
-            return a.priority.CompareTo(b.priority);
+            return b.priority.CompareTo(a.priority);
         }
     }
 }

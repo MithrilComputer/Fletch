@@ -89,6 +89,7 @@ namespace Fletch.Runtime.Hosting
             renderingBackend = platformContext.RenderingBackend;
             inputBackend = platformContext.InputBackend;
             audioBackend = platformContext.AudioBackend;
+
             this.sceneFactory = sceneFactory;
             this.subSystemFactory = subSystemFactory;
         }
@@ -120,13 +121,18 @@ namespace Fletch.Runtime.Hosting
             SpriteRenderer wtwos = wallTwo.AddComponent<SpriteRenderer>();
             SpriteRenderer wthrees = wallThree.AddComponent<SpriteRenderer>();
 
-            gameObject.AddComponent<AudioSource>().TryCreateSoundPlayer(Path.Combine(pathProvider.AssetFolderDirectory, "bloop_mono.wav"), out SoundPlayer soundplayer);
+            wallOne.AddComponent<AudioSource>().TryCreateSoundPlayer(Path.Combine(pathProvider.AssetFolderDirectory, "bloop.wav"), out SoundPlayer soundplayer);
 
             TestSound = soundplayer;
 
+            TestSound.IsLooping = false;
+
             camera = cameraObject.AddComponent<Camera2D>();
 
+            cameraObject.AddComponent<AudioListener>();
+
             camera.BlendMode = Rendering.Model.BlendMode.Alpha;
+
 
             /* testing
               
@@ -178,16 +184,19 @@ namespace Fletch.Runtime.Hosting
         {
             if (!IsInitialized)
                 return;
+
             inputBackend.UpdateBackend();
 
             gameObject.Transform.LocalPosition += gamepad.LeftThumbstick * moveSpeed * time.Delta;
 
             Vector2 moveAxisKey = new Vector2();
 
+            Vector2 greenMoveAxis = new Vector2();
+
             if(keyboard.GetKeyDown(KeyCode.Space))
             {
-                TestSound.Pitch = random.NextSingle() + 0.5f;
                 TestSound.PlaySound();
+                TestSound.Pitch = (random.NextSingle() + 0.2f) * 2;
             }
 
             if(keyboard.GetKey(KeyCode.A))
@@ -210,7 +219,29 @@ namespace Fletch.Runtime.Hosting
                 moveAxisKey.Y = -1;
             }
 
+            if (keyboard.GetKey(KeyCode.Left))
+            {
+                greenMoveAxis.X = -1;
+            }
+
+            if (keyboard.GetKey(KeyCode.Right))
+            {
+                greenMoveAxis.X = 1;
+            }
+
+            if (keyboard.GetKey(KeyCode.Up))
+            {
+                greenMoveAxis.Y = 1;
+            }
+
+            if (keyboard.GetKey(KeyCode.Down))
+            {
+                greenMoveAxis.Y = -1;
+            }
+
             gameObject.Transform.LocalPosition += moveAxisKey * moveSpeed * time.Delta;
+
+            wallOne.Transform.LocalPosition += greenMoveAxis * moveSpeed * time.Delta;
 
             Vector2 atb = gameObject.Transform.LocalPosition - cameraObject.Transform.LocalPosition;
 
