@@ -8,6 +8,6 @@ namespace Fletch.Audio.Components
 
         public float Gain { get; set; } = 1f;
 
-        public int priority { get; set; } = 0;
+        public int Priority { get; set; } = 0;
     }
 }

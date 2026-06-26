@@ -39,8 +39,6 @@ namespace Fletch.Runtime.Hosting
 
         private readonly IInputBackend inputBackend;
 
-        private readonly IAudioBackend audioBackend;
-
         private readonly ISceneFactory sceneFactory;
 
         private readonly ISubSystemFactory subSystemFactory;
@@ -88,7 +86,6 @@ namespace Fletch.Runtime.Hosting
             pathProvider = platformContext.PathProvider;
             renderingBackend = platformContext.RenderingBackend;
             inputBackend = platformContext.InputBackend;
-            audioBackend = platformContext.AudioBackend;
 
             this.sceneFactory = sceneFactory;
             this.subSystemFactory = subSystemFactory;
@@ -129,7 +126,7 @@ namespace Fletch.Runtime.Hosting
 
             camera = cameraObject.AddComponent<Camera2D>();
 
-            cameraObject.AddComponent<AudioListener>();
+            cameraObject.AddComponent<AudioListener>().IsEnabled = true;
 
             camera.BlendMode = Rendering.Model.BlendMode.Alpha;
 

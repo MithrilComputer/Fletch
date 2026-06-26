@@ -277,7 +277,7 @@ namespace Fletch.Audio.Systems
 
         private static int ListenerCompare(AudioListener a, AudioListener b)
         {
-            return b.priority.CompareTo(a.priority);
+            return b.Priority.CompareTo(a.Priority);
         }
     }
 }
