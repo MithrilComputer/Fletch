@@ -6,6 +6,7 @@ using Fletch.Audio.Model.SoundPlayerCommands;
 using Fletch.Audio.Model.SoundPlayerCommands.Buffer;
 using Fletch.Audio.Model.SoundPlayerCommands.Source;
 using Fletch.Audio.Silk.NET.OpenAL.Model;
+using Silk.NET.Core.Contexts;
 using Silk.NET.OpenAL;
 using System.Numerics;
 
@@ -19,8 +20,21 @@ namespace Fletch.Audio.Silk.NET.OpenAL.Natives
 
         private readonly Queue<uint> sourcePool = new Queue<uint>();
 
-        private readonly Dictionary<OpenALSourceHandle, uint> sourceHandles = new Dictionary<OpenALSourceHandle, uint>();
-        private readonly Dictionary<OpenALBufferHandle, uint> bufferHandles = new Dictionary<OpenALBufferHandle, uint>();
+        private readonly List<uint> allSources = new List<uint>();
+
+        private readonly Dictionary<string, uint> bufferCache = new Dictionary<string, uint>();
+
+        private readonly Dictionary<uint, string> bufferToKey = new Dictionary<uint, string>();
+
+        /// <summary>
+        /// Maps currently used buffers to the sources using them
+        /// </summary>
+        private readonly Dictionary<uint, List<uint>> bufferToSource;
+
+        /// <summary>
+        /// Maps currently used sources to the buffer thats being used
+        /// </summary>
+        private readonly Dictionary<uint, uint> sourceToBuffer = new Dictionary<uint, uint>();
 
         private readonly IAudioAssetProvider audioAssetProvider;
 
@@ -32,10 +46,13 @@ namespace Fletch.Audio.Silk.NET.OpenAL.Natives
 
             this.audioAssetProvider = audioAssetProvider;
 
+            bufferToSource = new Dictionary<uint, List<uint>>();
+
             for (int i = 0; i < SourcePoolSize; i++)
             {
                 uint sourceId = al.GenSource();
                 sourcePool.Enqueue(sourceId);
+                allSources.Add(sourceId);
             }
         }
 
@@ -66,12 +83,25 @@ namespace Fletch.Audio.Silk.NET.OpenAL.Natives
             switch (command)
             {
                 case RequestNewSourceCommand newSourceRequest: // TODO Make a fallback for if the pool is drained, simple for testing perpouses for now
-
+                    
                     newSourceRequest.Deconstruct(out TaskCompletionSource<ISoundSourceHandle> sourceHandleRequest);
+                    
+                    try
+                    {
+                        if (!sourcePool.TryDequeue(out uint newSourceID))
+                        {
+                            sourceHandleRequest.SetException(
+                                new InvalidOperationException("No OpenAL sources available."));
 
-                    uint newSourceID = sourcePool.Dequeue();
+                            return;
+                        }
 
-                    sourceHandleRequest.SetResult(new OpenALSourceHandle(newSourceID));
+                        sourceHandleRequest.SetResult(new OpenALSourceHandle(newSourceID));
+                    }
+                    catch (Exception e)
+                    { 
+                        sourceHandleRequest.SetException(e); 
+                    }
 
                     break;
 
@@ -79,13 +109,31 @@ namespace Fletch.Audio.Silk.NET.OpenAL.Natives
 
                     requestNewBufferHandleCommand.Deconstruct(out string key,out TaskCompletionSource<ISoundBufferHandle> bufferHandleRequest);
 
-                    PCMAudioData PCMData = audioAssetProvider.LoadAudioData(key);
+                    try
+                    {
+                        if (!bufferCache.TryGetValue(key, out uint cachedBuffer))
+                        {
+                            PCMAudioData PCMData = audioAssetProvider.LoadAudioData(key);
 
-                    OpenALBufferHandle bufferRequestHandle = new OpenALBufferHandle(al.GenBuffer());
+                            OpenALBufferHandle bufferRequestHandle = new OpenALBufferHandle(al.GenBuffer());
 
-                    UploadBuffer(bufferRequestHandle, PCMData); // TODO This is unsafe, please deal with ASAP, testing for now
+                            UploadBuffer(bufferRequestHandle, PCMData); // TODO This is unsafe, please deal with ASAP, testing for now
 
-                    bufferHandleRequest.SetResult(bufferRequestHandle);
+                            bufferCache.Add(key, bufferRequestHandle.Id);
+
+                            bufferToKey.Add(bufferRequestHandle.Id, key);
+
+                            bufferHandleRequest.SetResult(bufferRequestHandle);
+
+                            return;
+                        }
+
+                        bufferHandleRequest.SetResult(new OpenALBufferHandle(cachedBuffer));
+                    }
+                    catch (Exception e) 
+                    { 
+                        bufferHandleRequest.SetException(e); 
+                    }
 
                     break;
 
@@ -103,6 +151,9 @@ namespace Fletch.Audio.Silk.NET.OpenAL.Natives
                         alPlaySourceHandle.Id,
                         SourceInteger.Buffer,
                         alPlayBufferHandle.Id);
+
+
+                    BindSourceToBuffer(alPlaySourceHandle.Id, alPlayBufferHandle.Id);
 
                     al.SourcePlay(alPlaySourceHandle.Id);
 
@@ -160,6 +211,17 @@ namespace Fletch.Audio.Silk.NET.OpenAL.Natives
                         throw new InvalidCastException();
 
                     al.SetSourceProperty(positionALSoundSoruce.Id, SourceVector3.Position, position.X, position.Y, 0f);
+
+                    break;
+
+                case ReleaseSourceCommand releaseSourceCommand:
+
+                    releaseSourceCommand.Deconstruct(out ISoundSourceHandle soundSoruceToRelease);
+
+                    if (soundSoruceToRelease is not OpenALSourceHandle soundALSoruceToRelease)
+                        throw new InvalidCastException();
+
+                    ReleaseSourceAndCheckBuffer(soundALSoruceToRelease.Id);
 
                     break;
             }
@@ -239,9 +301,109 @@ namespace Fletch.Audio.Silk.NET.OpenAL.Natives
             throw new NotImplementedException();
         }
 
+        private void ResetSourceForReuse(uint source)
+        {
+            al.SourceStop(source);
+            al.SetSourceProperty(source, SourceInteger.Buffer, 0);
+        }
+
+        private void DeleteSource(uint source)
+        {
+            al.SourceStop(source);
+            al.SetSourceProperty(source, SourceInteger.Buffer, 0);
+            al.DeleteSource(source);
+        }
+
+        private void ReleaseSourceAndCheckBuffer(uint source)
+        {
+            ResetSourceForReuse(source);
+
+            if (!sourceToBuffer.TryGetValue(source, out uint bufferUsed))
+            {
+                sourcePool.Enqueue(source);
+                return;
+            }
+
+            sourceToBuffer.Remove(source);
+
+            if (bufferToSource.TryGetValue(bufferUsed, out List<uint>? sources))
+            {
+                sources.Remove(source);
+
+                if (sources.Count == 0)
+                {
+                    bufferToSource.Remove(bufferUsed);
+                    ReleaseBuffer(bufferUsed);
+                }
+            }
+
+            sourcePool.Enqueue(source);
+        }
+
+        private void BindSourceToBuffer(uint source, uint buffer)
+        {
+            if (sourceToBuffer.TryGetValue(source, out uint oldBuffer))
+            {
+                if (bufferToSource.TryGetValue(oldBuffer, out List<uint>? oldSources))
+                {
+                    oldSources.Remove(source);
+
+                    if (oldSources.Count == 0)
+                    {
+                        bufferToSource.Remove(oldBuffer);
+                        ReleaseBuffer(oldBuffer);
+                    }
+                }
+            }
+
+            if (!bufferToSource.TryGetValue(buffer, out List<uint>? sources))
+            {
+                sources = new List<uint>();
+                bufferToSource.Add(buffer, sources);
+            }
+
+            if (!sources.Contains(source))
+            {
+                sources.Add(source);
+            }
+
+            sourceToBuffer[source] = buffer;
+        }
+
+        private void ReleaseBuffer(uint buffer)
+        {
+            if (!bufferToKey.TryGetValue(buffer, out string? key))
+                return;
+
+            bufferCache.Remove(key);
+            bufferToKey.Remove(buffer);
+
+            al.DeleteBuffer(buffer);
+        }
+
         public void Dispose()
         {
+            foreach (uint source in allSources)
+            {
+                DeleteSource(source);
+            }
 
+            uint[] buffers = bufferCache.Values.ToArray();
+
+            foreach (uint buffer in buffers)
+            {
+                ReleaseBuffer(buffer);
+            }
+
+            sourcePool.Clear();
+
+            allSources.Clear();
+
+            sourceToBuffer.Clear();
+
+            bufferToSource.Clear();
+
+            isDisposed = true;
         }
     }
 }
