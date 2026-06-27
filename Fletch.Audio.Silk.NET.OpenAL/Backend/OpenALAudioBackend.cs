@@ -2,6 +2,7 @@
 using Fletch.Audio.Abstractions.Backend;
 using Fletch.Audio.Model;
 using Fletch.Audio.Silk.NET.OpenAL.Natives;
+using Fletch.Core.Diagnostics;
 
 namespace Fletch.Audio.Silk.NET.OpenAL.Backend
 {
@@ -9,9 +10,9 @@ namespace Fletch.Audio.Silk.NET.OpenAL.Backend
     {
         private readonly OpenALManager openALManager;
 
-        public OpenALAudioBackend(IAudioAssetProvider audioAssetProvider)
+        public OpenALAudioBackend(IAudioAssetProvider audioAssetProvider, IFletchContextLogger<OpenALManager> ContextManagerLogger)
         {
-            openALManager = new OpenALManager(audioAssetProvider);
+            openALManager = new OpenALManager(audioAssetProvider, ContextManagerLogger);
             openALManager.Start();
         }
 
