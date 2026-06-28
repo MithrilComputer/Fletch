@@ -196,6 +196,11 @@ namespace Fletch.Runtime.Hosting
                 TestSound.Pitch = (random.NextSingle() + 0.2f) * 2;
             }
 
+            if (keyboard.GetKey(KeyCode.V))
+            {
+                wallOne.AddComponent<AudioSource>();
+            }
+
             if(keyboard.GetKey(KeyCode.A))
             {
                 moveAxisKey.X = -1;
