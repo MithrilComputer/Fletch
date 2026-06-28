@@ -13,6 +13,16 @@
         public IReadOnlyList<T> Items => items;
 
         /// <summary>
+        /// The Items that will be removed on refresh.
+        /// </summary>
+        public IReadOnlyList<T> PendingRemoves => pendingRemoves.ToList();
+
+        /// <summary>
+        /// The items that will be added on refresh.
+        /// </summary>
+        public IReadOnlyList<T> PendingAdds => pendingAdds.ToList();
+
+        /// <summary>
         /// Marks an item for addition to the tracked set.
         /// </summary>
         public void MarkToAdd(T item)
@@ -52,6 +62,15 @@
         {
             if (comparison == null) throw new ArgumentNullException(nameof(comparison));
             items.Sort(comparison);
+        }
+
+        // Clears the collections
+        public void Clear()
+        {
+            items.Clear();
+            pendingAdds.Clear();
+            pendingRemoves.Clear();
+            set.Clear();
         }
     }
 }

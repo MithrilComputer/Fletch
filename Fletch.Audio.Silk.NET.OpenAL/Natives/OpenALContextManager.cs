@@ -8,8 +8,8 @@ namespace Fletch.Audio.Silk.NET.OpenAL.Natives
     internal unsafe sealed class OpenALContextManager : IDisposable
     {
         private readonly ALContext alc = ALContext.GetApi();
-        private unsafe Device* device;
-        private unsafe Context* context;
+        private Device* device;
+        private Context* context;
 
         private bool disposed = false;
 

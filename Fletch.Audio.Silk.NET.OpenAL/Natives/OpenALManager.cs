@@ -13,7 +13,7 @@ namespace Fletch.Audio.Silk.NET.OpenAL.Natives
     {
         private bool disposed = false;
 
-        private bool running = false;
+        private bool started = false;
 
         private readonly Thread audioThread;
 
@@ -44,6 +44,7 @@ namespace Fletch.Audio.Silk.NET.OpenAL.Natives
         /// <summary>
         /// Starts the audio thread.
         /// </summary>
+        /// <remarks>Can only be run once</remarks>
         /// <exception cref="ObjectDisposedException">
         /// Thrown when disposed.
         /// </exception>
@@ -54,10 +55,10 @@ namespace Fletch.Audio.Silk.NET.OpenAL.Natives
                 throw new ObjectDisposedException(nameof(OpenALManager));
             }
 
-            if (running)
+            if (started)
                 return;
 
-            running = true;
+            started = true;
 
             audioThread.Start();
         }
@@ -93,8 +94,16 @@ namespace Fletch.Audio.Silk.NET.OpenAL.Natives
         /// <exception cref="ObjectDisposedException">
         /// Thrown when disposed.
         /// </exception>
+        /// <exception cref="InvalidOperationException">
+        /// Throws if a command is atempted to be queued before the manager has started.
+        /// </exception>
         public void QueueCommand(AudioCommand audioCommand)
         {
+            if (!started)
+            {
+                throw new InvalidOperationException("OpenAL manager has not been started.");
+            }
+
             if (disposed)
             {
                 throw new ObjectDisposedException(nameof(OpenALManager));

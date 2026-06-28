@@ -1,44 +1,74 @@
 ﻿using Fletch.Audio.Components;
-using Fletch.Core.Diagnostics;
 
 namespace Fletch.Audio.Model
 {
+    /// <summary>
+    /// Represents a controllable sound instance.
+    /// </summary>
     public sealed class SoundPlayer : IDisposable
     {
-        //TODO Use Dirty detection!
+        // TODO: Use dirty detection.
 
-        public AudioSource? ParentAudioSource { get; private set; } 
+        /// <summary>
+        /// Parent audio source.
+        /// </summary>
+        public AudioSource? ParentAudioSource { get; private set; }
 
+        /// <summary>
+        /// Sound volume.
+        /// </summary>
         public float Volume { get; set; } = 1f;
 
+        /// <summary>
+        /// Sound pitch.
+        /// </summary>
         public float Pitch { get; set; } = 1f;
 
+        /// <summary>
+        /// Whether the sound loops.
+        /// </summary>
         public bool IsLooping { get; set; } = false;
 
+        /// <summary>
+        /// Whether playback has been requested.
+        /// </summary>
         public bool IsPlaying { get; private set; } = false;
 
-
+        /// <summary>
+        /// Backend source handle.
+        /// </summary>
         internal ISoundSourceHandle? SourceHandle { get; private set; }
 
+        /// <summary>
+        /// Backend buffer handle.
+        /// </summary>
         internal ISoundBufferHandle? BufferHandle { get; private set; }
 
-
-        private bool SoundHandleAssigned => BufferHandle != null;
-
+        /// <summary>
+        /// Whether the sound can be played.
+        /// </summary>
+        private bool IsReadyToPlay => SourceHandle != null && BufferHandle != null;
 
         private bool preLoadPlayCommanded = false;
 
         private bool initialized = false;
 
-        
+        private bool disposed = false;
+
         private readonly List<AudioEffect> effects = new List<AudioEffect>();
 
+        /// <summary>
+        /// Creates a sound player.
+        /// </summary>
         internal SoundPlayer() { }
 
         /// <summary>
-        /// Called by the parent AudioSource when the SoundPlayer is created. This allows the SoundPlayer to have a reference to its parent AudioSource, which it can use to trigger playback and apply effects through the audio system.
+        /// Initializes the sound player with its parent source.
         /// </summary>
-        /// <exception cref="ArgumentNullException"></exception>
+        /// <param name="parentSource">Parent audio source.</param>
+        /// <exception cref="ArgumentNullException">
+        /// Thrown when <paramref name="parentSource"/> is null.
+        /// </exception>
         internal void Initialize(AudioSource parentSource)
         {
             ParentAudioSource = parentSource ?? throw new ArgumentNullException(nameof(parentSource));
@@ -47,25 +77,29 @@ namespace Fletch.Audio.Model
         }
 
         /// <summary>
-        /// Called after the audio backend has loaded the sound asset and assigned it an ISoundHandle. This allows the SoundPlayer to know when it's ready to play the sound, and to trigger playback if PlaySound was called before the asset was loaded.
+        /// Assigns the backend sound buffer.
         /// </summary>
-        /// <exception cref="ArgumentNullException"></exception>
+        /// <param name="bufferHandle">Sound buffer handle.</param>
+        /// <exception cref="ArgumentNullException">
+        /// Thrown when <paramref name="bufferHandle"/> is null.
+        /// </exception>
         internal void AssignSoundBuffer(ISoundBufferHandle bufferHandle)
         {
-            
             BufferHandle = bufferHandle ?? throw new ArgumentNullException(nameof(bufferHandle));
 
             if (preLoadPlayCommanded)
             {
                 PlaySound();
             }
-
         }
 
         /// <summary>
-        /// Called after the audio backend has loaded the sound asset and assigned it an ISoundHandle. This allows the SoundPlayer to know when it's ready to play the sound, and to trigger playback if PlaySound was called before the asset was loaded.
+        /// Assigns the backend sound source.
         /// </summary>
-        /// <exception cref="ArgumentNullException"></exception>
+        /// <param name="sourceHandle">Sound source handle.</param>
+        /// <exception cref="ArgumentNullException">
+        /// Thrown when <paramref name="sourceHandle"/> is null.
+        /// </exception>
         internal void AssignSoundSource(ISoundSourceHandle sourceHandle)
         {
             SourceHandle = sourceHandle ?? throw new ArgumentNullException(nameof(sourceHandle));
@@ -77,21 +111,27 @@ namespace Fletch.Audio.Model
         }
 
         /// <summary>
-        /// Initiates playback of the sound, handling preloading if necessary.
+        /// Plays the sound.
         /// </summary>
+        /// <exception cref="ObjectDisposedException">
+        /// Thrown when this sound player is disposed.
+        /// </exception>
+        /// <exception cref="InvalidOperationException">
+        /// Thrown when this sound player is not initialized.
+        /// </exception>
         public void PlaySound()
         {
-            CheckInitialized();
-            
-            if (!SoundHandleAssigned)
-            {
-                if(!preLoadPlayCommanded)
-                {
-                    preLoadPlayCommanded = true;
-                }
+            ObjectDisposedException.ThrowIf(disposed, this);
 
+            CheckInitialized();
+
+            if (!IsReadyToPlay)
+            {
+                preLoadPlayCommanded = true;
                 return;
             }
+
+            preLoadPlayCommanded = false;
 
             ParentAudioSource?.PlaySoundPlayer(this);
 
@@ -99,15 +139,24 @@ namespace Fletch.Audio.Model
         }
 
         /// <summary>
-        /// Stops playback of the current sound and updates the playing state.
+        /// Stops the sound.
         /// </summary>
+        /// <exception cref="ObjectDisposedException">
+        /// Thrown when this sound player is disposed.
+        /// </exception>
+        /// <exception cref="InvalidOperationException">
+        /// Thrown when this sound player is not initialized.
+        /// </exception>
         public void StopSound()
         {
+            ObjectDisposedException.ThrowIf(disposed, this);
+
             CheckInitialized();
 
-            if (!SoundHandleAssigned)
+            if (!IsReadyToPlay)
             {
                 preLoadPlayCommanded = false;
+                IsPlaying = false;
                 return;
             }
 
@@ -117,15 +166,24 @@ namespace Fletch.Audio.Model
         }
 
         /// <summary>
-        /// Pauses the currently playing sound associated with this instance.
+        /// Pauses the sound.
         /// </summary>
+        /// <exception cref="ObjectDisposedException">
+        /// Thrown when this sound player is disposed.
+        /// </exception>
+        /// <exception cref="InvalidOperationException">
+        /// Thrown when this sound player is not initialized.
+        /// </exception>
         public void PauseSound()
         {
+            ObjectDisposedException.ThrowIf(disposed, this);
+
             CheckInitialized();
 
-            if (!SoundHandleAssigned)
+            if (!IsReadyToPlay)
             {
                 preLoadPlayCommanded = false;
+                IsPlaying = false;
                 return;
             }
 
@@ -134,37 +192,35 @@ namespace Fletch.Audio.Model
             IsPlaying = false;
         }
 
-        /* TODO
+        /*
         /// <summary>
-        /// Creates and adds a new audio effect of the specified type to the audio source.
+        /// Adds an audio effect.
         /// </summary>
-        /// <typeparam name="T">The type of AudioEffect to add.</typeparam>
-        /// <returns>The newly created AudioEffect instance.</returns>
+        /// <typeparam name="T">Audio effect type.</typeparam>
+        /// <returns>Created audio effect.</returns>
         public AudioEffect AddAudioEffect<T>() where T : AudioEffect
         {
             CheckInitialized();
-
-            // uses the singleton IAudioEffectFactory to create an instance of the requested AudioEffect type
-            // adds it to the list of effects, and returns it.
-
-            // AudioEffect constructor or whatever
-
-            //ParentAudioSource?.PassAddEffectToSystem(this, null); // replace null with the actual effect instance
-
 
             throw new NotImplementedException();
         }
         */
 
         /// <summary>
-        /// Retrieves the collection of audio effects.
+        /// Gets audio effects.
         /// </summary>
-        /// <returns>A read-only list of AudioEffect objects.</returns>
+        /// <returns>Audio effects.</returns>
         internal IReadOnlyList<AudioEffect> GetAudioEffects()
         {
             return effects;
         }
 
+        /// <summary>
+        /// Checks whether the sound player is initialized.
+        /// </summary>
+        /// <exception cref="InvalidOperationException">
+        /// Thrown when this sound player is not initialized.
+        /// </exception>
         private void CheckInitialized()
         {
             if (!initialized || ParentAudioSource == null)
@@ -173,14 +229,24 @@ namespace Fletch.Audio.Model
             }
         }
 
+        /// <summary>
+        /// Releases this sound player.
+        /// </summary>
         public void Dispose()
         {
+            if (disposed)
+            {
+                return;
+            }
+
+            disposed = true;
+
             if (ParentAudioSource == null)
             {
                 return;
             }
 
-            ParentAudioSource?.ReleaseSoundPlayer(this);
+            ParentAudioSource.ReleaseSoundPlayer(this);
         }
     }
 }

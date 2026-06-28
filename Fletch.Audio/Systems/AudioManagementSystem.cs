@@ -4,18 +4,21 @@ using Fletch.Audio.Factories.SoundPlayers;
 using Fletch.Audio.Model;
 using Fletch.Audio.Model.SoundListenerCommands;
 using Fletch.Audio.Model.SoundPlayerCommands;
+using Fletch.Audio.Model.SoundPlayerCommands.Source;
 using Fletch.Core.Components.Update;
-using Fletch.Core.Diagnostics;
 using Fletch.Engine.Components;
 using Fletch.Engine.Model;
 using Fletch.Engine.Scenes;
 using Fletch.Engine.Systems;
-using System.Diagnostics;
+
 using System.Numerics;
 
 namespace Fletch.Audio.Systems
 {
-    internal sealed class AudioManagementSystem : SceneSubsystem, IUpdateable
+    /// <summary>
+    /// Manages scene audio sources, listeners, and sound players.
+    /// </summary>
+    internal sealed class AudioManagementSystem : SceneSubsystem, IUpdateable, IDisposable
     {
         private readonly IAudioBackend audioBackend;
 
@@ -25,17 +28,21 @@ namespace Fletch.Audio.Systems
 
         private readonly TrackedSet<SoundPlayer> soundPlayers = new TrackedSet<SoundPlayer>();
 
+        private Scene? scene;
+
         private AudioListener? activeListener = null;
 
         private readonly SoundPlayerFactory soundPlayerFactory;
 
-        private readonly IFletchLogger logger;
+        private bool disposed;
 
-        public AudioManagementSystem(IAudioBackend audioBackend, IFletchLogger logger)
+        /// <summary>
+        /// Creates an audio management system.
+        /// </summary>
+        /// <param name="audioBackend">Audio backend.</param>
+        public AudioManagementSystem(IAudioBackend audioBackend)
         {
             this.audioBackend = audioBackend;
-
-            this.logger = logger;
 
             soundPlayerFactory = new SoundPlayerFactory(audioBackend);
         }
@@ -46,22 +53,23 @@ namespace Fletch.Audio.Systems
         /// <param name="scene">The scene to attach the audio system to.</param>
         public override void AttachToScene(Scene scene)
         {
+            ObjectDisposedException.ThrowIf(disposed, this);
+
             base.AttachToScene(scene);
 
             scene.SystemManager.RegisterSystem(this, SystemExecutionOrder.Simulation, 0);
 
             scene.AddSystemComponentRegistration(typeof(AudioSource), (b, c) => OnAudioSourceChange(b, c));
             scene.AddSystemComponentRegistration(typeof(AudioListener), (b, c) => OnAudioListenerChange(b, c));
+
+            this.scene = scene;
         }
 
         /// <summary>
-        /// Handles changes to an AudioSource component by marking it for addition or removal based on the specified
-        /// change type.
+        /// Handles audio source component changes.
         /// </summary>
-        /// <param name="component">The component to process as an AudioSource.</param>
-        /// <param name="changeType">The type of change applied to the component.</param>
-        /// <exception cref="ArgumentNullException">Thrown when the component parameter is null.</exception>
-        /// <exception cref="InvalidOperationException">Thrown when the component is not of type AudioSource.</exception>
+        /// <param name="component">Changed component.</param>
+        /// <param name="changeType">Component change type.</param>
         private void OnAudioSourceChange(GameObjectComponent component, ComponentChangeType changeType)
         {
             if (component == null)
@@ -79,7 +87,7 @@ namespace Fletch.Audio.Systems
 
                 case ComponentChangeType.Removed:
                     audioSources.MarkToRemove(audioSource);
-                    audioSource.AssignAudioManager(this);
+                    audioSource.AssignAudioManager(null);
                     break;
 
                 default: break;
@@ -87,13 +95,10 @@ namespace Fletch.Audio.Systems
         }
 
         /// <summary>
-        /// Handles changes to AudioListener components by marking them for addition or removal based on the specified
-        /// change type.
+        /// Handles audio listener component changes.
         /// </summary>
-        /// <param name="component">The component to process as an AudioListener.</param>
-        /// <param name="changeType">The type of change applied to the component.</param>
-        /// <exception cref="ArgumentNullException">Thrown if the component parameter is null.</exception>
-        /// <exception cref="InvalidOperationException">Thrown if the component is not of type AudioListener.</exception>
+        /// <param name="component">Changed component.</param>
+        /// <param name="changeType">Component change type.</param>
         private void OnAudioListenerChange(GameObjectComponent component, ComponentChangeType changeType)
         {
             if (component == null)
@@ -118,13 +123,32 @@ namespace Fletch.Audio.Systems
             audioListeners.Sort(ListenerCompare);
         }
 
+        /// <summary>
+        /// Updates audio state.
+        /// </summary>
+        /// <param name="deltaTime">Frame delta time.</param>
         public void Update(float deltaTime)
         {
+            if (disposed)
+            {
+                return;
+            }
+
             audioListeners.Refresh();
 
             audioListeners.Sort(ListenerCompare);
 
             audioSources.Refresh();
+
+            foreach (SoundPlayer removedSoundPlayer in soundPlayers.PendingRemoves)
+            {
+                if (removedSoundPlayer.SourceHandle == null)
+                    continue;
+
+                ReleaseSourceCommand sourceRelease = new ReleaseSourceCommand(removedSoundPlayer.SourceHandle);
+
+                audioBackend.SendCommand(sourceRelease);
+            }
 
             soundPlayers.Refresh();
 
@@ -134,12 +158,14 @@ namespace Fletch.Audio.Systems
         }
 
         /// <summary>
-        /// Creates a new SoundPlayer instance, begins loading the sound asset identified by the specified key, and assigns it to the player once loading is complete.
+        /// Requests a new sound player.
         /// </summary>
-        /// <param name="soundKey">The key identifying the sound asset to load.</param>
-        /// <returns>A new SoundPlayer instance if creation succeeds; otherwise, null.</returns>
-        public SoundPlayer? RequestNewSoundPlayer(string soundKey)
+        /// <param name="soundKey">Sound asset key.</param>
+        /// <returns>New sound player.</returns>
+        public SoundPlayer RequestNewSoundPlayer(string soundKey)
         {
+            ObjectDisposedException.ThrowIf(disposed, this);
+
             SoundPlayer soundPlayer = soundPlayerFactory.Create(soundKey);
 
             soundPlayers.MarkToAdd(soundPlayer);
@@ -148,34 +174,27 @@ namespace Fletch.Audio.Systems
         }
 
         /// <summary>
-        /// Releases the specified SoundPlayer and destroys its associated player handle.
+        /// Releases a sound player.
         /// </summary>
-        /// <param name="soundPlayer">The SoundPlayer instance to release.</param>
-        /// <exception cref="ArgumentNullException">Thrown if soundPlayer is null.</exception>
-        /// <exception cref="InvalidOperationException">Thrown if soundPlayer does not have a valid player handle.</exception>
+        /// <param name="soundPlayer">Sound player to release.</param>
         public void ReleaseSoundPlayer(SoundPlayer soundPlayer)
         {
-            /*
+            ObjectDisposedException.ThrowIf(disposed, this);
+
             if (soundPlayer == null)
                 throw new ArgumentNullException(nameof(soundPlayer));
 
-            if (soundPlayer.SourceHandle == null)
-                throw new InvalidOperationException("SoundPlayer does not have a valid player handle.");
-
             soundPlayers.MarkToRemove(soundPlayer);
-
-            audioBackend.DestroySoundPlayer(soundPlayer.SourceHandle);
-            */
         }
 
         /// <summary>
-        /// Plays the specified SoundPlayer using the audio backend.
+        /// Plays a sound player.
         /// </summary>
-        /// <param name="soundPlayer">The SoundPlayer instance to play.</param>
-        /// <exception cref="ArgumentNullException">Thrown if soundPlayer is null.</exception>
-        /// <exception cref="InvalidOperationException">Thrown if soundPlayer does not have a valid player handle or sound asset assigned.</exception>
+        /// <param name="soundPlayer">Sound player to play.</param>
         public void PlaySoundPlayer(SoundPlayer soundPlayer)
         {
+            ObjectDisposedException.ThrowIf(disposed, this);
+
             if (soundPlayer == null)
                 throw new ArgumentNullException(nameof(soundPlayer));
 
@@ -190,8 +209,14 @@ namespace Fletch.Audio.Systems
             audioBackend.SendCommand(playCommand);
         }
 
+        /// <summary>
+        /// Stops a sound player.
+        /// </summary>
+        /// <param name="soundPlayer">Sound player to stop.</param>
         public void StopSoundPlayer(SoundPlayer soundPlayer)
         {
+            ObjectDisposedException.ThrowIf(disposed, this);
+
             if (soundPlayer == null)
                 throw new ArgumentNullException(nameof(soundPlayer));
 
@@ -203,8 +228,14 @@ namespace Fletch.Audio.Systems
             audioBackend.SendCommand(stopCommand);
         }
 
+        /// <summary>
+        /// Pauses a sound player.
+        /// </summary>
+        /// <param name="soundPlayer">Sound player to pause.</param>
         public void PauseSoundPlayer(SoundPlayer soundPlayer)
         {
+            ObjectDisposedException.ThrowIf(disposed, this);
+
             if (soundPlayer == null)
                 throw new ArgumentNullException(nameof(soundPlayer));
 
@@ -216,6 +247,9 @@ namespace Fletch.Audio.Systems
             audioBackend.SendCommand(pauseCommand);
         }
 
+        /// <summary>
+        /// Updates sound players.
+        /// </summary>
         private void UpdatePlayers()
         {
             foreach (SoundPlayer soundPlayer in soundPlayers.Items)
@@ -238,7 +272,7 @@ namespace Fletch.Audio.Systems
                 SetPlayerPitchCommand pitchCommand = new SetPlayerPitchCommand(soundPlayer.SourceHandle, soundPlayer.Pitch);
 
                 SetPlayerLoopingCommand loopingCommand = new SetPlayerLoopingCommand(soundPlayer.SourceHandle, soundPlayer.IsLooping);
-                
+
                 SetPlayerVolumeCommand volumeCommand = new SetPlayerVolumeCommand(soundPlayer.SourceHandle, soundPlayer.Volume);
 
                 audioBackend.SendCommand(setPositionCommand); //TODO Use Dirty detection to avoid sending this every frame.
@@ -248,8 +282,13 @@ namespace Fletch.Audio.Systems
             }
         }
 
+        /// <summary>
+        /// Updates the active listener.
+        /// </summary>
         private void UpdateListeners()
         {
+            activeListener = null;
+
             foreach (AudioListener audioListener in audioListeners.Items)
             {
                 if (audioListener.IsEnabled)
@@ -275,9 +314,64 @@ namespace Fletch.Audio.Systems
             }
         }
 
+        /// <summary>
+        /// Compares listeners by priority.
+        /// </summary>
+        /// <param name="a">First listener.</param>
+        /// <param name="b">Second listener.</param>
+        /// <returns>Sort comparison.</returns>
         private static int ListenerCompare(AudioListener a, AudioListener b)
         {
             return b.Priority.CompareTo(a.Priority);
+        }
+
+        /// <summary>
+        /// Clears audio manager references from tracked audio sources.
+        /// </summary>
+        private void ClearAudioSourceManagers()
+        {
+            ClearAudioSourceManagers(audioSources.Items);
+            ClearAudioSourceManagers(audioSources.PendingAdds);
+            ClearAudioSourceManagers(audioSources.PendingRemoves);
+        }
+
+        /// <summary>
+        /// Clears audio manager references from audio sources.
+        /// </summary>
+        /// <param name="audioSources">Audio sources to clear.</param>
+        private void ClearAudioSourceManagers(IEnumerable<AudioSource> audioSources)
+        {
+            foreach (AudioSource audioSource in audioSources)
+            {
+                audioSource.AssignAudioManager(null);
+            }
+        }
+
+        /// <summary>
+        /// Releases audio management system resources.
+        /// </summary>
+        public void Dispose()
+        {
+            if (disposed)
+            {
+                return;
+            }
+
+            if(scene != null)
+            {
+                scene.RemoveSystemComponentRegistration(typeof(AudioSource), (b, c) => OnAudioSourceChange(b, c));
+                scene.RemoveSystemComponentRegistration(typeof(AudioListener), (b, c) => OnAudioListenerChange(b, c));
+            }
+
+            disposed = true;
+
+            ClearAudioSourceManagers();
+
+            activeListener = null;
+
+            audioListeners.Clear();
+            audioSources.Clear();
+            soundPlayers.Clear();
         }
     }
 }
