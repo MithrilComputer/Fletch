@@ -6,7 +6,6 @@ using Fletch.Audio.Model.SoundPlayerCommands;
 using Fletch.Audio.Model.SoundPlayerCommands.Buffer;
 using Fletch.Audio.Model.SoundPlayerCommands.Source;
 using Fletch.Audio.Silk.NET.OpenAL.Model;
-using Silk.NET.Core.Contexts;
 using Silk.NET.OpenAL;
 using System.Numerics;
 
