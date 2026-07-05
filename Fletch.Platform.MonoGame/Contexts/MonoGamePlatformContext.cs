@@ -38,7 +38,7 @@ namespace Fletch.Platform.MonoGame.Contexts
         /// Gets the active input backend.
         /// </summary>
         public IInputBackend InputBackend { get; }
-        
+
         /// <summary>
         /// Gets
         /// </summary>

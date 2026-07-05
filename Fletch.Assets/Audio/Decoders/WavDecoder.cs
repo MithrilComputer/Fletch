@@ -47,7 +47,7 @@ namespace Fletch.Assets.Audio.Decoders
                 samples
             );
 
-            if(framesRead != totalFrameCount)
+            if (framesRead != totalFrameCount)
             {
                 throw new InvalidOperationException(
                     $"Failed to read full WAV file. Expected {totalFrameCount} frames, got {framesRead}.");

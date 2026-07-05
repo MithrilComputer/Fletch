@@ -66,7 +66,7 @@ namespace Fletch.Input.MonoGame.Backend
 
                 gamepadDevices[gamepadSlot] = new MonoGameGamepad(gamepadInitialState, gamepadSlot);
 
-                if(gamepadInitialState.IsConnected)
+                if (gamepadInitialState.IsConnected)
                 {
                     OnControllerConnected?.Invoke(gamepadSlot);
                 }

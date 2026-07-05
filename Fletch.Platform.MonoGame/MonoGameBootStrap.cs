@@ -1,4 +1,7 @@
-﻿using Fletch.Audio.Abstractions.Assets;
+﻿using Fletch.Assets.Audio.Providers;
+using Fletch.Audio.Abstractions.Assets;
+using Fletch.Audio.Abstractions.Backend;
+using Fletch.Audio.Silk.NET.OpenAL.Backend;
 using Fletch.Core.Diagnostics;
 using Fletch.Core.Platform;
 using Fletch.Engine.Abstractions.Factories;
@@ -24,9 +27,6 @@ using Fletch.Runtime.Abstractions.Hosting;
 using Fletch.Runtime.Hosting;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Xna.Framework;
-using Fletch.Assets.Audio.Providers;
-using Fletch.Audio.Abstractions.Backend;
-using Fletch.Audio.Silk.NET.OpenAL.Backend;
 
 namespace Fletch.Platform.MonoGame
 {

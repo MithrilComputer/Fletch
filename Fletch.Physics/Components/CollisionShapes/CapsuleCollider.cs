@@ -1,5 +1,4 @@
-﻿using Fletch.Engine.Components;
-using Fletch.Physics.Model;
+﻿using Fletch.Physics.Model;
 using Fletch.Physics.Model.Info.Collisions;
 
 namespace Fletch.Physics.Components.CollisionShapes

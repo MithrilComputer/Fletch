@@ -56,7 +56,7 @@ namespace Fletch.Platform.MonoGame.Paths
 
         private static void EnsureDirectory(string path)
         {
-            if(!Directory.Exists(path))
+            if (!Directory.Exists(path))
             {
                 Directory.CreateDirectory(path);
             }

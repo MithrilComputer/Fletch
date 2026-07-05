@@ -1,6 +1,5 @@
 ﻿using Fletch.Assets.Audio.Abstractions;
 using Fletch.Audio.Model.AudioData;
-using System.Text;
 
 namespace Fletch.Assets.Audio.Loaders
 {

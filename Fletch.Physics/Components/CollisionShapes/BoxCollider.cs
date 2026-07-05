@@ -3,7 +3,7 @@ using Fletch.Physics.Model.Info.Collisions;
 
 namespace Fletch.Physics.Components.CollisionShapes
 {
-    public class BoxCollider: CollisionShape
+    public class BoxCollider : CollisionShape
     {
         public float Width;
 

@@ -11,7 +11,7 @@ using System.Numerics;
 
 namespace Fletch.Audio.Silk.NET.OpenAL.Natives
 {
-    internal sealed class OpenALRuntime : IDisposable 
+    internal sealed class OpenALRuntime : IDisposable
     {
         private readonly AL al;
 
@@ -82,9 +82,9 @@ namespace Fletch.Audio.Silk.NET.OpenAL.Natives
             switch (command)
             {
                 case RequestNewSourceCommand newSourceRequest: // TODO Make a fallback for if the pool is drained, simple for testing perpouses for now
-                    
+
                     newSourceRequest.Deconstruct(out TaskCompletionSource<ISoundSourceHandle> sourceHandleRequest);
-                    
+
                     try
                     {
                         if (!sourcePool.TryDequeue(out uint newSourceID))
@@ -98,15 +98,15 @@ namespace Fletch.Audio.Silk.NET.OpenAL.Natives
                         sourceHandleRequest.SetResult(new OpenALSourceHandle(newSourceID));
                     }
                     catch (Exception e)
-                    { 
-                        sourceHandleRequest.SetException(e); 
+                    {
+                        sourceHandleRequest.SetException(e);
                     }
 
                     break;
 
                 case RequestNewBufferHandleCommand requestNewBufferHandleCommand:
 
-                    requestNewBufferHandleCommand.Deconstruct(out string key,out TaskCompletionSource<ISoundBufferHandle> bufferHandleRequest);
+                    requestNewBufferHandleCommand.Deconstruct(out string key, out TaskCompletionSource<ISoundBufferHandle> bufferHandleRequest);
 
                     try
                     {
@@ -129,9 +129,9 @@ namespace Fletch.Audio.Silk.NET.OpenAL.Natives
 
                         bufferHandleRequest.SetResult(new OpenALBufferHandle(cachedBuffer));
                     }
-                    catch (Exception e) 
-                    { 
-                        bufferHandleRequest.SetException(e); 
+                    catch (Exception e)
+                    {
+                        bufferHandleRequest.SetException(e);
                     }
 
                     break;
@@ -271,14 +271,14 @@ namespace Fletch.Audio.Silk.NET.OpenAL.Natives
 
         private BufferFormat GetOpenALBufferFormat(PCMAudioData audioData)
         {
-            if(audioData.Channels == 1) //Mono
+            if (audioData.Channels == 1) //Mono
             {
-                if(audioData.BitsPerSample == 8)
+                if (audioData.BitsPerSample == 8)
                 {
                     return BufferFormat.Mono8;
                 }
 
-                if(audioData.BitsPerSample == 16)
+                if (audioData.BitsPerSample == 16)
                 {
                     return BufferFormat.Mono16;
                 }

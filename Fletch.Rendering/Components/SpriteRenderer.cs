@@ -61,7 +61,7 @@ namespace Fletch.Rendering.Components
         /// Rotational Origin
         /// </summary>
         public Vector2 Origin { get; set; } = new Vector2(0.5f, 0.5f);
-        
+
         /// <summary>
         /// The current sprite effect applied to the sprite.
         /// </summary>

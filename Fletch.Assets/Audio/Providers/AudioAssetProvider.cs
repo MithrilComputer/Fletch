@@ -32,7 +32,7 @@ namespace Fletch.Assets.Audio.Providers
         {
             foreach (IAudioDecoder decoder in audioDecoders)
             {
-                if(decoder is IDisposable disposable)
+                if (decoder is IDisposable disposable)
                 {
                     disposable.Dispose();
                 }

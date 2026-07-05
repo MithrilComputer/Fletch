@@ -1,5 +1,4 @@
-﻿using Fletch.Audio.Abstractions.Backend;
-using Fletch.Audio.Components;
+﻿using Fletch.Audio.Components;
 using Fletch.Audio.Model;
 using Fletch.Audio.Systems;
 using Fletch.Core.Colors;
@@ -190,7 +189,7 @@ namespace Fletch.Runtime.Hosting
 
             Vector2 greenMoveAxis = new Vector2();
 
-            if(keyboard.GetKeyDown(KeyCode.Space))
+            if (keyboard.GetKeyDown(KeyCode.Space))
             {
                 TestSound.PlaySound();
                 TestSound.Pitch = (random.NextSingle() + 0.2f) * 2;
@@ -201,7 +200,7 @@ namespace Fletch.Runtime.Hosting
                 wallOne.AddComponent<AudioSource>();
             }
 
-            if(keyboard.GetKey(KeyCode.A))
+            if (keyboard.GetKey(KeyCode.A))
             {
                 moveAxisKey.X = -1;
             }

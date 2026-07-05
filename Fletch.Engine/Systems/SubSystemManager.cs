@@ -20,7 +20,7 @@ namespace Fletch.Engine.Systems
 
         public SubSystemManager(ISubSystemFactory subSystemFactory, Scene loadedScene)
         {
-            this.subSystemFactory = subSystemFactory ;
+            this.subSystemFactory = subSystemFactory;
             this.loadedScene = loadedScene;
         }
 
@@ -127,7 +127,7 @@ namespace Fletch.Engine.Systems
 
             foreach (var entry in systemEntries)
             {
-                if(entry.System is IDisposable disposable)
+                if (entry.System is IDisposable disposable)
                 {
                     disposable.Dispose();// for now just dispose, later Detach From Scene might do more
                 }

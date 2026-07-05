@@ -3,7 +3,6 @@ using Fletch.Core.Diagnostics;
 using Fletch.Core.Time;
 using Fletch.Engine.Components;
 using Fletch.Engine.Components.Updateable;
-using Fletch.Engine.Hierarchy;
 using Fletch.Engine.Model;
 using Fletch.Engine.Scenes;
 
@@ -34,7 +33,7 @@ namespace Fletch.Engine.Systems
 
             scene.SystemManager.RegisterSystem(this, SystemExecutionOrder.Update, 0);
 
-            scene.AddSystemComponentRegistration(typeof(Script), (b, c) => OnScriptChange(b,c)); //TODO, I need to make a try add so I dont double register later
+            scene.AddSystemComponentRegistration(typeof(Script), (b, c) => OnScriptChange(b, c)); //TODO, I need to make a try add so I dont double register later
         }
 
         public void FixedUpdate(FixedTimeStep deltaTime)
@@ -92,7 +91,7 @@ namespace Fletch.Engine.Systems
                 startingScript.HasStarted = true;
                 startingScript.OnStart();
 
-                if(!startingScript.HasLateStarted)
+                if (!startingScript.HasLateStarted)
                     lateStartQueue.Enqueue(startingScript);
             }
         }

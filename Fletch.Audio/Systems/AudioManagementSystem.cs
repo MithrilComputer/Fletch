@@ -357,7 +357,7 @@ namespace Fletch.Audio.Systems
                 return;
             }
 
-            if(scene != null)
+            if (scene != null)
             {
                 scene.RemoveSystemComponentRegistration(typeof(AudioSource), (b, c) => OnAudioSourceChange(b, c));
                 scene.RemoveSystemComponentRegistration(typeof(AudioListener), (b, c) => OnAudioListenerChange(b, c));

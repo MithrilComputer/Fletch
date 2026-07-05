@@ -9,8 +9,6 @@ namespace Fletch.Physics.Systems
 {
     internal class PhysicsSystem : SceneSubsystem
     {
-
-
         public override void AttachToScene(Scene scene)
         {
             base.AttachToScene(scene);

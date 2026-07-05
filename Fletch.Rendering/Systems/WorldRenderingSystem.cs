@@ -64,7 +64,7 @@ namespace Fletch.Rendering.Systems
             if (!screenSurface.IsValid)
                 return;
 
-            if(spriteOrderDirty)
+            if (spriteOrderDirty)
             {
                 spriteRenderers.Sort(SystemCompare);
                 spriteOrderDirty = false;
@@ -72,7 +72,7 @@ namespace Fletch.Rendering.Systems
 
             foreach (Camera2D frontendCamera in cameraManager.Cameras)
             {
-                if(!frontendCamera.IsEnabled)
+                if (!frontendCamera.IsEnabled)
                     continue;
 
                 ICamera? backendCamera = cameraManager.GetBackendCameraFromBinding(frontendCamera);
@@ -114,7 +114,7 @@ namespace Fletch.Rendering.Systems
                     if (!sprite.IsEnabled || sprite.VisualResource.Texture == null)
                         continue;
 
-                    if(!IsSpriteVisible(visibleArea, sprite))
+                    if (!IsSpriteVisible(visibleArea, sprite))
                         continue;
 
                     float spritePPU = sprite.VisualResource.PixelPerWorldUnit;
@@ -248,7 +248,7 @@ namespace Fletch.Rendering.Systems
 
         private void OnCamera2DChange(GameObjectComponent component, ComponentChangeType changeType)
         {
-            if(component is not Camera2D cameraComponent)
+            if (component is not Camera2D cameraComponent)
             {
                 throw new InvalidOperationException($"Expected component of type {typeof(Camera2D)}, but got {component.GetType()}.");
             }

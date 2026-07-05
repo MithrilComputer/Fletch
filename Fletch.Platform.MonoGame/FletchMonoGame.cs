@@ -72,7 +72,8 @@ namespace Fletch.Platform.MonoGame
                 IsFixedTimeStep = true;
 
                 TargetElapsedTime = TimeSpan.FromSeconds(1.0 / options.TargetFramesPerSecond);
-            } else
+            }
+            else
             {
                 IsFixedTimeStep = false;
             }

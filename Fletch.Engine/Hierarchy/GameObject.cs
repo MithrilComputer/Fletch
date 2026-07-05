@@ -71,7 +71,7 @@ namespace Fletch.Engine.Hierarchy
 
             foreach (GameObjectComponent component in components)
             {
-                if(component is T typedComponent)
+                if (component is T typedComponent)
                 {
                     return typedComponent;
                 }

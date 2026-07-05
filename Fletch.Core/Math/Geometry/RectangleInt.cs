@@ -38,6 +38,6 @@
                    Height == other.Height;
         }
 
-        public static readonly RectangleInt Zero = new RectangleInt(0,0,0,0);
+        public static readonly RectangleInt Zero = new RectangleInt(0, 0, 0, 0);
     }
 }

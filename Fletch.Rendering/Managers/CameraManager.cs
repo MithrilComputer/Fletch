@@ -1,5 +1,4 @@
-﻿using Fletch.Core.Math.Geometry;
-using Fletch.Engine.Model;
+﻿using Fletch.Engine.Model;
 using Fletch.Rendering.Abstractions.Backends;
 using Fletch.Rendering.Abstractions.Cameras;
 using Fletch.Rendering.Abstractions.Managers;
@@ -92,7 +91,7 @@ namespace Fletch.Rendering.Managers
 
             frontendCameras.Refresh();
 
-            if(cameraOrderDirty)
+            if (cameraOrderDirty)
             {
                 frontendCameras.Sort(SystemCompare);
             }

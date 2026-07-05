@@ -132,7 +132,7 @@ namespace Fletch.Rendering.MonoGame.Backend
         /// <exception cref="InvalidOperationException">Thrown if a camera is already active.</exception>
         public void BeginCamera(ICamera camera, RectangleInt virtualViewport, BlendMode blendMode = BlendMode.Alpha, SamplerMode samplerMode = SamplerMode.Linear)
         {
-            if(!isInitialized)
+            if (!isInitialized)
                 throw new InvalidOperationException("Backend Not Initialized Yet!");
 
             if (currentCamera != null)
@@ -160,7 +160,7 @@ namespace Fletch.Rendering.MonoGame.Backend
             if (!isInitialized)
                 throw new InvalidOperationException("Backend Not Initialized Yet!");
 
-            if (currentCamera == null) 
+            if (currentCamera == null)
                 throw new InvalidOperationException("No active camera.");
 
             spriteBatcher.End();

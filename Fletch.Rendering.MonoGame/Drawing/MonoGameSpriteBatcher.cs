@@ -129,7 +129,7 @@ namespace Fletch.Rendering.MonoGame.Drawing
         /// <remarks>
         /// This method requires an open batch created with <see cref="Begin"/> and will throw if none is active
         /// </remarks>
-        #pragma warning disable S107 // Method has many parameters by design
+#pragma warning disable S107 // Method has many parameters by design
         public void Draw(
             ITexture texture,
             SystemVector position,
@@ -185,7 +185,7 @@ namespace Fletch.Rendering.MonoGame.Drawing
         /// <remarks>
         /// This is a convenience overload that draws the entire texture with no rotation and unit scale.
         /// </remarks>
-        public void Draw(ITexture texture, SystemVector position, FletchColor color, 
+        public void Draw(ITexture texture, SystemVector position, FletchColor color,
             FletchSpriteEffect spriteEffect = FletchSpriteEffect.None)
         {
             Draw(texture,
@@ -222,7 +222,7 @@ namespace Fletch.Rendering.MonoGame.Drawing
                 rotation: 0f,
                 origin: SystemVector.Zero,
                 scale: new SystemVector(1f, 1f),
-                layerDepth: layerDepth, 
+                layerDepth: layerDepth,
                 spriteEffect: spriteEffect);
         }
 
@@ -384,7 +384,7 @@ namespace Fletch.Rendering.MonoGame.Drawing
                 ConvertFromFletchType(color));
         }
 
-        #pragma warning restore S107
+#pragma warning restore S107
 
         private static BlendState ConvertFromFletchType(BlendMode blendMode)
         {

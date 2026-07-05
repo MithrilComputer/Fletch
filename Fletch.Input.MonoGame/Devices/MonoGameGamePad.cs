@@ -76,7 +76,7 @@ namespace Fletch.Input.MonoGame.Devices
             currentControllerState.ThumbSticks.Right.X - previousControllerState.ThumbSticks.Right.X,
             currentControllerState.ThumbSticks.Right.Y - previousControllerState.ThumbSticks.Right.Y);
 
-        public MonoGameGamepad(GamePadState initialState, int playerIndex )
+        public MonoGameGamepad(GamePadState initialState, int playerIndex)
         {
             currentControllerState = initialState;
             previousControllerState = initialState;

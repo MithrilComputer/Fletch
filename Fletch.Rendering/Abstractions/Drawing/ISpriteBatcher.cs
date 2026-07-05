@@ -32,7 +32,7 @@ namespace Fletch.Rendering.Abstractions.Drawing
         /// </summary>
         void End();
 
-        #pragma warning disable S107 // Methods has many parameters by design
+#pragma warning disable S107 // Methods has many parameters by design
 
         /// <summary>
         /// Draws a textured sprite to the active sprite batch.
@@ -168,6 +168,6 @@ namespace Fletch.Rendering.Abstractions.Drawing
             Vector2 position,
             Color color);
 
-        #pragma warning restore S107
+#pragma warning restore S107
     }
 }

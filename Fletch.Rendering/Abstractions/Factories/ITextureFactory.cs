@@ -1,6 +1,5 @@
 ﻿using Fletch.Core.Colors;
 using Fletch.Rendering.Abstractions.Resources;
-using Fletch.Rendering.Model;
 
 namespace Fletch.Rendering.Abstractions.Factories
 {

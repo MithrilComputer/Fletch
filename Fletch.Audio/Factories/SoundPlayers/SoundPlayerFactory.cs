@@ -2,8 +2,6 @@
 using Fletch.Audio.Model;
 using Fletch.Audio.Model.SoundPlayerCommands.Buffer;
 using Fletch.Audio.Model.SoundPlayerCommands.Source;
-using Fletch.Core.Diagnostics;
-using System.Reflection.Metadata;
 
 namespace Fletch.Audio.Factories.SoundPlayers
 {
@@ -11,13 +9,13 @@ namespace Fletch.Audio.Factories.SoundPlayers
     {
         private readonly IAudioBackend audioBackend;
 
-        public SoundPlayerFactory(IAudioBackend audioBackend) 
+        public SoundPlayerFactory(IAudioBackend audioBackend)
         {
             this.audioBackend = audioBackend;
         }
 
-        public SoundPlayer Create(string key) 
-        { 
+        public SoundPlayer Create(string key)
+        {
             SoundPlayer player = new SoundPlayer();
 
             Task.Run(() => LoadSoundAssetsToPlayer(player, key));
@@ -45,7 +43,7 @@ namespace Fletch.Audio.Factories.SoundPlayers
 
             if (soundSourceHandle != null) // TODO throw an error if null
             {
-                player.AssignSoundSource(soundSourceHandle); 
+                player.AssignSoundSource(soundSourceHandle);
             }
 
             TaskCompletionSource<ISoundBufferHandle> bufferSource = new TaskCompletionSource<ISoundBufferHandle>();

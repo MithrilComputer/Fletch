@@ -1,6 +1,5 @@
 ﻿using Fletch.Core.Diagnostics;
 using Fletch.Engine.Abstractions.Factories;
-using Microsoft.Extensions.DependencyInjection;
 using Scene = Fletch.Engine.Scenes.Scene;
 
 namespace Fletch.Engine.Factories

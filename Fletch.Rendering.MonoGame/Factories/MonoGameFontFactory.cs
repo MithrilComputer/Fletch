@@ -31,7 +31,7 @@ namespace Fletch.Rendering.MonoGame.Factories
         /// </remarks>
         public void RegisterFamily(string name, string ttfPath)
         {
-            FontSystem fontSystem = new FontSystem(new FontSystemSettings{});
+            FontSystem fontSystem = new FontSystem(new FontSystemSettings { });
 
             fontSystem.AddFont(File.ReadAllBytes(ttfPath));
 

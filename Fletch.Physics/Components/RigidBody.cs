@@ -13,17 +13,17 @@ namespace Fletch.Physics.Components
     {
         internal bool IsDirty { get; private set; }
 
-        
+
         private float mass = 1f;
 
         private float gravityScale = 1f;
 
-        
+
         private float linearDrag;
 
         private float angularDrag;
 
-        
+
         private Vector2 linearVelocity;
 
         private float angularVelocity;
@@ -33,7 +33,7 @@ namespace Fletch.Physics.Components
 
         private bool fixedRotation;
 
-        
+
         private PhysicsMode physicsMode = PhysicsMode.Dynamic;
 
 

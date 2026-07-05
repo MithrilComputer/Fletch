@@ -1,7 +1,6 @@
-﻿using System.Reflection;
-using Fletch.Engine.Abstractions.Factories;
+﻿using Fletch.Engine.Abstractions.Factories;
 using Fletch.Engine.Components;
-using Microsoft.Extensions.DependencyInjection;
+using System.Reflection;
 
 namespace Fletch.Engine.Factories
 {

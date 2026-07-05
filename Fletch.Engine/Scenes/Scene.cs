@@ -13,10 +13,10 @@ namespace Fletch.Engine.Scenes
         internal SubSystemManager SystemManager { get; }
 
         private uint nextId;
-    
+
         private readonly Queue<uint> freedIds = new Queue<uint>();
 
-        private readonly Dictionary<Type, List<Action< GameObjectComponent, ComponentChangeType>>> componentCallBacks
+        private readonly Dictionary<Type, List<Action<GameObjectComponent, ComponentChangeType>>> componentCallBacks
             = new Dictionary<Type, List<Action<GameObjectComponent, ComponentChangeType>>>();
 
         private readonly List<GameObject> gameObjects = new List<GameObject>();
@@ -28,7 +28,7 @@ namespace Fletch.Engine.Scenes
         internal Scene(IFletchContextLogger<Scene> logger, IGameObjectFactory gameObjectFactory, ISubSystemFactory subSystemFactory)
         {
             this.logger = logger;
-            
+
             this.gameObjectFactory = gameObjectFactory;
 
             SystemManager = new SubSystemManager(subSystemFactory, this);
@@ -58,10 +58,10 @@ namespace Fletch.Engine.Scenes
             Type componentType,
             Action<GameObjectComponent, ComponentChangeType> callback)
         {
-            if (componentType == null) 
+            if (componentType == null)
                 throw new ArgumentNullException(nameof(componentType));
 
-            if (callback == null) 
+            if (callback == null)
                 throw new ArgumentNullException(nameof(callback));
 
             if (!componentCallBacks.TryGetValue(componentType, out List<Action<GameObjectComponent, ComponentChangeType>> list))
@@ -133,13 +133,13 @@ namespace Fletch.Engine.Scenes
 
         public void DestroyGameObject(GameObject gameObject)
         {
-            if(gameObject == null)
+            if (gameObject == null)
             {
                 logger.LogWarning("Cant Destroy A Null GameObject.");
                 return;
             }
 
-            if(!gameObjects.Contains(gameObject))
+            if (!gameObjects.Contains(gameObject))
             {
                 logger.LogWarning("Cant Destroy A Non-Registered GameObject.");
                 return;

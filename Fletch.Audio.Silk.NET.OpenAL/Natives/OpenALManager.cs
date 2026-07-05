@@ -31,7 +31,7 @@ namespace Fletch.Audio.Silk.NET.OpenAL.Natives
         public OpenALManager(IAudioAssetProvider audioAssetProvider, IFletchContextLogger<OpenALManager> logger)
         {
             this.logger = logger;
-            
+
             this.audioAssetProvider = audioAssetProvider;
 
             audioCommands = Channel.CreateUnbounded<AudioCommand>();
