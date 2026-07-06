@@ -10,6 +10,7 @@ using Fletch.Runtime.Abstractions.Hosting;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Xna.Framework;
 using SDL2;
+using System.ComponentModel.Design;
 
 namespace Fletch.Platform.MonoGame
 {
@@ -42,6 +43,13 @@ namespace Fletch.Platform.MonoGame
 
         private readonly IRenderingBackend renderingBackend;
 
+
+        private int fixedHz;
+
+        private double fixedDelta;
+
+        private TimeSpan fixedStep;
+
         public FletchMonoGame(MonoGamePlatformOptions options, IPathProvider pathProvider, IRenderingBackend renderingBackend, Func<IRuntime> runtimeFactory)
         {
             this.options = options;
@@ -58,25 +66,20 @@ namespace Fletch.Platform.MonoGame
             graphics.PreferredBackBufferHeight = options.Height;
 
             applicationLifetime = new MonoGameAppLifetime();
-
-            Content.RootDirectory = pathProvider.BackendRoot;
-
+            
             Window.Title = options.Title;
 
             graphics.SynchronizeWithVerticalRetrace = options.VSync;
 
+            fixedHz = Math.Max(1, options.FixedUpdatesPerSecond);
+
+            fixedDelta = 1.0 / fixedHz;
+
+            fixedStep = TimeSpan.FromSeconds(fixedDelta);
+
             Window.AllowUserResizing = true;
 
-            if (options.TargetFramesPerSecond >= 1)
-            {
-                IsFixedTimeStep = true;
-
-                TargetElapsedTime = TimeSpan.FromSeconds(1.0 / options.TargetFramesPerSecond);
-            }
-            else
-            {
-                IsFixedTimeStep = false;
-            }
+            IsFixedTimeStep = false;
 
             IsMouseVisible = true;
         }
@@ -107,6 +110,7 @@ namespace Fletch.Platform.MonoGame
             if (applicationLifetime?.IsExitRequested == true)
             {
                 Exit();
+                return;
             }
 
             frameDelta = (float)gameTime.ElapsedGameTime.TotalSeconds;
@@ -115,10 +119,6 @@ namespace Fletch.Platform.MonoGame
 
             accumulatedTime += TimeSpan.FromSeconds(frameDelta);
 
-            int fixedHz = Math.Max(1, options.FixedUpdatesPerSecond);
-            double fixedDelta = 1.0 / fixedHz;
-            TimeSpan fixedStep = TimeSpan.FromSeconds(fixedDelta);
-
             for (int steps = 0; accumulatedTime >= fixedStep && steps < options.MaxFixedUpdatesPerFrame; steps++)
             {
                 fixedTotalTime += fixedStep;
@@ -126,15 +126,18 @@ namespace Fletch.Platform.MonoGame
                 runtime?.FixedUpdate(new FixedTimeStep((float)fixedDelta, fixedTotalTime));
 
                 accumulatedTime -= fixedStep;
-            }
+            } 
 
             if (accumulatedTime >= fixedStep)
-                accumulatedTime = fixedStep;
+            {
+                accumulatedTime = TimeSpan.FromTicks(
+                    accumulatedTime.Ticks % fixedStep.Ticks);
+            }
 
             alpha = (float)(accumulatedTime.TotalSeconds / fixedStep.TotalSeconds);
             alpha = Math.Clamp(alpha, 0f, 1f);
 
-            runtime?.Update(new FrameTime(frameDelta, fixedTotalTime)); // FixedTotal time should be replaced with alpha or somthin
+            runtime?.Update(new FrameTime(frameDelta, fixedTotalTime, alpha)); // FixedTotal time should be replaced with alpha or somthin
 
             base.Update(gameTime);
         }

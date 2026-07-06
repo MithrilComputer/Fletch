@@ -44,7 +44,7 @@ namespace Fletch.Platform.MonoGame
 
             // Options + Paths
             services.AddSingleton(options);
-            services.AddSingleton<IPathProvider>(sp => new MonoGamePathProvider(options.Title, options.MonoGameRootDirectory));
+            services.AddSingleton<IPathProvider>(sp => new MonoGamePathProvider(options.Title));
 
             // Game
             services.AddSingleton<FletchMonoGame>();

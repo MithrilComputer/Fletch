@@ -5,13 +5,13 @@ using Microsoft.Xna.Framework;
 
 MonoGamePlatformOptions options = new MonoGamePlatformOptions
 {
-    Width = 1920,
-    Height = 1080,
+    Width = 1280,
+    Height = 720,
     Title = "Fletch Sandbox",
     VSync = false,
-    TargetFramesPerSecond = 0,
     StartFullscreen = false,
-    MonoGameRootDirectory = "TestContent"
+    FixedUpdatesPerSecond = 60,
+    MaxFixedUpdatesPerFrame = 5
 };
 
 using ServiceProvider provider = MonoGameBootstrap.CreateDefault(options);

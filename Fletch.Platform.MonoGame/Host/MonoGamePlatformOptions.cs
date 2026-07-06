@@ -10,14 +10,10 @@
 
         public bool VSync { get; init; } = true;
 
-        public int TargetFramesPerSecond { get; init; } = 60;
-
         public int FixedUpdatesPerSecond { get; init; } = 60;
 
         public int MaxFixedUpdatesPerFrame { get; init; } = 5;
 
         public bool StartFullscreen { get; init; } = false;
-
-        public string MonoGameRootDirectory { get; init; } = "Content";
     }
 }

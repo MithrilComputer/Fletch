@@ -24,10 +24,5 @@
         /// Gets the root directory for game assets.
         /// </summary>
         public string AssetFolderDirectory { get; }
-
-        /// <summary>
-        /// Gets the root directory for the optional backend files.
-        /// </summary>
-        public string BackendRoot { get; }
     }
 }

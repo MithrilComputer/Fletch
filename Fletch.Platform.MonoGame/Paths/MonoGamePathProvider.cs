@@ -24,12 +24,7 @@ namespace Fletch.Platform.MonoGame.Paths
         /// </summary>
         public string AssetFolderDirectory { get; }
 
-        /// <summary>
-        /// Gets the root directory for the optional backend files.
-        /// </summary>
-        public string BackendRoot { get; }
-
-        public MonoGamePathProvider(string applicationName, string? backendDir = null)
+        public MonoGamePathProvider(string applicationName)
         {
             if (string.IsNullOrWhiteSpace(applicationName))
                 throw new ArgumentException("Application name must be provided.", nameof(applicationName));
@@ -42,16 +37,10 @@ namespace Fletch.Platform.MonoGame.Paths
 
             AssetFolderDirectory = Path.GetFullPath(Path.Combine(AppContext.BaseDirectory, "Assets"));
 
-            BackendRoot = Path.GetFullPath(
-                string.IsNullOrWhiteSpace(backendDir)
-                    ? Path.Combine(AppContext.BaseDirectory, "Content")
-                    : backendDir);
-
             EnsureDirectory(AppDataPath);
             EnsureDirectory(CachePath);
             EnsureDirectory(LogsPath);
             EnsureDirectory(AssetFolderDirectory);
-            EnsureDirectory(BackendRoot);
         }
 
         private static void EnsureDirectory(string path)
