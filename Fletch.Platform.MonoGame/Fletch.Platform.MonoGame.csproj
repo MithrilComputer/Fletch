@@ -8,6 +8,12 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <Compile Remove="Content\**" />
+    <EmbeddedResource Remove="Content\**" />
+    <None Remove="Content\**" />
+  </ItemGroup>
+
+  <ItemGroup>
     <ProjectReference Include="..\Fletch.Assets\Fletch.Assets.csproj" />
     <ProjectReference Include="..\Fletch.Audio.Silk.NET.OpenAL\Fletch.Audio.Silk.NET.OpenAL.csproj" />
     <ProjectReference Include="..\Fletch.Audio\Fletch.Audio.csproj" />
@@ -19,10 +25,6 @@
     <ProjectReference Include="..\Fletch.Rendering.MonoGame\Fletch.Rendering.MonoGame.csproj" />
     <ProjectReference Include="..\Fletch.Rendering\Fletch.Rendering.csproj" />
     <ProjectReference Include="..\Fletch.Runtime\Fletch.Runtime.csproj" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <Folder Include="Content\" />
   </ItemGroup>
 
   <ItemGroup>

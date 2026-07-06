@@ -3,11 +3,11 @@ using Fletch.Physics.Model.ResourceHandles;
 
 namespace Fletch.Physics.Box2D.Model.ResourceHandles
 {
-    internal class Box2DWorldHandle : IWorldHandle
+    internal class Box2DColiderHandle : IColliderHandle
     {
-        public B2WorldId Id { get; }
+        public B2ShapeId Id { get; }
 
-        public Box2DWorldHandle(B2WorldId Id)
+        public Box2DColiderHandle(B2ShapeId Id)
         {
             this.Id = Id;
         }
