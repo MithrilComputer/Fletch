@@ -1,4 +1,4 @@
 ﻿namespace Fletch.Physics.Model.ResourceHandles
 {
-    internal interface IColliderHandle {}
+    internal interface IColliderHandle { }
 }

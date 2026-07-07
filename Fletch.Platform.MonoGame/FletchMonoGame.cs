@@ -10,7 +10,6 @@ using Fletch.Runtime.Abstractions.Hosting;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Xna.Framework;
 using SDL2;
-using System.ComponentModel.Design;
 
 namespace Fletch.Platform.MonoGame
 {
@@ -66,7 +65,7 @@ namespace Fletch.Platform.MonoGame
             graphics.PreferredBackBufferHeight = options.Height;
 
             applicationLifetime = new MonoGameAppLifetime();
-            
+
             Window.Title = options.Title;
 
             graphics.SynchronizeWithVerticalRetrace = options.VSync;
@@ -126,7 +125,7 @@ namespace Fletch.Platform.MonoGame
                 runtime?.FixedUpdate(new FixedTimeStep((float)fixedDelta, fixedTotalTime));
 
                 accumulatedTime -= fixedStep;
-            } 
+            }
 
             if (accumulatedTime >= fixedStep)
             {

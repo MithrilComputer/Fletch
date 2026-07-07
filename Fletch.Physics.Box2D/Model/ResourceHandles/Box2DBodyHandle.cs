@@ -7,7 +7,7 @@ namespace Fletch.Physics.Box2D.Model.ResourceHandles
     {
         B2BodyId bodyID { get; }
 
-        public Box2DBodyHandle( B2BodyId bodyID)
+        public Box2DBodyHandle(B2BodyId bodyID)
         {
             this.bodyID = bodyID;
         }
