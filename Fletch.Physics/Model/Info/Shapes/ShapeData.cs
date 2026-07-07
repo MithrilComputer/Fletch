@@ -1,4 +1,4 @@
 ﻿namespace Fletch.Physics.Model.Info.Shapes
 {
-    internal class ShapeData { }
+    internal class ShapeData {}
 }

@@ -2,6 +2,7 @@
 using Fletch.Engine.Model;
 using Fletch.Engine.Scenes;
 using Fletch.Engine.Systems;
+using Fletch.Physics.Abstractions.Backends;
 using Fletch.Physics.Components;
 using Fletch.Physics.Components.CollisionShapes;
 
@@ -9,6 +10,13 @@ namespace Fletch.Physics.Systems
 {
     internal class PhysicsSystem : SceneSubsystem
     {
+        private readonly IPhysicsBackend backend;
+
+        public PhysicsSystem(IPhysicsBackend backend)
+        {
+            this.backend = backend;
+        }
+
         public override void AttachToScene(Scene scene)
         {
             base.AttachToScene(scene);

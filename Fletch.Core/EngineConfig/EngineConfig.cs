@@ -12,5 +12,7 @@ namespace Fletch.Core.EngineConfig
         public static Color ClearColor { get; } = Color.SkyBlue;
 
         public static int AudioSourcePoolSize { get; } = 128;
+
+        public static int PhysicsSubStepCount = 4;
     }
 }
