@@ -16,16 +16,16 @@ namespace Fletch.Physics.Abstractions.Backends
         
         IWorldHandle CreateWorld(Vector2 gravity);
 
-        IBodyHandle CreateBody(Vector2 Position, float rotation, PhysicsMode physicsMode);
+        IBodyHandle CreateBody(IWorldHandle worldHandle, BodyWriteState writeState);
 
-        IColliderHandle CreateCollider(IBodyHandle body, PhysicsMaterial physicsMaterial, ShapeData shapeData);
+        IColliderHandle CreateCollider(IBodyHandle body, ColliderWriteState writeState);
 
 
         void DestroyWorld(IWorldHandle world);
 
         void DestroyBody(IBodyHandle body);
 
-        void DestroyCollider(IColliderHandle body);
+        void DestroyCollider(IColliderHandle collider);
 
 
         void SetBodyState(IBodyHandle bodyHandle, in BodyWriteState writeState);

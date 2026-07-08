@@ -1,6 +1,6 @@
 ﻿using System.Numerics;
 
-namespace Fletch.Physics.Model.ShapeData
+namespace Fletch.Physics.Model.Info.Shapes
 {
     internal class RectangleData : ShapeData
     {

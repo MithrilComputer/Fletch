@@ -4,18 +4,23 @@ namespace Fletch.Physics.Model.Info.IO
 {
     internal class BodyWriteState
     {
-        public readonly Vector2 Position;
-        public readonly float Rotation;
+        public Vector2 Position { get; }
+        public float Rotation { get; }
 
-        public readonly Vector2 LinearVelocity;
-        public readonly float AngularVelocity;
+        public PhysicsMode Mode { get; }
 
-        public readonly float GravityScale;
-        public readonly float LinearDamping;
-        public readonly float AngularDamping;
+        public Vector2 LinearVelocity { get; }
+        public float AngularVelocity { get; }
 
-        public readonly bool FixedRotation;
-        public readonly bool Enabled;
+        public float GravityScale { get; }
+        public float LinearDamping { get; }
+        public float AngularDamping { get; }
+
+        public bool FixedRotation { get; }
+        public bool LockX { get; }
+        public bool LockY { get; }
+        public bool Enabled { get; }
+        public bool UseInterpolation { get; }
 
         public BodyWriteState(
             Vector2 position,
@@ -26,6 +31,8 @@ namespace Fletch.Physics.Model.Info.IO
             float linearDamping,
             float angularDamping,
             bool fixedRotation,
+            bool lockX,
+            bool lockY,
             bool enabled)
         {
             Position = position;
@@ -36,6 +43,8 @@ namespace Fletch.Physics.Model.Info.IO
             LinearDamping = linearDamping;
             AngularDamping = angularDamping;
             FixedRotation = fixedRotation;
+            LockX = lockX;
+            LockY = lockY;
             Enabled = enabled;
         }
     }

@@ -12,6 +12,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\Fletch.Core\Fletch.Core.csproj" />
     <ProjectReference Include="..\Fletch.Physics\Fletch.Physics.csproj" />
   </ItemGroup>
 

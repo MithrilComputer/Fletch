@@ -3,11 +3,13 @@ using System.Numerics;
 
 namespace Fletch.Physics.Model.Info.Collisions
 {
-    public readonly struct CollisionEventInfo
+    internal readonly struct CollisionEventInfo
     {
         public CollisionShape Self { get; }
 
         public CollisionShape Other { get; }
+
+        public CollisionEventType EventType { get; }
 
 
         public Vector2 Normal { get; }
@@ -17,11 +19,13 @@ namespace Fletch.Physics.Model.Info.Collisions
         internal CollisionEventInfo(
             CollisionShape self,
             CollisionShape other,
+            CollisionEventType eventType,
             Vector2 normal,
             Vector2 contactPoint)
         {
             Self = self;
             Other = other;
+            EventType = eventType;
             Normal = normal;
             ContactPoint = contactPoint;
         }
