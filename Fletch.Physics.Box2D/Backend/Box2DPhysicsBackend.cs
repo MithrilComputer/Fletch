@@ -72,7 +72,7 @@ namespace Fletch.Physics.Box2D.Backend
 
         public IReadOnlyCollection<CollisionEventInfo> GetCollisionEvents(IWorldHandle world)
         {
-
+            return b2Manager.GetCollisionEvents(world);
         }
     }
 }

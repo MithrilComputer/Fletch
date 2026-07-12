@@ -3,6 +3,8 @@ using Fletch.Core.EngineConfig;
 using Fletch.Physics.Box2D.Factories;
 using Fletch.Physics.Box2D.Helpers;
 using Fletch.Physics.Box2D.Model.ResourceHandles;
+using Fletch.Physics.Box2D.Registries;
+using Fletch.Physics.Model.Info.Collisions;
 using Fletch.Physics.Model.Info.IO;
 using Fletch.Physics.Model.ResourceHandles;
 using System.Numerics;
@@ -13,9 +15,16 @@ namespace Fletch.Physics.Box2D.Natives
     {
         private readonly Box2DObjectStateManager objectStateManager;
 
+        private readonly Box2DCollisionEventManager collisionEventManager;
+
+        private readonly ColliderRegistry colliderRegistry;
+
         public Box2DManager()
         {
-            objectStateManager = new Box2DObjectStateManager();
+            colliderRegistry = new ColliderRegistry();
+
+            objectStateManager = new Box2DObjectStateManager(colliderRegistry);
+            collisionEventManager = new Box2DCollisionEventManager(colliderRegistry);
         }
 
         public void Step(IWorldHandle worldHandle, float delta)
@@ -62,7 +71,11 @@ namespace Fletch.Physics.Box2D.Natives
 
             objectStateManager.SetShapeData(newShapeId, writeState.Shape, writeState.Rotation, writeState.Offset);
 
-            return new Box2DColiderHandle(newShapeId);
+            Box2DColiderHandle colliderHandle = new Box2DColiderHandle(newShapeId); 
+
+            colliderRegistry.RegisterCollider(colliderHandle);
+
+            return colliderHandle;
         }
 
         public void DestroyResource(IWorldHandle world)
@@ -85,6 +98,8 @@ namespace Fletch.Physics.Box2D.Natives
         {
             if (colliderHandle is not Box2DColiderHandle b2ColliderHandle)
                 throw new Exception();
+
+            colliderRegistry.RemoveRegistration(b2ColliderHandle);
 
             B2Shapes.b2DestroyShape(b2ColliderHandle.Id, true);
         }
@@ -132,6 +147,14 @@ namespace Fletch.Physics.Box2D.Natives
                 throw new Exception();
 
             objectStateManager.WriteStateToCollider(b2colliderHandle, writeState);
+        }
+
+        public IReadOnlyCollection<CollisionEventInfo> GetCollisionEvents(IWorldHandle worldHandle)
+        {
+            if (worldHandle is not Box2DWorldHandle b2WorldHandle)
+                throw new Exception();
+
+            return collisionEventManager.GetCollisionEvents(b2WorldHandle.Id);
         }
     }
 }

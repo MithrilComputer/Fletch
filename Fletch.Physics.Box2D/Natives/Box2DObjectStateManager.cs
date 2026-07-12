@@ -2,6 +2,7 @@
 using Fletch.Physics.Box2D.Factories;
 using Fletch.Physics.Box2D.Helpers;
 using Fletch.Physics.Box2D.Model.ResourceHandles;
+using Fletch.Physics.Box2D.Registries;
 using Fletch.Physics.Model.Info.IO;
 using Fletch.Physics.Model.Info.Shapes;
 using System.Numerics;
@@ -10,6 +11,13 @@ namespace Fletch.Physics.Box2D.Natives
 {
     internal class Box2DObjectStateManager
     {
+        private readonly ColliderRegistry colliderRegistry;
+
+        public Box2DObjectStateManager(ColliderRegistry colliderRegistry)
+        {
+            this.colliderRegistry = colliderRegistry;
+        }
+
         public void WriteStateToCollider(Box2DColiderHandle coliderHandle, ColliderWriteState writeState)
         {
             if ((writeState.DirtyFlags & ColliderDirtyFlags.IsSensor) != 0)
@@ -86,11 +94,15 @@ namespace Fletch.Physics.Box2D.Natives
 
             B2ShapeId newShapeId = B2Shapes.b2CreatePolygonShape(bodyId, shapeDef, new B2Polygon()); //new B2Polygon() is a shape that will be replaced, it is a place holder.
 
+            colliderRegistry.RemoveRegistration(oldShapeId);
+
             B2Shapes.b2DestroyShape(oldShapeId, true);
 
             coliderHandle.OverideId(newShapeId);
 
             SetShapeData(newShapeId, writeState.Shape, writeState.Rotation, writeState.Offset);
+
+            colliderRegistry.RegisterCollider(coliderHandle);
         }
 
         public void SetShapeData(B2ShapeId shapeId, ShapeData shapeData, float rotation, Vector2 offset)
