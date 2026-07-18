@@ -9,7 +9,7 @@ namespace Fletch.Physics.Abstractions.Backends
 {
     internal interface IPhysicsBackend
     {
-        void Initalize();
+        void Initialize();
 
         void StepWorld(IWorldHandle world, float deltaTime);
 
@@ -33,7 +33,7 @@ namespace Fletch.Physics.Abstractions.Backends
         BodyReadState GetBodyState(IBodyHandle bodyHandle);
 
 
-        void SetColiderState(IColliderHandle colliderHandle, ColliderWriteState writeState);
+        void SetColliderState(IColliderHandle colliderHandle, ColliderWriteState writeState);
 
 
         IReadOnlyCollection<CollisionEventInfo> GetCollisionEvents(IWorldHandle world);

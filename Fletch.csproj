@@ -6,4 +6,8 @@
     <Nullable>enable</Nullable>
   </PropertyGroup>
 
+  <ItemGroup>
+    <PackageReference Include="DrWavDotNet" Version="0.13.7.20230108" />
+  </ItemGroup>
+
 </Project>

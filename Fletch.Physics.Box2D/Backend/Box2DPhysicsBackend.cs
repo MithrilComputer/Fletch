@@ -11,7 +11,7 @@ namespace Fletch.Physics.Box2D.Backend
     {
         private readonly Box2DManager b2Manager;
 
-        public void Initalize() { }
+        public void Initialize() { }
 
         public Box2DPhysicsBackend()
         {
@@ -65,7 +65,7 @@ namespace Fletch.Physics.Box2D.Backend
             return b2Manager.GetBodyState(bodyHandle);
         }
 
-        public void SetColiderState(IColliderHandle colliderHandle, ColliderWriteState writeState)
+        public void SetColliderState(IColliderHandle colliderHandle, ColliderWriteState writeState)
         {
             b2Manager.SetColiderState(colliderHandle, writeState);
         }

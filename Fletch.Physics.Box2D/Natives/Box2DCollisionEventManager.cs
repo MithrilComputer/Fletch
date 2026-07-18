@@ -44,7 +44,7 @@ namespace Fletch.Physics.Box2D.Natives
                 evenInfos[i] = new CollisionEventInfo(aColliderHandle, bColliderHandle, CollisionEventType.Enter);
             }
 
-            for (int i = beginCount - 1; i < endCount; i++)
+            for (int i = beginCount - 1; i < totalCount; i++)
             {
                 B2ShapeId contactA = contactEvents.endEvents[i].shapeIdA;
                 B2ShapeId contactB = contactEvents.endEvents[i].shapeIdB;

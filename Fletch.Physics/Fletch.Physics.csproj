@@ -8,7 +8,9 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <Folder Include="Facade\" />
+    <Compile Remove="Facade\**" />
+    <EmbeddedResource Remove="Facade\**" />
+    <None Remove="Facade\**" />
   </ItemGroup>
 
   <ItemGroup>

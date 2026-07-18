@@ -20,7 +20,6 @@
     <ProjectReference Include="..\Fletch.Core\Fletch.Core.csproj" />
     <ProjectReference Include="..\Fletch.Input.MonoGame\Fletch.Input.MonoGame.csproj" />
     <ProjectReference Include="..\Fletch.Input\Fletch.Input.csproj" />
-    <ProjectReference Include="..\Fletch.Physics\Fletch.Physics.csproj" />
     <ProjectReference Include="..\Fletch.Platform\Fletch.Platform.csproj" />
     <ProjectReference Include="..\Fletch.Rendering.MonoGame\Fletch.Rendering.MonoGame.csproj" />
     <ProjectReference Include="..\Fletch.Rendering\Fletch.Rendering.csproj" />
