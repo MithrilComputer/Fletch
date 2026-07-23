@@ -1,5 +1,6 @@
 ﻿using Box2D.NET;
 using Fletch.Physics.Model;
+using Fletch.Physics.Model.Info.Masking.Collisions;
 using System.Numerics;
 
 namespace Fletch.Physics.Box2D.Helpers
@@ -31,6 +32,11 @@ namespace Fletch.Physics.Box2D.Helpers
         public static float B2RotToRad(B2Rot rotation)
         {
             return MathF.Atan2(rotation.s, rotation.c);
+        }
+
+        public static B2Filter B2Filter(CollisionFilter filter)
+        {
+            return new B2Filter((ulong)filter.Category, (ulong)filter.Mask, filter.GroupIndex);
         }
     }
 }

@@ -1,11 +1,13 @@
 ﻿using Box2D.NET;
+using Fletch.Physics.Box2D.Helpers;
 using Fletch.Physics.Model;
+using Fletch.Physics.Model.Info.Masking.Collisions;
 
 namespace Fletch.Physics.Box2D.Factories
 {
     internal static class ShapeDefinitionFactory
     {
-        public static B2ShapeDef CreateShapeDef(PhysicsMaterial material, bool isSensor, B2Filter filter)
+        public static B2ShapeDef CreateShapeDef(PhysicsMaterial material, bool isSensor, CollisionFilter filter)
         {
             B2ShapeDef shapeDef = new B2ShapeDef();
 
@@ -13,14 +15,14 @@ namespace Fletch.Physics.Box2D.Factories
             {
                 shapeDef.isSensor = true;
                 shapeDef.enableSensorEvents = true;
-            } 
+            }
             else
             {
                 shapeDef.isSensor = false;
                 shapeDef.enableSensorEvents = false;
             }
 
-            shapeDef.filter = filter;
+            shapeDef.filter = FletchB2Converter.B2Filter(filter);
 
             shapeDef.material.friction = material.Friction;
 

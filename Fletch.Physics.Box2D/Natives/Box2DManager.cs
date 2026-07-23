@@ -65,13 +65,13 @@ namespace Fletch.Physics.Box2D.Natives
             if (body is not Box2DBodyHandle b2BodyHandle)
                 throw new Exception();
 
-            B2ShapeDef newShapeDef = ShapeDefinitionFactory.CreateShapeDef(writeState.Material, writeState.IsSensor, new B2Filter()); //TODO Implement Filter 
+            B2ShapeDef newShapeDef = ShapeDefinitionFactory.CreateShapeDef(writeState.Material, writeState.IsSensor, writeState.Filter);
 
-            B2ShapeId newShapeId = B2Shapes.b2CreatePolygonShape(b2BodyHandle.Id, newShapeDef, new B2Polygon());
+            B2ShapeId newShapeId = B2Shapes.b2CreatePolygonShape(b2BodyHandle.Id, newShapeDef, new B2Polygon(/*placeholder*/));
 
             objectStateManager.SetShapeData(newShapeId, writeState.Shape, writeState.Rotation, writeState.Offset);
 
-            Box2DColiderHandle colliderHandle = new Box2DColiderHandle(newShapeId); 
+            Box2DColiderHandle colliderHandle = new Box2DColiderHandle(newShapeId);
 
             colliderRegistry.RegisterCollider(colliderHandle);
 
@@ -122,7 +122,7 @@ namespace Fletch.Physics.Box2D.Natives
                 FletchB2Converter.ConvertToFletch(
                     B2Bodies.b2Body_GetPosition(b2BodyHandle.Id));
 
-            float roation = FletchB2Converter.B2RotToRad(
+            float rotation = FletchB2Converter.B2RotToRad(
                 B2Bodies.b2Body_GetRotation(b2BodyHandle.Id));
 
             Vector2 linearVelocity = FletchB2Converter.ConvertToFletch(
@@ -134,7 +134,7 @@ namespace Fletch.Physics.Box2D.Natives
 
             return new BodyReadState(
                 position,
-                roation,
+                rotation,
                 linearVelocity,
                 angularVelocity,
                 isAwake

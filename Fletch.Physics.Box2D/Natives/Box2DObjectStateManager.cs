@@ -18,28 +18,47 @@ namespace Fletch.Physics.Box2D.Natives
             this.colliderRegistry = colliderRegistry;
         }
 
-        public void WriteStateToCollider(Box2DColiderHandle coliderHandle, ColliderWriteState writeState)
+        public void WriteStateToCollider(Box2DColiderHandle colliderHandle, ColliderWriteState writeState)
         {
             if ((writeState.DirtyFlags & ColliderDirtyFlags.IsSensor) != 0)
             {
-                RebuildCollider(coliderHandle, writeState);
+                RebuildCollider(
+                    colliderHandle,
+                    writeState
+                    );
+
                 return;
             }
 
             if ((writeState.DirtyFlags & ColliderDirtyFlags.Material) != 0)
             {
-                B2Shapes.b2Shape_SetFriction(coliderHandle.Id, writeState.Material.Friction);
-                B2Shapes.b2Shape_SetRestitution(coliderHandle.Id, writeState.Material.Restitution);
+                B2Shapes.b2Shape_SetFriction(
+                    colliderHandle.Id,
+                    writeState.Material.Friction
+                    );
+
+                B2Shapes.b2Shape_SetRestitution(
+                    colliderHandle.Id,
+                    writeState.Material.Restitution
+                    );
             }
 
             if((writeState.DirtyFlags & ColliderDirtyFlags.Shape) != 0)
             {
-                SetShapeData(coliderHandle.Id, writeState.Shape, writeState.Rotation, writeState.Offset);
+                SetShapeData(
+                    colliderHandle.Id,
+                    writeState.Shape,
+                    writeState.Rotation,
+                    writeState.Offset
+                    );
             }
-            
+
             if ((writeState.DirtyFlags & ColliderDirtyFlags.Filter) != 0)
             {
-                throw new NotImplementedException();
+                B2Shapes.b2Shape_SetFilter(
+                    colliderHandle.Id,
+                    FletchB2Converter.B2Filter(writeState.Filter)
+                    );
             }
         }
 
@@ -90,7 +109,7 @@ namespace Fletch.Physics.Box2D.Natives
 
             B2BodyId bodyId = B2Shapes.b2Shape_GetBody(oldShapeId);
 
-            B2ShapeDef shapeDef = ShapeDefinitionFactory.CreateShapeDef(writeState.Material, writeState.IsSensor, new B2Filter());
+            B2ShapeDef shapeDef = ShapeDefinitionFactory.CreateShapeDef(writeState.Material, writeState.IsSensor, writeState.Filter);
 
             B2ShapeId newShapeId = B2Shapes.b2CreatePolygonShape(bodyId, shapeDef, new B2Polygon()); //new B2Polygon() is a shape that will be replaced, it is a place holder.
 

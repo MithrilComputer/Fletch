@@ -8,7 +8,6 @@ using Fletch.Engine.Systems;
 using Fletch.Physics.Abstractions.Backends;
 using Fletch.Physics.Components;
 using Fletch.Physics.Components.CollisionShapes;
-using Fletch.Physics.Model.ResourceHandles;
 
 namespace Fletch.Physics.Systems
 {
