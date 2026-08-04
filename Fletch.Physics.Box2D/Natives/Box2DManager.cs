@@ -149,7 +149,7 @@ namespace Fletch.Physics.Box2D.Natives
             objectStateManager.WriteStateToCollider(b2colliderHandle, writeState);
         }
 
-        public IReadOnlyCollection<CollisionEventInfo> GetCollisionEvents(IWorldHandle worldHandle)
+        public IReadOnlyCollection<BackendCollisionEvent> GetCollisionEvents(IWorldHandle worldHandle)
         {
             if (worldHandle is not Box2DWorldHandle b2WorldHandle)
                 throw new Exception();

@@ -70,7 +70,7 @@ namespace Fletch.Physics.Box2D.Backend
             b2Manager.SetColiderState(colliderHandle, writeState);
         }
 
-        public IReadOnlyCollection<CollisionEventInfo> GetCollisionEvents(IWorldHandle world)
+        public IReadOnlyCollection<BackendCollisionEvent> GetCollisionEvents(IWorldHandle world)
         {
             return b2Manager.GetCollisionEvents(world);
         }

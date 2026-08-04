@@ -1,5 +1,7 @@
 ﻿using Fletch.Engine.Components;
 using Fletch.Physics.Model;
+using Fletch.Physics.Model.ResourceHandles;
+using Fletch.Physics.Systems;
 using System.Numerics;
 
 namespace Fletch.Physics.Components
@@ -12,6 +14,15 @@ namespace Fletch.Physics.Components
     public sealed class RigidBody : GameObjectComponent
     {
         internal bool IsDirty { get; private set; }
+
+        internal IBodyHandle BodyHandle { get; }
+
+        internal RigidBodyManager RigidBodyManager { get; }
+
+
+        internal PhysicsPose CurrentPose { get; set; } = new PhysicsPose(Vector2.Zero, 0f);
+
+        internal PhysicsPose PreviousPose { get; set; } = new PhysicsPose(Vector2.Zero, 0f);
 
 
         private float mass = 1f;
@@ -36,6 +47,11 @@ namespace Fletch.Physics.Components
 
         private PhysicsMode physicsMode = PhysicsMode.Dynamic;
 
+        internal RigidBody(IBodyHandle bodyHandle, RigidBodyManager rigidBodyManager)
+        {
+            BodyHandle = bodyHandle;
+            RigidBodyManager = rigidBodyManager;
+        }
 
         public float Mass
         {

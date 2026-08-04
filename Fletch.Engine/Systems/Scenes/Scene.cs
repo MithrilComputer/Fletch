@@ -97,14 +97,17 @@ namespace Fletch.Engine.Scenes
 
         public void OnComponentChange(GameObjectComponent component, ComponentChangeType changeType)
         {
-            if (component.GameObject == null || component == null)
+            if (component == null || component.GameObject == null)
                 return;
 
-            Type? componentType = component.GetType();
+            Type concreteType = component.GetType();
 
-            if (componentCallBacks.TryGetValue(componentType, out var callbacks))
+            foreach (var registration in componentCallBacks)
             {
-                foreach (var callback in callbacks.ToArray())
+                if (!registration.Key.IsAssignableFrom(concreteType))
+                    continue;
+
+                foreach (var callback in registration.Value.ToArray())
                     callback(component, changeType);
             }
         }

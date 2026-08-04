@@ -1,10 +1,8 @@
-﻿using Fletch.Physics.Components.CollisionShapes;
-using Fletch.Physics.Model.ResourceHandles;
-using System.Numerics;
+﻿using Fletch.Physics.Model.ResourceHandles;
 
 namespace Fletch.Physics.Model.Info.Collisions
 {
-    internal readonly struct CollisionEventInfo
+    internal readonly struct BackendCollisionEvent
     {
         public IColliderHandle A { get; }
 
@@ -12,7 +10,7 @@ namespace Fletch.Physics.Model.Info.Collisions
 
         public CollisionEventType EventType { get; }
 
-        internal CollisionEventInfo(
+        internal BackendCollisionEvent(
             IColliderHandle a,
             IColliderHandle b,
             CollisionEventType eventType)

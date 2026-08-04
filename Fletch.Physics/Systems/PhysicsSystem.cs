@@ -8,16 +8,21 @@ using Fletch.Engine.Systems;
 using Fletch.Physics.Abstractions.Backends;
 using Fletch.Physics.Components;
 using Fletch.Physics.Components.CollisionShapes;
+using Fletch.Physics.Model.ResourceHandles;
 
 namespace Fletch.Physics.Systems
 {
-    internal class PhysicsSystem : SceneSubsystem, IFixedUpdateable, IUpdateable
+    internal class PhysicsSystem : SceneSubsystem, IFixedUpdateable
     {
         private readonly IPhysicsBackend backend;
+
+        private readonly IWorldHandle worldHandle;
 
         public PhysicsSystem(IPhysicsBackend backend)
         {
             this.backend = backend;
+
+            worldHandle = backend.CreateWorld();
         }
 
         public override void AttachToScene(Scene scene)
@@ -30,22 +35,15 @@ namespace Fletch.Physics.Systems
             scene.AddSystemComponentRegistration(typeof(BoxCollider), (b, c) => OnColliderChange(b, c));
         }
 
-
-        public void Update(float deltaTime)
-        {
-            throw new NotImplementedException();
-        }
-
         public void FixedUpdate(FixedTimeStep deltaTime)
         {
-            throw new NotImplementedException();
+            
         }
 
         private void OnRigidBodyChange(GameObjectComponent component, ComponentChangeType changeType)
         {
 
         }
-
         private void OnColliderChange(GameObjectComponent component, ComponentChangeType changeType)
         {
 

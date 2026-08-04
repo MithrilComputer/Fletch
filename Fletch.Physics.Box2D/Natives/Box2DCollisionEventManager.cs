@@ -14,55 +14,70 @@ namespace Fletch.Physics.Box2D.Natives
             this.colliderRegistry = colliderRegistry;
         }
 
-        public IReadOnlyCollection<CollisionEventInfo> GetCollisionEvents(B2WorldId worldId)
+        public IReadOnlyCollection<BackendCollisionEvent> GetCollisionEvents(B2WorldId worldId)
         {
-            B2ContactEvents contactEvents = B2Worlds.b2World_GetContactEvents(worldId);
+            B2ContactEvents contactEvents =
+                B2Worlds.b2World_GetContactEvents(worldId);
 
             int beginCount = contactEvents.beginCount;
-
             int endCount = contactEvents.endCount;
 
-            int totalCount = beginCount + endCount;
-
-            CollisionEventInfo[] evenInfos = new CollisionEventInfo[totalCount];
+            BackendCollisionEvent[] eventInfos =
+                new BackendCollisionEvent[beginCount + endCount];
 
             for (int i = 0; i < beginCount; i++)
             {
-                B2ShapeId contactA = contactEvents.beginEvents[i].shapeIdA;
-                B2ShapeId contactB = contactEvents.beginEvents[i].shapeIdB;
+                B2ContactBeginTouchEvent contact = contactEvents.beginEvents[i];
 
-                if(!colliderRegistry.TryGetColliderHandleFromShapeId(contactA, out Box2DColiderHandle aColliderHandle))
+                if (!colliderRegistry.TryGetColliderHandleFromShapeId(
+                        contact.shapeIdA,
+                        out Box2DColiderHandle aColliderHandle))
                 {
-                    throw new Exception();
+                    throw new InvalidOperationException(
+                        "Could not find collider for contact shape A.");
                 }
 
-                if(!colliderRegistry.TryGetColliderHandleFromShapeId(contactB, out Box2DColiderHandle bColliderHandle))
+                if (!colliderRegistry.TryGetColliderHandleFromShapeId(
+                        contact.shapeIdB,
+                        out Box2DColiderHandle bColliderHandle))
                 {
-                    throw new Exception();
+                    throw new InvalidOperationException(
+                        "Could not find collider for contact shape B.");
                 }
 
-                evenInfos[i] = new CollisionEventInfo(aColliderHandle, bColliderHandle, CollisionEventType.Enter);
+                eventInfos[i] = new BackendCollisionEvent(
+                    aColliderHandle,
+                    bColliderHandle,
+                    CollisionEventType.Enter);
             }
 
-            for (int i = beginCount - 1; i < totalCount; i++)
+            for (int i = 0; i < endCount; i++)
             {
-                B2ShapeId contactA = contactEvents.endEvents[i].shapeIdA;
-                B2ShapeId contactB = contactEvents.endEvents[i].shapeIdB;
+                B2ContactEndTouchEvent contact = contactEvents.endEvents[i];
 
-                if (!colliderRegistry.TryGetColliderHandleFromShapeId(contactA, out Box2DColiderHandle aColliderHandle))
+                if (!colliderRegistry.TryGetColliderHandleFromShapeId(
+                        contact.shapeIdA,
+                        out Box2DColiderHandle aColliderHandle))
                 {
-                    throw new Exception();
+                    throw new InvalidOperationException(
+                        "Could not find collider for contact shape A.");
                 }
 
-                if (!colliderRegistry.TryGetColliderHandleFromShapeId(contactB, out Box2DColiderHandle bColliderHandle))
+                if (!colliderRegistry.TryGetColliderHandleFromShapeId(
+                        contact.shapeIdB,
+                        out Box2DColiderHandle bColliderHandle))
                 {
-                    throw new Exception();
+                    throw new InvalidOperationException(
+                        "Could not find collider for contact shape B.");
                 }
 
-                evenInfos[i] = new CollisionEventInfo(aColliderHandle, bColliderHandle, CollisionEventType.Exit);
+                eventInfos[beginCount + i] = new BackendCollisionEvent(
+                    aColliderHandle,
+                    bColliderHandle,
+                    CollisionEventType.Exit);
             }
 
-            return evenInfos;
+            return eventInfos;
         }
     }
 }

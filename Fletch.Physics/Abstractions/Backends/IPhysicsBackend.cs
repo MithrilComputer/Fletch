@@ -36,6 +36,6 @@ namespace Fletch.Physics.Abstractions.Backends
         void SetColliderState(IColliderHandle colliderHandle, ColliderWriteState writeState);
 
 
-        IReadOnlyCollection<CollisionEventInfo> GetCollisionEvents(IWorldHandle world);
+        IReadOnlyCollection<BackendCollisionEvent> GetCollisionEvents(IWorldHandle world);
     }
 }

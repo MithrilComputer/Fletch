@@ -1,6 +1,6 @@
 ﻿namespace Fletch.Physics.Model.Info.Collisions
 {
-    internal enum CollisionEventType
+    public enum CollisionEventType
     {
         Enter,
         Exit

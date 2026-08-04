@@ -5,7 +5,6 @@ namespace Fletch.Engine.Hierarchy
 {
     public class Transform
     {
-
         //TODO Add a dirt bool for others to use for updating.
 
         public Transform? Parent { get; private set; }

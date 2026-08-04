@@ -1,4 +1,5 @@
-﻿using Fletch.Physics.Model;
+﻿using Fletch.Physics.Abstractions.CollisionShapes;
+using Fletch.Physics.Model;
 using Fletch.Physics.Model.Info.Collisions;
 
 namespace Fletch.Physics.Components.CollisionShapes
@@ -9,7 +10,7 @@ namespace Fletch.Physics.Components.CollisionShapes
 
         public override PhysicsMaterial Material { get; set; } = new PhysicsMaterial();
 
-        public override event Action<CollisionEventInfo>? CollisionEnter;
-        public override event Action<CollisionEventInfo>? CollisionExit;
+        public override event Action<BackendCollisionEvent>? CollisionEnter;
+        public override event Action<BackendCollisionEvent>? CollisionExit;
     }
 }
