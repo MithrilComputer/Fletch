@@ -2,6 +2,7 @@
 using Fletch.Core.Math.Geometry;
 using Fletch.Engine.Attributes;
 using Fletch.Engine.Components;
+using Fletch.Engine.Hierarchy;
 using Fletch.Rendering.Abstractions.Resources;
 using Fletch.Rendering.Model;
 using System.Numerics;
@@ -12,12 +13,34 @@ namespace Fletch.Rendering.Components
     /// Renders a 2D sprite for an GameObject
     /// </summary>
     [DisallowMultipleComponentAttribute]
-    internal sealed class SpriteRenderer : GameObjectComponent
+    public sealed class SpriteRenderer : GameObjectComponent, IInternalRenderingComponent
     {
+        /// <summary>
+        /// The current render pose of the sprite renderer.
+        /// </summary>
+        public RenderPose RenderPose { get; private set; }
+
+        /// <summary>
+        /// Sets the render pose for the sprite renderer.
+        /// </summary>
+        public void SetRenderPose(RenderPose pose)
+        {
+            RenderPose = pose;
+        }
+
+        /// <summary>
+        /// Sets the initial render pose for the sprite renderer based on the GameObject's transform.
+        /// </summary>
+        public SpriteRenderer()
+        {
+            RenderPose = new RenderPose(Transform.WorldPosition, Transform.WorldRotation.Radians);
+        }
+
         /// <summary>
         /// The sprite or texture to render.
         /// </summary>
         public VisualResource VisualResource { get; set; } = new VisualResource();
+
         //TODO MAKE IT REPORT DIRTY with Component.NotifyComponentChanged() when modified
         /// <summary>
         /// Optional source rectangle within the sprite texture.
