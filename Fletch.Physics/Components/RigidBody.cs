@@ -15,10 +15,11 @@ namespace Fletch.Physics.Components
     {
         internal bool IsDirty { get; private set; }
 
-        internal IBodyHandle BodyHandle { get; }
+        internal IBodyHandle BodyHandle { get; private set; }
 
-        internal RigidBodyManager RigidBodyManager { get; }
+        internal RigidBodyManager RigidBodyManager { get; private set; }
 
+        internal bool Initialized { get; private set; }
 
         internal PhysicsPose CurrentPose { get; set; } = new PhysicsPose(Vector2.Zero, 0f);
 
@@ -44,13 +45,23 @@ namespace Fletch.Physics.Components
 
         private bool fixedRotation;
 
+        private bool lockX;
+
+        private bool lockY;
+
 
         private PhysicsMode physicsMode = PhysicsMode.Dynamic;
 
-        internal RigidBody(IBodyHandle bodyHandle, RigidBodyManager rigidBodyManager)
+        internal RigidBody()
+        {
+
+        }
+
+        internal void Initialize(IBodyHandle bodyHandle, RigidBodyManager rigidBodyManager)
         {
             BodyHandle = bodyHandle;
             RigidBodyManager = rigidBodyManager;
+            Initialized = true;
         }
 
         public float Mass
@@ -101,6 +112,18 @@ namespace Fletch.Physics.Components
             set => SetFieldAndDirty(ref fixedRotation, value);
         }
 
+        public bool LockX
+        {
+            get => lockX;
+            set => SetFieldAndDirty(ref lockX, value);
+        }
+
+        public bool LockY
+        {
+            get => lockY;
+            set => SetFieldAndDirty(ref lockY, value);
+        }
+
         public PhysicsMode PhysicsMode
         {
             get => physicsMode;
@@ -121,10 +144,30 @@ namespace Fletch.Physics.Components
             IsDirty = true;
         }
 
-        public void AddForce(Vector2 force) { } //TODO
+        public void AddForce(Vector2 force) 
+        {
+            if (!Initialized)
+                return;
 
-        public void AddImpulse(Vector2 impulse) { } //TOD
+            //TODO Addforce to the body handle
 
-        public void AddTorque(float torque) { } // TODO 
+        }
+
+        public void AddImpulse(Vector2 impulse) 
+        {
+            if (!Initialized)
+                return;
+
+            //TODO Add Impulse to the body handle
+
+        }
+
+        public void AddTorque(float torque) 
+        {
+            if (!Initialized)
+                return;
+
+            //TODO add torque to the body handle
+        }  
     }
 }
