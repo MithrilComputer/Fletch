@@ -1,4 +1,6 @@
 ﻿using Fletch.Engine.Components;
+using Fletch.Engine.Model;
+using Fletch.Physics.Abstractions.CollisionShapes;
 using Fletch.Physics.Model;
 using Fletch.Physics.Model.ResourceHandles;
 using Fletch.Physics.Systems;
@@ -9,7 +11,7 @@ namespace Fletch.Physics.Components
     // TODO At some point I should prob make a way of setting specfic stuff as dirty, I feel like making the whole thing sync is a bit wastefull.
 
     /// <summary>
-    /// TODO
+    /// TODO 
     /// </summary>
     public sealed class RigidBody : GameObjectComponent
     {
@@ -21,10 +23,12 @@ namespace Fletch.Physics.Components
 
         internal bool Initialized { get; private set; }
 
+
         internal PhysicsPose CurrentPose { get; set; } = new PhysicsPose(Vector2.Zero, 0f);
 
         internal PhysicsPose PreviousPose { get; set; } = new PhysicsPose(Vector2.Zero, 0f);
 
+        private TrackedSet<Collider> colliders = new TrackedSet<Collider>();
 
         private float mass = 1f;
 
@@ -54,14 +58,22 @@ namespace Fletch.Physics.Components
 
         internal RigidBody()
         {
-
+            
         }
 
-        internal void Initialize(IBodyHandle bodyHandle, RigidBodyManager rigidBodyManager)
+        internal void Initialize(IBodyHandle bodyHandle, RigidBodyManager rigidBodyManager, )
         {
             BodyHandle = bodyHandle;
             RigidBodyManager = rigidBodyManager;
             Initialized = true;
+        }
+
+        public T? AddCollider<T>() where T : Collider
+        {
+            if (!Initialized)
+                return null;
+
+            
         }
 
         public float Mass

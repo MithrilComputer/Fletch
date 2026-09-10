@@ -21,8 +21,6 @@ namespace Fletch.Physics.Systems
 
         RigidBodyManager rigidBodyManager;
 
-        private readonly TrackedSet<ICollisionShape> colliders;
-
         public PhysicsSystem(IPhysicsBackend backend)
         {
             this.backend = backend;
@@ -37,7 +35,6 @@ namespace Fletch.Physics.Systems
             scene.SystemManager.RegisterSystem(this, SystemExecutionOrder.Simulation, 0);
 
             scene.AddSystemComponentRegistration(typeof(RigidBody), (b, c) => OnRigidBodyChange(b, c));
-            scene.AddSystemComponentRegistration(typeof(BoxCollider), (b, c) => OnColliderChange(b, c));
         }
 
         public void FixedUpdate(FixedTimeStep deltaTime)
@@ -68,11 +65,6 @@ namespace Fletch.Physics.Systems
                 default: // We can ignore other change types, as the rigidbodies track their modifed changes internaly.
                     break;
             }
-        }
-
-        private void OnColliderChange(GameObjectComponent component, ComponentChangeType changeType)
-        {
-
         }
     }
 }

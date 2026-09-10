@@ -1,37 +1,30 @@
-﻿using Fletch.Engine.Components;
-using Fletch.Physics.Abstractions.CollisionShapes;
+﻿using Fletch.Physics.Abstractions.CollisionShapes;
 using Fletch.Physics.Model;
 using Fletch.Physics.Model.Info.Collisions;
 using Fletch.Physics.Model.ResourceHandles;
+using System.Numerics;
 
 namespace Fletch.Physics.Components.CollisionShapes
 {
-    public class CircleCollider : , ICollisionShape
+    public class CircleCollider : Collider
     {
-        public float Radius { get; set; }
+        public float Radius { get => radius; set => SetFieldAndDirty(ref radius, value); }
 
-        public PhysicsMaterial Material { get; set; } = new();
+        private float radius;
 
-        public bool Initialized { get; private set; }
-
-        public event Action<CollisionEvent>? OnCollision;
-
-        internal IColliderHandle? ColliderHandle { get; private set; }
-
-        internal IBodyHandle? BodyHandle { get; private set; }
-
-        internal void Initialize(
+        internal CircleCollider(
+            float radius,
+            IBodyHandle parentBody,
             IColliderHandle colliderHandle,
-            IBodyHandle bodyHandle)
+            PhysicsMaterial material = new(),
+            Vector2 offset = default)
+            : base(
+                  colliderHandle,
+                  parentBody,
+                  material,
+                  offset)
         {
-            ColliderHandle = colliderHandle;
-            BodyHandle = bodyHandle;
-            Initialized = true;
-        }
-
-        internal void RaiseCollision(CollisionEvent collision)
-        {
-            OnCollision?.Invoke(collision);
+            this.radius = radius;
         }
     }
 }

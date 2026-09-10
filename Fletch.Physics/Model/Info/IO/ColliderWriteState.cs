@@ -24,13 +24,13 @@ namespace Fletch.Physics.Model.Info.IO
 
         public ShapeData Shape { get; }
 
-        public CollisionFilter Filter { get; }
+        public CollisionFilter Filter { get; } //TODO
 
         public Vector2 Offset { get; }
 
-        public float Rotation { get; }
+        public float Rotation { get; } //TODO
 
-        public bool IsSensor { get; }
+        public bool IsSensor { get; } //TODO
 
         public ColliderWriteState(
             PhysicsMaterial material,

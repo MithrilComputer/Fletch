@@ -1,39 +1,35 @@
-﻿using Fletch.Engine.Components;
-using Fletch.Physics.Abstractions.CollisionShapes;
+﻿using Fletch.Physics.Abstractions.CollisionShapes;
 using Fletch.Physics.Model;
-using Fletch.Physics.Model.Info.Collisions;
 using Fletch.Physics.Model.ResourceHandles;
+using System.Numerics;
 
 namespace Fletch.Physics.Components.CollisionShapes
 {
-    public class BoxCollider : GameObjectComponent, ICollisionShape
+    public class BoxCollider : Collider
     {
-        public float Width { get; set; }
+        public float Width { get => width; set => SetFieldAndDirty(ref width, value); }
 
-        public float Height { get; set; }
+        public float Height { get => height; set => SetFieldAndDirty(ref height, value); }
 
-        public PhysicsMaterial Material { get; set; } = new();
+        private float width;
 
-        public bool Initialized { get; private set; }
+        private float height;
 
-        public event Action<CollisionEvent>? OnCollision;
-
-        internal IColliderHandle? ColliderHandle { get; private set; }
-
-        internal IBodyHandle? BodyHandle { get; private set; }
-
-        internal void Initialize(
+        internal BoxCollider(
+            float width,
+            float height,
+            IBodyHandle parentBody,
             IColliderHandle colliderHandle,
-            IBodyHandle bodyHandle)
+            PhysicsMaterial material = new(),
+            Vector2 offset = default)
+            : base(
+                  colliderHandle,
+                  parentBody,
+                  material,
+                  offset)
         {
-            ColliderHandle = colliderHandle;
-            BodyHandle = bodyHandle;
-            Initialized = true;
-        }
-
-        internal void RaiseCollision(CollisionEvent collision)
-        {
-            OnCollision?.Invoke(collision);
+            this.width = width;
+            this.height = height;
         }
     }
 }
