@@ -5,20 +5,23 @@ namespace Fletch.Physics.Pools
 {
     internal class ColliderHandlePool
     {
-        private readonly Dictionary<IColliderHandle, CollisionShape> colliderHandles = new Dictionary<IColliderHandle, CollisionShape>();
+        private readonly Dictionary<IColliderHandle, ICollisionShape> colliderHandles = new Dictionary<IColliderHandle, ICollisionShape>();
 
-        public CollisionShape? GetCollider(IColliderHandle handle)
+        public ICollisionShape? GetCollider(IColliderHandle handle)
         {
-            if (colliderHandles.TryGetValue(handle, out CollisionShape collider))
+            if (colliderHandles.TryGetValue(handle, out ICollisionShape? collider))
             {
                 return collider;
             }
             return null;
         }
 
-        public void AddColliderHandle(IColliderHandle handle, CollisionShape collider)
+        public void AddColliderHandle(IColliderHandle handle, ICollisionShape collider)
         {
-            colliderHandles[handle] = collider;
+            if(!colliderHandles.TryAdd(handle, collider))
+            {
+                // TODO Log dupe
+            }
         }
 
         public void RemoveColliderHandle(IColliderHandle handle)

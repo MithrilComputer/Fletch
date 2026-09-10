@@ -21,7 +21,7 @@ namespace Fletch.Physics.Systems
 
         RigidBodyManager rigidBodyManager;
 
-        private readonly TrackedSet<CollisionShape> colliders;
+        private readonly TrackedSet<ICollisionShape> colliders;
 
         public PhysicsSystem(IPhysicsBackend backend)
         {
