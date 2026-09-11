@@ -1,7 +1,14 @@
-﻿using Fletch.Engine.Components;
+﻿using Fletch.Core.Time;
+using Fletch.Engine.Components;
+using Fletch.Engine.Components.Updateable;
 using Fletch.Engine.Model;
 using Fletch.Physics.Abstractions.CollisionShapes;
+using Fletch.Physics.Components.CollisionShapes;
+using Fletch.Physics.Factories;
 using Fletch.Physics.Model;
+using Fletch.Physics.Model.Info.IO;
+using Fletch.Physics.Model.Info.Masking.Collisions;
+using Fletch.Physics.Model.Info.Shapes;
 using Fletch.Physics.Model.ResourceHandles;
 using Fletch.Physics.Systems;
 using System.Numerics;
@@ -13,16 +20,15 @@ namespace Fletch.Physics.Components
     /// <summary>
     /// TODO 
     /// </summary>
-    public sealed class RigidBody : GameObjectComponent
+    public sealed class RigidBody : GameObjectComponent, IFixedUpdateable
     {
         internal bool IsDirty { get; private set; }
 
-        internal IBodyHandle BodyHandle { get; private set; }
+        internal IBodyHandle? BodyHandle { get; private set; }
 
         internal RigidBodyManager RigidBodyManager { get; private set; }
 
         internal bool Initialized { get; private set; }
-
 
         internal PhysicsPose CurrentPose { get; set; } = new PhysicsPose(Vector2.Zero, 0f);
 
@@ -53,27 +59,84 @@ namespace Fletch.Physics.Components
 
         private bool lockY;
 
-
         private PhysicsMode physicsMode = PhysicsMode.Dynamic;
 
-        internal RigidBody()
+
+        private readonly ColliderFactory colliderFactory;
+
+        internal RigidBody(ColliderFactory colliderFactory)
         {
-            
+            this.colliderFactory = colliderFactory;
         }
 
         internal void Initialize(IBodyHandle bodyHandle, RigidBodyManager rigidBodyManager, )
         {
             BodyHandle = bodyHandle;
             RigidBodyManager = rigidBodyManager;
+
             Initialized = true;
         }
 
+        /// <summary>
+        /// Creates a new collider with the base type of <see cref="Collider"/>
+        /// </summary>
+        /// <typeparam name="T">The collider type to create, must inhearit from <see cref="Collider"/>.</typeparam>
+        /// <returns>A new collider of the given T, Null if the rigidbody is not initialized yet.</returns>
+        /// <throws><see cref="NotSupportedException"/> if an invalid shape is given.</throws>
         public T? AddCollider<T>() where T : Collider
         {
             if (!Initialized)
                 return null;
 
-            
+            Collider collider;
+            ColliderWriteState writeState;
+
+            if (typeof(T) == typeof(BoxCollider))
+            {
+                writeState = new ColliderWriteState(
+                    new PhysicsMaterial(),
+                    new RectangleData(new Vector2(1, 1)),
+                    new CollisionFilter(CollisionCategory.All, CollisionCategory.All),
+                    Vector2.Zero,
+                    0f,
+                    false
+                    );
+
+                collider = colliderFactory.CreateNewCollider(this, writeState);
+            }
+            else if (typeof(T) == typeof(CapsuleCollider))
+            {
+                writeState = new ColliderWriteState(
+                    new PhysicsMaterial(),
+                    new CapsuleData(0.5f, 2f),
+                    new CollisionFilter(CollisionCategory.All, CollisionCategory.All),
+                    Vector2.Zero,
+                    0f,
+                    false
+                    );
+
+                collider = colliderFactory.CreateNewCollider(this, writeState);
+            }
+            else if(typeof(T) == typeof(CircleCollider))
+            {
+                writeState = new ColliderWriteState(
+                    new PhysicsMaterial(),
+                    new CircleData(0.5f),
+                    new CollisionFilter(CollisionCategory.All, CollisionCategory.All),
+                    Vector2.Zero,
+                    0f,
+                    false
+                    );
+
+                collider = colliderFactory.CreateNewCollider(this, writeState);
+            }
+            else
+            {
+                throw new NotSupportedException(
+                    $"Collider type {typeof(T).Name} is not supported.");
+            }
+
+            return (T)collider;
         }
 
         public float Mass
@@ -180,6 +243,11 @@ namespace Fletch.Physics.Components
                 return;
 
             //TODO add torque to the body handle
-        }  
+        }
+
+        public void FixedUpdate(FixedTimeStep deltaTime)
+        {
+            throw new NotImplementedException();
+        }
     }
 }

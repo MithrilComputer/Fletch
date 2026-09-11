@@ -34,7 +34,7 @@ namespace Fletch.Physics.Helpers
             rigidBody.AngularVelocity = readState.AngularVelocity;
         }
 
-        internal static ColliderWriteState CreateColliderWriteState(ICollisionShape colliderType)
+        internal static ColliderWriteState CreateColliderWriteState(Collider colliderType)
         {
             switch(colliderType)
             {
@@ -48,7 +48,7 @@ namespace Fletch.Physics.Helpers
                         new CollisionFilter(
                             CollisionCategory.All,
                             CollisionCategory.All),
-                        Vector2.Zero,
+                        colliderType.Offset,
                         0f,
                         false);
 
@@ -60,7 +60,7 @@ namespace Fletch.Physics.Helpers
                         new CollisionFilter(
                             CollisionCategory.All,
                             CollisionCategory.All),
-                        Vector2.Zero,
+                        colliderType.Offset,
                         0f,
                         false);
 
@@ -73,7 +73,7 @@ namespace Fletch.Physics.Helpers
                         new CollisionFilter(
                             CollisionCategory.All,
                             CollisionCategory.All),
-                        Vector2.Zero,
+                        colliderType.Offset,
                         0f,
                         false);
 
