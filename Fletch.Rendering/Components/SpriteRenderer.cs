@@ -1,4 +1,5 @@
 ﻿using Fletch.Core.Colors;
+using Fletch.Core.LifeCycle;
 using Fletch.Core.Math.Geometry;
 using Fletch.Engine.Attributes;
 using Fletch.Engine.Components;
@@ -13,7 +14,7 @@ namespace Fletch.Rendering.Components
     /// Renders a 2D sprite for an GameObject
     /// </summary>
     [DisallowMultipleComponentAttribute]
-    public sealed class SpriteRenderer : GameObjectComponent, IInternalRenderingComponent
+    public sealed class SpriteRenderer : GameObjectComponent, IInternalRenderingComponent, ILateStartable
     {
         /// <summary>
         /// The current render pose of the sprite renderer.
@@ -28,10 +29,7 @@ namespace Fletch.Rendering.Components
             RenderPose = pose;
         }
 
-        /// <summary>
-        /// Sets the initial render pose for the sprite renderer based on the GameObject's transform.
-        /// </summary>
-        public SpriteRenderer()
+        public void OnLateStart()
         {
             RenderPose = new RenderPose(Transform.WorldPosition, Transform.WorldRotation.Radians);
         }
@@ -89,5 +87,6 @@ namespace Fletch.Rendering.Components
         /// The current sprite effect applied to the sprite.
         /// </summary>
         public SpriteEffect Effect { get; set; } = SpriteEffect.None;
+        public bool HasLateStarted { get => throw new NotImplementedException(); set => throw new NotImplementedException(); }
     }
 }

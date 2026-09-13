@@ -8,6 +8,8 @@ using Fletch.Physics.Abstractions.Backends;
 using Fletch.Physics.Abstractions.CollisionShapes;
 using Fletch.Physics.Components;
 using Fletch.Physics.Components.CollisionShapes;
+using Fletch.Physics.Factories;
+using Fletch.Physics.Maps;
 using Fletch.Physics.Model.ResourceHandles;
 using System.Numerics;
 
@@ -21,11 +23,19 @@ namespace Fletch.Physics.Systems
 
         RigidBodyManager rigidBodyManager;
 
+        public readonly ColliderFactory colliderFactory;
+
+        private readonly ColliderRigidbodyMap colliderRigidbodyMap;
+
         public PhysicsSystem(IPhysicsBackend backend)
         {
             this.backend = backend;
 
             worldHandle = backend.CreateWorld(new Vector2(0, -9.81f));
+
+            colliderRigidbodyMap = new ColliderRigidbodyMap();
+
+            colliderFactory = new ColliderFactory(backend, colliderRigidbodyMap);
         }
 
         public override void AttachToScene(Scene scene)

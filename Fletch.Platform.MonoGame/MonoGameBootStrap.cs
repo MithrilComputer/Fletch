@@ -8,6 +8,8 @@ using Fletch.Engine.Abstractions.Factories;
 using Fletch.Engine.Factories;
 using Fletch.Input.Abstractions.Backends;
 using Fletch.Input.MonoGame.Backend;
+using Fletch.Physics.Abstractions.Backends;
+using Fletch.Physics.Box2D.Backend;
 using Fletch.Platform.Abstractions.Contexts;
 using Fletch.Platform.Abstractions.Lifecycle;
 using Fletch.Platform.Abstractions.Paths;
@@ -67,6 +69,9 @@ namespace Fletch.Platform.MonoGame
 
             // Audio
             services.AddSingleton<IAudioBackend, OpenALAudioBackend>();
+
+            // Physics
+            services.AddSingleton<IPhysicsBackend, Box2DPhysicsBackend>();
 
             // Asset Providers
             services.AddSingleton<IAudioAssetProvider, AudioAssetProvider>();

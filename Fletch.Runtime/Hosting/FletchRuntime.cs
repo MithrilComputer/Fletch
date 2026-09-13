@@ -10,6 +10,7 @@ using Fletch.Engine.Scenes;
 using Fletch.Input.Abstractions.Backends;
 using Fletch.Input.Abstractions.InputDevices;
 using Fletch.Input.Model;
+using Fletch.Physics.Components;
 using Fletch.Platform.Abstractions.Contexts;
 using Fletch.Platform.Abstractions.Lifecycle;
 using Fletch.Platform.Abstractions.Paths;
@@ -117,6 +118,8 @@ namespace Fletch.Runtime.Hosting
             SpriteRenderer wtwos = wallTwo.AddComponent<SpriteRenderer>();
             SpriteRenderer wthrees = wallThree.AddComponent<SpriteRenderer>();
 
+            RigidBody rb = gameObject.AddComponent<RigidBody>();
+
             wallOne.AddComponent<AudioSource>().TryCreateSoundPlayer(Path.Combine(pathProvider.AssetFolderDirectory, "bloop.wav"), out SoundPlayer soundplayer);
 
             TestSound = soundplayer;
@@ -129,6 +132,7 @@ namespace Fletch.Runtime.Hosting
 
             camera.BlendMode = Rendering.Model.BlendMode.Alpha;
 
+            
 
             /* testing
               

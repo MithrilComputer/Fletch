@@ -62,14 +62,14 @@ namespace Fletch.Physics.Components
         private PhysicsMode physicsMode = PhysicsMode.Dynamic;
 
 
-        private readonly ColliderFactory colliderFactory;
+        private readonly PhysicsSystem physicsSystem;
 
-        internal RigidBody(ColliderFactory colliderFactory)
+        internal RigidBody(PhysicsSystem physicsSystem)
         {
-            this.colliderFactory = colliderFactory;
+            this.physicsSystem = physicsSystem;
         }
 
-        internal void Initialize(IBodyHandle bodyHandle, RigidBodyManager rigidBodyManager, )
+        internal void Initialize(IBodyHandle bodyHandle, RigidBodyManager rigidBodyManager)
         {
             BodyHandle = bodyHandle;
             RigidBodyManager = rigidBodyManager;
@@ -102,7 +102,7 @@ namespace Fletch.Physics.Components
                     false
                     );
 
-                collider = colliderFactory.CreateNewCollider(this, writeState);
+                collider = physicsSystem.colliderFactory.CreateNewCollider(this, writeState);
             }
             else if (typeof(T) == typeof(CapsuleCollider))
             {
@@ -115,7 +115,7 @@ namespace Fletch.Physics.Components
                     false
                     );
 
-                collider = colliderFactory.CreateNewCollider(this, writeState);
+                collider = physicsSystem.colliderFactory.CreateNewCollider(this, writeState);
             }
             else if(typeof(T) == typeof(CircleCollider))
             {
@@ -128,7 +128,7 @@ namespace Fletch.Physics.Components
                     false
                     );
 
-                collider = colliderFactory.CreateNewCollider(this, writeState);
+                collider = physicsSystem.colliderFactory.CreateNewCollider(this, writeState);
             }
             else
             {
