@@ -4,6 +4,8 @@ using Fletch.Physics.Components;
 using Fletch.Physics.Helpers;
 using Fletch.Physics.Model.Info.IO;
 using Fletch.Physics.Model.ResourceHandles;
+using System.Diagnostics;
+using System.Numerics;
 
 namespace Fletch.Physics.Systems
 {
@@ -15,10 +17,13 @@ namespace Fletch.Physics.Systems
 
         private readonly IPhysicsBackend physicsBackend;
 
-        public RigidBodyManager(IPhysicsBackend physicsBackend, IWorldHandle worldHandle)
+        private readonly PhysicsSystem physicsSystem;
+
+        public RigidBodyManager(IPhysicsBackend physicsBackend, IWorldHandle worldHandle, PhysicsSystem physicsSystem)
         {
             this.physicsBackend = physicsBackend;
             this.worldHandle = worldHandle;
+            this.physicsSystem = physicsSystem;
         }
 
         public void UpdateRigidBodies()
@@ -30,13 +35,15 @@ namespace Fletch.Physics.Systems
                 if(!rigidBody.Initialized)
                 {
                     InitalizeRigidBody(rigidBody);
+                    Debug.Print($"RigidBody initialized for GameObject: {rigidBody.GameObject.Name}");
                 }
 
-                if(rigidBody.IsDirty)
+                if (rigidBody.IsDirty)
                 {
                     BodyWriteState writeState = PhysicsHelper.CreateBodyWriteState(rigidBody);
                     physicsBackend.SetBodyState(rigidBody.BodyHandle, writeState);
                     rigidBody.ClearDirty();
+                    Debug.Print($"RigidBody state updated for GameObject: {rigidBody.GameObject.Name}");
                 }
 
                 if (!rigidBody.IsEnabled)
@@ -46,7 +53,11 @@ namespace Fletch.Physics.Systems
 
                 BodyReadState readState = physicsBackend.GetBodyState(rigidBody.BodyHandle);
 
+                Debug.Print($"RigidBody data: pos:{readState.Position}, vel:{readState.LinearVelocity}, awk:{readState.IsAwake}");
+
                 PhysicsHelper.ApplyReadStateToRigidBody(rigidBody, readState);
+
+                Debug.Print($"RigidBody state read for GameObject: {rigidBody.GameObject.Name}");
             }
         }
 
@@ -64,7 +75,7 @@ namespace Fletch.Physics.Systems
         {
             BodyWriteState writeState = PhysicsHelper.CreateBodyWriteState(rigidbody);
             IBodyHandle bodyHandle = physicsBackend.CreateBody(worldHandle, writeState);
-            rigidbody.Initialize(bodyHandle, this);
+            rigidbody.Initialize(bodyHandle, this, physicsSystem);
         }
     }
 }

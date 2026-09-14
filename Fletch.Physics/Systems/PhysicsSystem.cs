@@ -5,9 +5,7 @@ using Fletch.Engine.Model;
 using Fletch.Engine.Scenes;
 using Fletch.Engine.Systems;
 using Fletch.Physics.Abstractions.Backends;
-using Fletch.Physics.Abstractions.CollisionShapes;
 using Fletch.Physics.Components;
-using Fletch.Physics.Components.CollisionShapes;
 using Fletch.Physics.Factories;
 using Fletch.Physics.Maps;
 using Fletch.Physics.Model.ResourceHandles;
@@ -21,7 +19,7 @@ namespace Fletch.Physics.Systems
 
         private readonly IWorldHandle worldHandle;
 
-        RigidBodyManager rigidBodyManager;
+        private readonly RigidBodyManager rigidBodyManager;
 
         public readonly ColliderFactory colliderFactory;
 
@@ -36,6 +34,8 @@ namespace Fletch.Physics.Systems
             colliderRigidbodyMap = new ColliderRigidbodyMap();
 
             colliderFactory = new ColliderFactory(backend, colliderRigidbodyMap);
+
+            rigidBodyManager = new RigidBodyManager(backend, worldHandle, this);
         }
 
         public override void AttachToScene(Scene scene)
@@ -49,7 +49,8 @@ namespace Fletch.Physics.Systems
 
         public void FixedUpdate(FixedTimeStep deltaTime)
         {
-            
+            rigidBodyManager.UpdateRigidBodies();
+            backend.StepWorld(worldHandle, deltaTime.Delta);
         }
 
         private void OnRigidBodyChange(GameObjectComponent component, ComponentChangeType changeType)
@@ -64,12 +65,11 @@ namespace Fletch.Physics.Systems
                 case ComponentChangeType.Added:
 
                     rigidBodyManager.AddRigidBody(rigidBody);
-
                     break;
+
                 case ComponentChangeType.Removed:
 
                     rigidBodyManager.RemoveRigidBody(rigidBody);
-
                     break;
                 
                 default: // We can ignore other change types, as the rigidbodies track their modifed changes internaly.

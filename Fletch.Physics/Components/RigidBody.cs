@@ -61,19 +61,14 @@ namespace Fletch.Physics.Components
 
         private PhysicsMode physicsMode = PhysicsMode.Dynamic;
 
+        private PhysicsSystem physicsSystem;
 
-        private readonly PhysicsSystem physicsSystem;
-
-        internal RigidBody(PhysicsSystem physicsSystem)
-        {
-            this.physicsSystem = physicsSystem;
-        }
-
-        internal void Initialize(IBodyHandle bodyHandle, RigidBodyManager rigidBodyManager)
+        internal void Initialize(IBodyHandle bodyHandle, RigidBodyManager rigidBodyManager, PhysicsSystem physicsSystem)
         {
             BodyHandle = bodyHandle;
             RigidBodyManager = rigidBodyManager;
 
+            IsDirty = true;
             Initialized = true;
         }
 

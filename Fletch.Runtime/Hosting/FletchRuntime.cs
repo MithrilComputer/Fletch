@@ -11,6 +11,8 @@ using Fletch.Input.Abstractions.Backends;
 using Fletch.Input.Abstractions.InputDevices;
 using Fletch.Input.Model;
 using Fletch.Physics.Components;
+using Fletch.Physics.Model;
+using Fletch.Physics.Systems;
 using Fletch.Platform.Abstractions.Contexts;
 using Fletch.Platform.Abstractions.Lifecycle;
 using Fletch.Platform.Abstractions.Paths;
@@ -77,6 +79,8 @@ namespace Fletch.Runtime.Hosting
 
         Random random = new Random();
 
+        RigidBody rb;
+
         //Testing
 
         public FletchRuntime(IPlatformContext platformContext, ISceneFactory sceneFactory, ISubSystemFactory subSystemFactory)
@@ -99,6 +103,8 @@ namespace Fletch.Runtime.Hosting
 
             testScene.SystemManager.AddSubSystem<AudioManagementSystem>();
 
+            testScene.SystemManager.AddSubSystem<PhysicsSystem>();
+
             testScene.SystemManager.AddSubSystem<WorldRenderingSystem>();
 
             gameObject = testScene.CreateGameObject();
@@ -118,7 +124,11 @@ namespace Fletch.Runtime.Hosting
             SpriteRenderer wtwos = wallTwo.AddComponent<SpriteRenderer>();
             SpriteRenderer wthrees = wallThree.AddComponent<SpriteRenderer>();
 
-            RigidBody rb = gameObject.AddComponent<RigidBody>();
+            rb = gameObject.AddComponent<RigidBody>();
+
+            rb.LinearVelocity = new Vector2(0, -10f);
+
+            rb.PhysicsMode = PhysicsMode.Dynamic;
 
             wallOne.AddComponent<AudioSource>().TryCreateSoundPlayer(Path.Combine(pathProvider.AssetFolderDirectory, "bloop.wav"), out SoundPlayer soundplayer);
 
@@ -185,6 +195,8 @@ namespace Fletch.Runtime.Hosting
             if (!IsInitialized)
                 return;
 
+            gameObject.Transform.LocalPosition = rb.CurrentPose.Position;
+
             inputBackend.UpdateBackend();
 
             gameObject.Transform.LocalPosition += gamepad.LeftThumbstick * moveSpeed * time.Delta;
@@ -244,7 +256,11 @@ namespace Fletch.Runtime.Hosting
                 greenMoveAxis.Y = -1;
             }
 
-            gameObject.Transform.LocalPosition += moveAxisKey * moveSpeed * time.Delta;
+            //gameObject.Transform.LocalPosition += moveAxisKey * moveSpeed * time.Delta;
+
+            gameObject.Transform.LocalPosition = rb.CurrentPose.Position;
+
+            Debug.Print(rb.CurrentPose.Position.ToString());
 
             wallOne.Transform.LocalPosition += greenMoveAxis * moveSpeed * time.Delta;
 

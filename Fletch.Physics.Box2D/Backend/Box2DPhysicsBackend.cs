@@ -7,7 +7,7 @@ using System.Numerics;
 
 namespace Fletch.Physics.Box2D.Backend
 {
-    internal class Box2DPhysicsBackend : IPhysicsBackend
+    internal sealed class Box2DPhysicsBackend : IPhysicsBackend
     {
         private readonly Box2DManager b2Manager;
 

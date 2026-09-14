@@ -25,6 +25,7 @@ namespace Fletch.Physics.Model.Info.IO
         public BodyWriteState(
             Vector2 position,
             float rotation,
+            PhysicsMode mode,
             Vector2 linearVelocity,
             float angularVelocity,
             float gravityScale,
@@ -33,10 +34,12 @@ namespace Fletch.Physics.Model.Info.IO
             bool fixedRotation,
             bool lockX,
             bool lockY,
-            bool enabled)
+            bool enabled,
+            bool useInterpolation)
         {
             Position = position;
             Rotation = rotation;
+            Mode = mode;
             LinearVelocity = linearVelocity;
             AngularVelocity = angularVelocity;
             GravityScale = gravityScale;
@@ -46,6 +49,7 @@ namespace Fletch.Physics.Model.Info.IO
             LockX = lockX;
             LockY = lockY;
             Enabled = enabled;
+            UseInterpolation = useInterpolation;
         }
     }
 }

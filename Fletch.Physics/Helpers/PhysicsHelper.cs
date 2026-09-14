@@ -15,6 +15,7 @@ namespace Fletch.Physics.Helpers
             return new BodyWriteState(
                 rigidBody.CurrentPose.Position,
                 rigidBody.CurrentPose.Rotation,
+                rigidBody.PhysicsMode,
                 rigidBody.LinearVelocity,
                 rigidBody.AngularVelocity,
                 rigidBody.GravityScale,
@@ -23,7 +24,9 @@ namespace Fletch.Physics.Helpers
                 rigidBody.FixedRotation,
                 rigidBody.LockX,
                 rigidBody.LockY,
-                rigidBody.IsEnabled);
+                rigidBody.IsEnabled,
+                rigidBody.UseInterpolation
+                );
         }
 
         internal static void ApplyReadStateToRigidBody(RigidBody rigidBody, BodyReadState readState)
