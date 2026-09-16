@@ -11,6 +11,7 @@ using Fletch.Input.Abstractions.Backends;
 using Fletch.Input.Abstractions.InputDevices;
 using Fletch.Input.Model;
 using Fletch.Physics.Components;
+using Fletch.Physics.Components.CollisionShapes;
 using Fletch.Physics.Model;
 using Fletch.Physics.Systems;
 using Fletch.Platform.Abstractions.Contexts;
@@ -81,6 +82,8 @@ namespace Fletch.Runtime.Hosting
 
         RigidBody rb;
 
+        RigidBody rb2;
+
         //Testing
 
         public FletchRuntime(IPlatformContext platformContext, ISceneFactory sceneFactory, ISubSystemFactory subSystemFactory)
@@ -124,11 +127,25 @@ namespace Fletch.Runtime.Hosting
             SpriteRenderer wtwos = wallTwo.AddComponent<SpriteRenderer>();
             SpriteRenderer wthrees = wallThree.AddComponent<SpriteRenderer>();
 
+            rb2 = wallTwo.AddComponent<RigidBody>();
+
             rb = gameObject.AddComponent<RigidBody>();
 
-            rb.LinearVelocity = new Vector2(0, -10f);
-
             rb.PhysicsMode = PhysicsMode.Dynamic;
+
+            rb.GravityScale = 1f;
+
+            rb.Mass = 1f;
+
+
+            rb.LockX = false;
+
+            rb.LockY = false;
+
+            BoxCollider bc = rb.AddCollider<BoxCollider>();
+
+            if (bc == null)
+                throw new InvalidOperationException("Failed to create BoxCollider.");
 
             wallOne.AddComponent<AudioSource>().TryCreateSoundPlayer(Path.Combine(pathProvider.AssetFolderDirectory, "bloop.wav"), out SoundPlayer soundplayer);
 
@@ -141,8 +158,6 @@ namespace Fletch.Runtime.Hosting
             cameraObject.AddComponent<AudioListener>().IsEnabled = true;
 
             camera.BlendMode = Rendering.Model.BlendMode.Alpha;
-
-            
 
             /* testing
               
@@ -195,11 +210,11 @@ namespace Fletch.Runtime.Hosting
             if (!IsInitialized)
                 return;
 
-            gameObject.Transform.LocalPosition = rb.CurrentPose.Position;
-
             inputBackend.UpdateBackend();
 
-            gameObject.Transform.LocalPosition += gamepad.LeftThumbstick * moveSpeed * time.Delta;
+            gameObject.Transform.LocalPosition = rb.CurrentPose.Position;
+
+            wallTwo.Transform.LocalPosition = rb.CurrentPose.Position;
 
             Vector2 moveAxisKey = new Vector2();
 
@@ -258,9 +273,7 @@ namespace Fletch.Runtime.Hosting
 
             //gameObject.Transform.LocalPosition += moveAxisKey * moveSpeed * time.Delta;
 
-            gameObject.Transform.LocalPosition = rb.CurrentPose.Position;
-
-            Debug.Print(rb.CurrentPose.Position.ToString());
+            //rb.AddImpulse(new Vector2(moveAxisKey.X * moveSpeed, moveAxisKey.Y * moveSpeed));
 
             wallOne.Transform.LocalPosition += greenMoveAxis * moveSpeed * time.Delta;
 
@@ -283,7 +296,7 @@ namespace Fletch.Runtime.Hosting
             if (timeKeep >= 1)
             {
                 timeKeep = 0;
-                Debug.WriteLine($"FPS: {frames}");
+                //Debug.WriteLine($"FPS: {frames}");
                 frames = 0;
             }
 

@@ -4,7 +4,6 @@ using Fletch.Engine.Components.Updateable;
 using Fletch.Engine.Model;
 using Fletch.Physics.Abstractions.CollisionShapes;
 using Fletch.Physics.Components.CollisionShapes;
-using Fletch.Physics.Factories;
 using Fletch.Physics.Model;
 using Fletch.Physics.Model.Info.IO;
 using Fletch.Physics.Model.Info.Masking.Collisions;
@@ -26,7 +25,7 @@ namespace Fletch.Physics.Components
 
         internal IBodyHandle? BodyHandle { get; private set; }
 
-        internal RigidBodyManager RigidBodyManager { get; private set; }
+        internal RigidBodyManager? RigidBodyManager { get; private set; }
 
         internal bool Initialized { get; private set; }
 
@@ -34,7 +33,7 @@ namespace Fletch.Physics.Components
 
         internal PhysicsPose PreviousPose { get; set; } = new PhysicsPose(Vector2.Zero, 0f);
 
-        private TrackedSet<Collider> colliders = new TrackedSet<Collider>();
+        private readonly TrackedSet<Collider> colliders = new TrackedSet<Collider>();
 
         private float mass = 1f;
 
@@ -46,9 +45,9 @@ namespace Fletch.Physics.Components
         private float angularDrag;
 
 
-        private Vector2 linearVelocity;
+        internal Vector2 linearVelocity;
 
-        private float angularVelocity;
+        internal float angularVelocity;
 
 
         private bool useInterpolation;
@@ -70,6 +69,8 @@ namespace Fletch.Physics.Components
 
             IsDirty = true;
             Initialized = true;
+
+            this.physicsSystem = physicsSystem;
         }
 
         /// <summary>
@@ -228,7 +229,7 @@ namespace Fletch.Physics.Components
             if (!Initialized)
                 return;
 
-            //TODO Add Impulse to the body handle
+            RigidBodyManager.OnApplyImpulse(this, impulse);
 
         }
 

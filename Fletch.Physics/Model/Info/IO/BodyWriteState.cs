@@ -16,6 +16,8 @@ namespace Fletch.Physics.Model.Info.IO
         public float LinearDamping { get; }
         public float AngularDamping { get; }
 
+        public float Mass { get; }
+
         public bool FixedRotation { get; }
         public bool LockX { get; }
         public bool LockY { get; }
@@ -32,6 +34,7 @@ namespace Fletch.Physics.Model.Info.IO
             float linearDamping,
             float angularDamping,
             bool fixedRotation,
+            float mass,
             bool lockX,
             bool lockY,
             bool enabled,
@@ -46,6 +49,7 @@ namespace Fletch.Physics.Model.Info.IO
             LinearDamping = linearDamping;
             AngularDamping = angularDamping;
             FixedRotation = fixedRotation;
+            Mass = mass;
             LockX = lockX;
             LockY = lockY;
             Enabled = enabled;

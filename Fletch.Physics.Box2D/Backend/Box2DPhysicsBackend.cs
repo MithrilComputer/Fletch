@@ -1,8 +1,12 @@
-﻿using Fletch.Physics.Abstractions.Backends;
+﻿using Box2D.NET;
+using Fletch.Physics.Abstractions.Backends;
+using Fletch.Physics.Box2D.Helpers;
+using Fletch.Physics.Box2D.Model.ResourceHandles;
 using Fletch.Physics.Box2D.Natives;
 using Fletch.Physics.Model.Info.Collisions;
 using Fletch.Physics.Model.Info.IO;
 using Fletch.Physics.Model.ResourceHandles;
+using System.Diagnostics;
 using System.Numerics;
 
 namespace Fletch.Physics.Box2D.Backend
@@ -67,12 +71,20 @@ namespace Fletch.Physics.Box2D.Backend
 
         public void SetColliderState(IColliderHandle colliderHandle, ColliderWriteState writeState)
         {
-            b2Manager.SetColiderState(colliderHandle, writeState);
+            b2Manager.SetColliderState(colliderHandle, writeState);
         }
 
         public IReadOnlyCollection<BackendCollisionEvent> GetCollisionEvents(IWorldHandle world)
         {
             return b2Manager.GetCollisionEvents(world);
+        }
+
+        public void ImpulseBody(IBodyHandle bodyHandle, Vector2 impulse, Vector2 point)
+        {
+            if(bodyHandle is not Box2DBodyHandle b2bodyHandle)
+                throw new ArgumentException("Invalid body handle type. Expected Box2DBodyHandle.", nameof(bodyHandle));
+
+            B2Bodies.b2Body_ApplyLinearImpulseToCenter(b2bodyHandle.Id, FletchB2Converter.ConvertToB2(impulse), true);
         }
     }
 }

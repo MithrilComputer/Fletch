@@ -7,6 +7,7 @@ using Fletch.Physics.Box2D.Registries;
 using Fletch.Physics.Model.Info.Collisions;
 using Fletch.Physics.Model.Info.IO;
 using Fletch.Physics.Model.ResourceHandles;
+using System.Diagnostics;
 using System.Numerics;
 
 namespace Fletch.Physics.Box2D.Natives
@@ -18,6 +19,8 @@ namespace Fletch.Physics.Box2D.Natives
         private readonly Box2DCollisionEventManager collisionEventManager;
 
         private readonly ColliderRegistry colliderRegistry;
+
+        B2WorldDef worldDefs; //TEMP
 
         public Box2DManager()
         {
@@ -37,7 +40,7 @@ namespace Fletch.Physics.Box2D.Natives
 
         public IWorldHandle CreateWorld(Vector2 gravity)
         {
-            B2WorldDef worldDef = new B2WorldDef();
+            B2WorldDef worldDef = B2Types.b2DefaultWorldDef();
 
             worldDef.gravity = new B2Vec2(gravity.X, gravity.Y);
 
@@ -51,7 +54,7 @@ namespace Fletch.Physics.Box2D.Natives
             if (worldHandle is not Box2DWorldHandle b2dWorldHandle)
                 throw new Exception();
 
-            B2BodyDef newBodyDef = new B2BodyDef();
+            B2BodyDef newBodyDef = B2Types.b2DefaultBodyDef();
 
             B2BodyId newBodyId = B2Bodies.b2CreateBody(b2dWorldHandle.Id, in newBodyDef);
 
@@ -141,7 +144,7 @@ namespace Fletch.Physics.Box2D.Natives
                 );
         }
 
-        public void SetColiderState(IColliderHandle colliderHandle, ColliderWriteState writeState)
+        public void SetColliderState(IColliderHandle colliderHandle, ColliderWriteState writeState)
         {
             if (colliderHandle is not Box2DColiderHandle b2colliderHandle)
                 throw new Exception();

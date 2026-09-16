@@ -26,17 +26,19 @@ namespace Fletch.Physics.Systems
             this.physicsSystem = physicsSystem;
         }
 
-        public void UpdateRigidBodies()
+        public void WriteRigidBodies()
         {
-            rigidbodies.Refresh();
 
             foreach (RigidBody rigidBody in rigidbodies.Items)
             {
-                if(!rigidBody.Initialized)
+                if (!rigidBody.Initialized)
                 {
-                    InitalizeRigidBody(rigidBody);
                     Debug.Print($"RigidBody initialized for GameObject: {rigidBody.GameObject.Name}");
+                    continue;
                 }
+
+                if (!rigidBody.IsEnabled)
+                    continue;
 
                 if (rigidBody.IsDirty)
                 {
@@ -44,6 +46,18 @@ namespace Fletch.Physics.Systems
                     physicsBackend.SetBodyState(rigidBody.BodyHandle, writeState);
                     rigidBody.ClearDirty();
                     Debug.Print($"RigidBody state updated for GameObject: {rigidBody.GameObject.Name}");
+                }
+            }
+        }
+
+        public void ReadRigidBodies()
+        {
+            foreach (RigidBody rigidBody in rigidbodies.Items)
+            {
+                if (!rigidBody.Initialized)
+                {
+                    Debug.Print($"RigidBody initialized for GameObject: {rigidBody.GameObject.Name}");
+                    continue;
                 }
 
                 if (!rigidBody.IsEnabled)
@@ -53,17 +67,19 @@ namespace Fletch.Physics.Systems
 
                 BodyReadState readState = physicsBackend.GetBodyState(rigidBody.BodyHandle);
 
-                Debug.Print($"RigidBody data: pos:{readState.Position}, vel:{readState.LinearVelocity}, awk:{readState.IsAwake}");
-
                 PhysicsHelper.ApplyReadStateToRigidBody(rigidBody, readState);
-
-                Debug.Print($"RigidBody state read for GameObject: {rigidBody.GameObject.Name}");
             }
+        }
+
+        public void UpdateComponents()
+        {
+            rigidbodies.Refresh();
         }
 
         public void AddRigidBody(RigidBody rigidbody)
         {
             rigidbodies.MarkToAdd(rigidbody);
+            InitalizeRigidBody(rigidbody);
         }
 
         public void RemoveRigidBody(RigidBody rigidbody)
@@ -76,6 +92,11 @@ namespace Fletch.Physics.Systems
             BodyWriteState writeState = PhysicsHelper.CreateBodyWriteState(rigidbody);
             IBodyHandle bodyHandle = physicsBackend.CreateBody(worldHandle, writeState);
             rigidbody.Initialize(bodyHandle, this, physicsSystem);
+        }
+
+        public void OnApplyImpulse(RigidBody rigidBody, Vector2 impulse)
+        {
+            physicsBackend.ImpulseBody(rigidBody.BodyHandle, impulse, rigidBody.CurrentPose.Position);
         }
     }
 }

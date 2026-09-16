@@ -4,6 +4,7 @@ using Fletch.Physics.Components.CollisionShapes;
 using Fletch.Physics.Model.Info.IO;
 using Fletch.Physics.Model.Info.Masking.Collisions;
 using Fletch.Physics.Model.Info.Shapes;
+using System.Diagnostics;
 using System.Numerics;
 
 namespace Fletch.Physics.Helpers
@@ -22,6 +23,7 @@ namespace Fletch.Physics.Helpers
                 rigidBody.LinearDrag,
                 rigidBody.AngularDrag,
                 rigidBody.FixedRotation,
+                rigidBody.Mass,
                 rigidBody.LockX,
                 rigidBody.LockY,
                 rigidBody.IsEnabled,
@@ -33,8 +35,8 @@ namespace Fletch.Physics.Helpers
         {
             rigidBody.CurrentPose.Position = readState.Position;
             rigidBody.CurrentPose.Rotation = readState.Rotation;
-            rigidBody.LinearVelocity = readState.LinearVelocity;
-            rigidBody.AngularVelocity = readState.AngularVelocity;
+            rigidBody.linearVelocity = readState.LinearVelocity;
+            rigidBody.angularVelocity = readState.AngularVelocity;
         }
 
         internal static ColliderWriteState CreateColliderWriteState(Collider colliderType)

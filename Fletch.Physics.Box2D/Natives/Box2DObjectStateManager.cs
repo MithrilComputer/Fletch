@@ -3,8 +3,10 @@ using Fletch.Physics.Box2D.Factories;
 using Fletch.Physics.Box2D.Helpers;
 using Fletch.Physics.Box2D.Model.ResourceHandles;
 using Fletch.Physics.Box2D.Registries;
+using Fletch.Physics.Components;
 using Fletch.Physics.Model.Info.IO;
 using Fletch.Physics.Model.Info.Shapes;
+using System.Diagnostics;
 using System.Numerics;
 
 namespace Fletch.Physics.Box2D.Natives
@@ -92,7 +94,7 @@ namespace Fletch.Physics.Box2D.Natives
                     writeState.LockY,
                     writeState.FixedRotation
                     ));
-
+            
             if (writeState.Enabled)
             {
                 B2Bodies.b2Body_Enable(b2BodyId);

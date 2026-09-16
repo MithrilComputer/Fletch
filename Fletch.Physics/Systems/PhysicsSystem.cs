@@ -49,8 +49,13 @@ namespace Fletch.Physics.Systems
 
         public void FixedUpdate(FixedTimeStep deltaTime)
         {
-            rigidBodyManager.UpdateRigidBodies();
+            rigidBodyManager.UpdateComponents();
+
+            rigidBodyManager.WriteRigidBodies();
+
             backend.StepWorld(worldHandle, deltaTime.Delta);
+
+            rigidBodyManager.ReadRigidBodies();
         }
 
         private void OnRigidBodyChange(GameObjectComponent component, ComponentChangeType changeType)

@@ -14,7 +14,7 @@ namespace Fletch.Physics.Box2D.Helpers
                 case PhysicsMode.Static:
                     return B2BodyType.b2_staticBody;
 
-                case PhysicsMode.Kenematic:
+                case PhysicsMode.Kinematic:
                     return B2BodyType.b2_kinematicBody;
 
                 case PhysicsMode.Dynamic:
@@ -22,6 +22,11 @@ namespace Fletch.Physics.Box2D.Helpers
 
                 default: throw new Exception();
             }
+        }
+
+        public static B2Vec2 ConvertToB2(Vector2 vector)
+        {
+            return new B2Vec2(vector.X, vector.Y);
         }
 
         public static Vector2 ConvertToFletch(B2Vec2 b2vector)
