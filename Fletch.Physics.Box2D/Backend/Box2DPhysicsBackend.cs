@@ -37,6 +37,8 @@ namespace Fletch.Physics.Box2D.Backend
             return b2Manager.CreateBody(worldHandle, writeState);
         }
 
+
+
         public IColliderHandle CreateCollider(IBodyHandle body, ColliderWriteState writeState)
         {
             return b2Manager.CreateCollider(body, writeState);
@@ -45,23 +47,23 @@ namespace Fletch.Physics.Box2D.Backend
 
         public void DestroyWorld(IWorldHandle world)
         {
-            b2Manager.DestroyResource(world);
+            //b2Manager.DestroyResource(world);
         }
 
         public void DestroyBody(IBodyHandle body)
         {
-            b2Manager.DestroyResource(body);
+            //b2Manager.DestroyResource(body);
         }
 
         public void DestroyCollider(IColliderHandle collider)
         {
-            b2Manager.DestroyResource(collider);
+            //b2Manager.DestroyResource(collider);
         }
 
 
         public void SetBodyState(IBodyHandle bodyHandle, in BodyWriteState writeState)
         {
-            b2Manager.SetBodyState(bodyHandle, writeState);
+            //b2Manager.SetBodyState(bodyHandle, writeState);
         }
 
         public BodyReadState GetBodyState(IBodyHandle bodyHandle)

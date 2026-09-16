@@ -3,10 +3,8 @@ using Fletch.Physics.Box2D.Factories;
 using Fletch.Physics.Box2D.Helpers;
 using Fletch.Physics.Box2D.Model.ResourceHandles;
 using Fletch.Physics.Box2D.Registries;
-using Fletch.Physics.Components;
 using Fletch.Physics.Model.Info.IO;
 using Fletch.Physics.Model.Info.Shapes;
-using System.Diagnostics;
 using System.Numerics;
 
 namespace Fletch.Physics.Box2D.Natives
@@ -28,6 +26,8 @@ namespace Fletch.Physics.Box2D.Natives
                     colliderHandle,
                     writeState
                     );
+
+                B2Shapes.b2Shape_SetDensity(colliderHandle.Id, 1f, true);
 
                 return;
             }
@@ -62,6 +62,8 @@ namespace Fletch.Physics.Box2D.Natives
                     FletchB2Converter.B2Filter(writeState.Filter)
                     );
             }
+
+            B2Shapes.b2Shape_SetDensity(colliderHandle.Id, 1f, true);
         }
 
         public void WriteStateToBody(B2BodyId b2BodyId, BodyWriteState writeState)

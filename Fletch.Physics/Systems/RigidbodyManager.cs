@@ -28,7 +28,6 @@ namespace Fletch.Physics.Systems
 
         public void WriteRigidBodies()
         {
-
             foreach (RigidBody rigidBody in rigidbodies.Items)
             {
                 if (!rigidBody.Initialized)

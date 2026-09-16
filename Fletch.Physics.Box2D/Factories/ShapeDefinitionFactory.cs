@@ -7,9 +7,11 @@ namespace Fletch.Physics.Box2D.Factories
 {
     internal static class ShapeDefinitionFactory
     {
-        public static B2ShapeDef CreateShapeDef(PhysicsMaterial material, bool isSensor, CollisionFilter filter)
+        public static B2ShapeDef CreateShapeDef(PhysicsMaterial material, bool isSensor, CollisionFilter filter, float mass)
         {
-            B2ShapeDef shapeDef = new B2ShapeDef();
+            B2ShapeDef shapeDef = B2Types.b2DefaultShapeDef();
+
+            shapeDef.density = mass;
 
             if (isSensor)
             {

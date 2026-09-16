@@ -28,6 +28,8 @@ namespace Fletch.Physics.Model.Info.IO
 
         public Vector2 Offset { get; }
 
+        public float Mass { get; }
+
         public float Rotation { get; } //TODO
 
         public bool IsSensor { get; } //TODO
@@ -37,6 +39,7 @@ namespace Fletch.Physics.Model.Info.IO
             ShapeData shape,
             CollisionFilter filter,
             Vector2 offset,
+            float mass,
             float rotation,
             bool isSensor)
         {
@@ -44,6 +47,7 @@ namespace Fletch.Physics.Model.Info.IO
             Shape = shape;
             Filter = filter;
             Offset = offset;
+            Mass = mass;
             Rotation = rotation;
             IsSensor = isSensor;
         }

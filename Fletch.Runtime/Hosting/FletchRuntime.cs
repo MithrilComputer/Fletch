@@ -82,7 +82,7 @@ namespace Fletch.Runtime.Hosting
 
         RigidBody rb;
 
-        RigidBody rb2;
+        //RigidBody rb2;
 
         //Testing
 
@@ -127,7 +127,7 @@ namespace Fletch.Runtime.Hosting
             SpriteRenderer wtwos = wallTwo.AddComponent<SpriteRenderer>();
             SpriteRenderer wthrees = wallThree.AddComponent<SpriteRenderer>();
 
-            rb2 = wallTwo.AddComponent<RigidBody>();
+            //rb2 = wallTwo.AddComponent<RigidBody>();
 
             rb = gameObject.AddComponent<RigidBody>();
 
@@ -144,8 +144,8 @@ namespace Fletch.Runtime.Hosting
 
             BoxCollider bc = rb.AddCollider<BoxCollider>();
 
-            if (bc == null)
-                throw new InvalidOperationException("Failed to create BoxCollider.");
+            //if (bc == null)
+            //throw new InvalidOperationException("Failed to create BoxCollider.");
 
             wallOne.AddComponent<AudioSource>().TryCreateSoundPlayer(Path.Combine(pathProvider.AssetFolderDirectory, "bloop.wav"), out SoundPlayer soundplayer);
 
@@ -214,7 +214,9 @@ namespace Fletch.Runtime.Hosting
 
             gameObject.Transform.LocalPosition = rb.CurrentPose.Position;
 
-            wallTwo.Transform.LocalPosition = rb.CurrentPose.Position;
+            Debug.Print($"{rb.CurrentPose.Position.X}, {rb.CurrentPose.Position.Y}");
+
+            //wallTwo.Transform.LocalPosition = rb.CurrentPose.Position;
 
             Vector2 moveAxisKey = new Vector2();
 

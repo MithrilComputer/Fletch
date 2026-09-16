@@ -230,7 +230,6 @@ namespace Fletch.Physics.Components
                 return;
 
             RigidBodyManager.OnApplyImpulse(this, impulse);
-
         }
 
         public void AddTorque(float torque) 
