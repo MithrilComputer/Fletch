@@ -275,7 +275,7 @@ namespace Fletch.Runtime.Hosting
 
             //gameObject.Transform.LocalPosition += moveAxisKey * moveSpeed * time.Delta;
 
-            rb.AddImpulse(greenMoveAxis * moveSpeed * time.Delta);
+            rb.AddImpulse(moveAxisKey * moveSpeed * time.Delta);
 
             wallOne.Transform.LocalPosition += greenMoveAxis * moveSpeed * time.Delta;
 

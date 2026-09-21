@@ -22,17 +22,16 @@ namespace Fletch.Platform.MonoGame
 
         private readonly MonoGamePlatformOptions options;
 
+        
         private TimeSpan accumulatedTime = TimeSpan.Zero;
 
         private TimeSpan fixedTotalTime = TimeSpan.Zero;
+
 
         private float frameDelta = 0f;
 
         private float alpha = 0f;
 
-        private ServiceProvider serviceProvider;
-
-        private readonly IPathProvider pathProvider;
 
         private readonly Func<IRuntime> runtimeFactory;
 
@@ -56,8 +55,6 @@ namespace Fletch.Platform.MonoGame
             this.runtimeFactory = runtimeFactory;
 
             this.renderingBackend = renderingBackend;
-
-            this.pathProvider = pathProvider;
 
             graphics = new GraphicsDeviceManager(this);
 
