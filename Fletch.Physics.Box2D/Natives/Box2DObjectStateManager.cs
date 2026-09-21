@@ -5,6 +5,7 @@ using Fletch.Physics.Box2D.Model.ResourceHandles;
 using Fletch.Physics.Box2D.Registries;
 using Fletch.Physics.Model.Info.IO;
 using Fletch.Physics.Model.Info.Shapes;
+using Fletch.Physics.Model.ResourceHandles;
 using System.Numerics;
 
 namespace Fletch.Physics.Box2D.Natives
@@ -113,7 +114,7 @@ namespace Fletch.Physics.Box2D.Natives
 
             B2BodyId bodyId = B2Shapes.b2Shape_GetBody(oldShapeId);
 
-            B2ShapeDef shapeDef = ShapeDefinitionFactory.CreateShapeDef(writeState.Material, writeState.IsSensor, writeState.Filter);
+            B2ShapeDef shapeDef = ShapeDefinitionFactory.CreateShapeDef(writeState.Material, writeState.IsSensor, writeState.Filter, writeState.Mass);
 
             B2ShapeId newShapeId = B2Shapes.b2CreatePolygonShape(bodyId, shapeDef, new B2Polygon()); //new B2Polygon() is a shape that will be replaced, it is a place holder.
 
@@ -158,6 +159,8 @@ namespace Fletch.Physics.Box2D.Natives
 
                 default: throw new NotImplementedException();
             }
+
+            B2Bodies.b2Body_ApplyMassFromShapes(B2Shapes.b2Shape_GetBody(shapeId));
         }
     }
 }

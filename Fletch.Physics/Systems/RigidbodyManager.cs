@@ -2,6 +2,7 @@
 using Fletch.Physics.Abstractions.Backends;
 using Fletch.Physics.Components;
 using Fletch.Physics.Helpers;
+using Fletch.Physics.Model;
 using Fletch.Physics.Model.Info.IO;
 using Fletch.Physics.Model.ResourceHandles;
 using System.Diagnostics;
@@ -32,7 +33,7 @@ namespace Fletch.Physics.Systems
             {
                 if (!rigidBody.Initialized)
                 {
-                    Debug.Print($"RigidBody initialized for GameObject: {rigidBody.GameObject.Name}");
+                    
                     continue;
                 }
 
@@ -55,7 +56,7 @@ namespace Fletch.Physics.Systems
             {
                 if (!rigidBody.Initialized)
                 {
-                    Debug.Print($"RigidBody initialized for GameObject: {rigidBody.GameObject.Name}");
+                    
                     continue;
                 }
 
@@ -88,8 +89,14 @@ namespace Fletch.Physics.Systems
 
         private void InitalizeRigidBody(RigidBody rigidbody)
         {
+            Vector2 pos = rigidbody.GameObject.Transform.WorldPosition;
+            float rot = rigidbody.GameObject.Transform.WorldRotation.Radians;
+
+            rigidbody.CurrentPose = new PhysicsPose(pos, rot);
+
             BodyWriteState writeState = PhysicsHelper.CreateBodyWriteState(rigidbody);
             IBodyHandle bodyHandle = physicsBackend.CreateBody(worldHandle, writeState);
+            
             rigidbody.Initialize(bodyHandle, this, physicsSystem);
         }
 

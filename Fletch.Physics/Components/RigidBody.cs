@@ -70,6 +70,8 @@ namespace Fletch.Physics.Components
             IsDirty = true;
             Initialized = true;
 
+
+
             this.physicsSystem = physicsSystem;
         }
 
@@ -94,6 +96,7 @@ namespace Fletch.Physics.Components
                     new RectangleData(new Vector2(1, 1)),
                     new CollisionFilter(CollisionCategory.All, CollisionCategory.All),
                     Vector2.Zero,
+                    1f,
                     0f,
                     false
                     );
@@ -107,6 +110,7 @@ namespace Fletch.Physics.Components
                     new CapsuleData(0.5f, 2f),
                     new CollisionFilter(CollisionCategory.All, CollisionCategory.All),
                     Vector2.Zero,
+                    1f,
                     0f,
                     false
                     );
@@ -120,6 +124,7 @@ namespace Fletch.Physics.Components
                     new CircleData(0.5f),
                     new CollisionFilter(CollisionCategory.All, CollisionCategory.All),
                     Vector2.Zero,
+                    1f,
                     0f,
                     false
                     );

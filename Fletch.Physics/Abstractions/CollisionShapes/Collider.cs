@@ -11,9 +11,13 @@ namespace Fletch.Physics.Abstractions.CollisionShapes
 
         public Vector2 Offset { get => offset; set => SetFieldAndDirty(ref offset, value); }
 
+        public float Mass { get => mass; set => SetFieldAndDirty(ref mass, value); }
+
         private PhysicsMaterial material;
 
         private Vector2 offset;
+
+        private float mass;
 
         internal bool IsDirty { get; private set; }
 

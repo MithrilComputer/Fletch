@@ -8,9 +8,9 @@ MonoGamePlatformOptions options = new MonoGamePlatformOptions
     Width = 1280,
     Height = 720,
     Title = "Fletch Sandbox",
-    VSync = false,
+    VSync = true,
     StartFullscreen = false,
-    FixedUpdatesPerSecond = 60,
+    FixedUpdatesPerSecond = 30,
     MaxFixedUpdatesPerFrame = 5
 };
 

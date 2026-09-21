@@ -4,11 +4,8 @@ using Fletch.Physics.Box2D.Factories;
 using Fletch.Physics.Box2D.Helpers;
 using Fletch.Physics.Box2D.Model.ResourceHandles;
 using Fletch.Physics.Box2D.Registries;
-using Fletch.Physics.Model;
 using Fletch.Physics.Model.Info.Collisions;
 using Fletch.Physics.Model.Info.IO;
-using Fletch.Physics.Model.Info.Masking.Collisions;
-using Fletch.Physics.Model.Info.Shapes;
 using Fletch.Physics.Model.ResourceHandles;
 using System.Diagnostics;
 using System.Numerics;
@@ -22,10 +19,6 @@ namespace Fletch.Physics.Box2D.Natives
         private readonly Box2DCollisionEventManager collisionEventManager;
 
         private readonly ColliderRegistry colliderRegistry;
-
-        B2WorldId worldsss;
-
-        B2BodyId bodieeee;
 
         public Box2DManager()
         {
@@ -47,15 +40,11 @@ namespace Fletch.Physics.Box2D.Natives
         {
             B2WorldDef worldDef = B2Types.b2DefaultWorldDef();
 
-            worldDef.gravity = new B2Vec2(gravity.X, -9.81f);
+            worldDef.gravity = new B2Vec2(gravity.X, 0.01f);
 
             worldDef.enableSleep = false;
 
             B2WorldId worldId = B2Worlds.b2CreateWorld(in worldDef);
-
-            worldsss = worldId;
-
-            Debug.Print("World Created");
 
             return new Box2DWorldHandle(worldId);
         }
@@ -67,13 +56,11 @@ namespace Fletch.Physics.Box2D.Natives
 
             B2BodyDef newBodyDef = B2Types.b2DefaultBodyDef();
 
-            newBodyDef.type = B2BodyType.b2_dynamicBody;
+            B2BodyId newBodyId = B2Bodies.b2CreateBody(b2dWorldHandle.Id, in newBodyDef);
 
-            bodieeee = B2Bodies.b2CreateBody(b2dWorldHandle.Id, in newBodyDef);
+            objectStateManager.WriteStateToBody(newBodyId, writeState);
 
-            Debug.Print("Body Created");
-
-            return new Box2DBodyHandle(bodieeee);
+            return new Box2DBodyHandle(newBodyId);
         }
 
         public IColliderHandle CreateCollider(IBodyHandle body, ColliderWriteState writeState)
@@ -83,7 +70,7 @@ namespace Fletch.Physics.Box2D.Natives
 
             B2ShapeDef newShapeDef = ShapeDefinitionFactory.CreateShapeDef(writeState.Material, writeState.IsSensor, writeState.Filter, writeState.Mass);
 
-            B2ShapeId newShapeId = B2Shapes.b2CreatePolygonShape(b2BodyHandle.Id, newShapeDef, new B2Polygon(/*placeholder*/));
+            B2ShapeId newShapeId = B2Shapes.b2CreatePolygonShape(b2BodyHandle.Id, newShapeDef, B2Geometries.b2MakeBox(1f, 1f));
 
             objectStateManager.SetShapeData(newShapeId, writeState.Shape, writeState.Rotation, writeState.Offset);
 
@@ -126,7 +113,7 @@ namespace Fletch.Physics.Box2D.Natives
             if (bodyHandle is not Box2DBodyHandle b2BodyHandle)
                 throw new Exception();
 
-            //objectStateManager.WriteStateToBody(b2BodyHandle.Id, writeState);
+            objectStateManager.WriteStateToBody(b2BodyHandle.Id, writeState);
         }
 
         public BodyReadState GetBodyState(IBodyHandle bodyHandle)
@@ -134,8 +121,7 @@ namespace Fletch.Physics.Box2D.Natives
             if (bodyHandle is not Box2DBodyHandle b2BodyHandle)
                 throw new Exception();
 
-            //Debug.Print($"x:{B2Bodies.b2Body_GetPosition(b2BodyHandle.Id).X}, y:{B2Bodies.b2Body_GetPosition(b2BodyHandle.Id).Y}");
-
+            Debug.Print($"x:{B2Bodies.b2Body_GetPosition(b2BodyHandle.Id).X}, y:{B2Bodies.b2Body_GetPosition(b2BodyHandle.Id).Y}");
 
             Vector2 position = 
                 FletchB2Converter.ConvertToFletch(

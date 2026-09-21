@@ -54,6 +54,7 @@ namespace Fletch.Physics.Helpers
                             CollisionCategory.All,
                             CollisionCategory.All),
                         colliderType.Offset,
+                        colliderType.Mass,
                         0f,
                         false);
 
@@ -66,6 +67,7 @@ namespace Fletch.Physics.Helpers
                             CollisionCategory.All,
                             CollisionCategory.All),
                         colliderType.Offset,
+                        colliderType.Mass,
                         0f,
                         false);
 
@@ -79,6 +81,7 @@ namespace Fletch.Physics.Helpers
                             CollisionCategory.All,
                             CollisionCategory.All),
                         colliderType.Offset,
+                        colliderType.Mass,
                         0f,
                         false);
 
