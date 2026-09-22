@@ -83,10 +83,6 @@ namespace Fletch.Runtime.Hosting
 
         RigidBody rb;
 
-        //RigidBody rb2;
-
-        //Testing
-
         public FletchRuntime(IPlatformContext platformContext, ISceneFactory sceneFactory, ISubSystemFactory subSystemFactory)
         {
             window = platformContext.Window;
