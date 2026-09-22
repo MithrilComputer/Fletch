@@ -112,6 +112,23 @@ namespace Fletch.Core.Math.Geometry
         }
 
         /// <summary>
+        /// Returns the shortest signed angle difference in radians.
+        /// </summary>
+        public static float DeltaRadians(float fromRadians, float toRadians)
+        {
+            return WrapRadiansMinusPiToPlusPi(toRadians - fromRadians);
+        }
+
+        /// <summary>
+        /// Linearly interpolates between two angles using the shortest path.
+        /// </summary>
+        public static float LerpRadians(float fromRadians, float toRadians, float alpha)
+        {
+            return WrapRadiansMinusPiToPlusPi(
+                fromRadians + DeltaRadians(fromRadians, toRadians) * alpha);
+        }
+
+        /// <summary>
         /// Wraps degrees into the range -180 to +180.
         /// </summary>
         private static float WrapDegreesMinus180ToPlus180(float degrees)

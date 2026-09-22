@@ -1,4 +1,5 @@
 ﻿using Fletch.Core.Components.Update;
+using Fletch.Core.Math.Geometry;
 using Fletch.Core.Time;
 using Fletch.Engine.Components;
 using Fletch.Engine.Hierarchy;
@@ -9,7 +10,6 @@ using Fletch.Physics.Components;
 using Fletch.Rendering.Components;
 using Fletch.Rendering.Model;
 using Fletch.Runtime.Model.Interpolation;
-using System.Diagnostics;
 using System.Numerics;
 
 namespace Fletch.Runtime.Systems
@@ -46,7 +46,7 @@ namespace Fletch.Runtime.Systems
                             rigidBody.CurrentPose.Position,
                             frameTime.Alpha);
 
-                        float rotation = float.Lerp(
+                        float rotation = Rotation.LerpRadians(
                             rigidBody.PreviousPose.Rotation,
                             rigidBody.CurrentPose.Rotation,
                             frameTime.Alpha);
