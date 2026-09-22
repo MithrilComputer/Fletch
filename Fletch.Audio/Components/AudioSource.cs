@@ -1,6 +1,7 @@
 ﻿using Fletch.Audio.Model;
 using Fletch.Audio.Systems;
 using Fletch.Engine.Components;
+using Fletch.Engine.Hierarchy;
 
 namespace Fletch.Audio.Components
 {
@@ -18,7 +19,7 @@ namespace Fletch.Audio.Components
 
         public IReadOnlyList<SoundPlayer> SoundPlayers => soundPlayers;
 
-        internal AudioSource() { }
+        public AudioSource(GameObject gameObject) : base(gameObject) { }
 
         internal void AssignAudioManager(AudioManagementSystem? audioManagementSystem)
         {

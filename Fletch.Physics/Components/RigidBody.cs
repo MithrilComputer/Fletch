@@ -1,6 +1,7 @@
 ﻿using Fletch.Core.Time;
 using Fletch.Engine.Components;
 using Fletch.Engine.Components.Updateable;
+using Fletch.Engine.Hierarchy;
 using Fletch.Engine.Model;
 using Fletch.Physics.Abstractions.CollisionShapes;
 using Fletch.Physics.Components.CollisionShapes;
@@ -23,6 +24,9 @@ namespace Fletch.Physics.Components
     {
         internal bool IsDirty { get; private set; }
 
+        public int PoseVersion { get; internal set; } //Temp
+
+
         internal IBodyHandle? BodyHandle { get; private set; }
 
         internal RigidBodyManager? RigidBodyManager { get; private set; }
@@ -33,7 +37,6 @@ namespace Fletch.Physics.Components
 
         internal PhysicsPose PreviousPose { get; set; } = new PhysicsPose(Vector2.Zero, 0f);
 
-        private readonly TrackedSet<Collider> colliders = new TrackedSet<Collider>();
 
         private float mass = 1f;
 
@@ -58,9 +61,12 @@ namespace Fletch.Physics.Components
 
         private bool lockY;
 
+
         private PhysicsMode physicsMode = PhysicsMode.Dynamic;
 
         private PhysicsSystem physicsSystem;
+
+        public RigidBody(GameObject gameObject) : base(gameObject) { }
 
         internal void Initialize(IBodyHandle bodyHandle, RigidBodyManager rigidBodyManager, PhysicsSystem physicsSystem)
         {
@@ -94,7 +100,7 @@ namespace Fletch.Physics.Components
                 writeState = new ColliderWriteState(
                     new PhysicsMaterial(),
                     new RectangleData(new Vector2(1, 1)),
-                    new CollisionFilter(CollisionCategory.All, CollisionCategory.All),
+                    new CollisionFilter(CollisionCategory.Particle, CollisionCategory.Particle),
                     Vector2.Zero,
                     1f,
                     0f,
@@ -108,7 +114,7 @@ namespace Fletch.Physics.Components
                 writeState = new ColliderWriteState(
                     new PhysicsMaterial(),
                     new CapsuleData(0.5f, 2f),
-                    new CollisionFilter(CollisionCategory.All, CollisionCategory.All),
+                    new CollisionFilter(CollisionCategory.Particle, CollisionCategory.Particle),
                     Vector2.Zero,
                     1f,
                     0f,
@@ -122,7 +128,7 @@ namespace Fletch.Physics.Components
                 writeState = new ColliderWriteState(
                     new PhysicsMaterial(),
                     new CircleData(0.5f),
-                    new CollisionFilter(CollisionCategory.All, CollisionCategory.All),
+                    new CollisionFilter(CollisionCategory.Particle, CollisionCategory.Particle),
                     Vector2.Zero,
                     1f,
                     0f,

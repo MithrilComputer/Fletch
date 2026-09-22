@@ -12,7 +12,7 @@ namespace Fletch.Engine.Hierarchy
 
         public uint ID { get; internal set; }
 
-        public Transform Transform { get; }
+        public Transform Transform { get; } = new Transform();
 
         // TODO At some point convert this into a Dictionary<typeof(Component), list<Component>> for faster lookups
         private readonly List<GameObjectComponent> components = new List<GameObjectComponent>();
@@ -51,11 +51,9 @@ namespace Fletch.Engine.Hierarchy
                 return GetComponent<T>();
             }
 
-            GameObjectComponent component = componentFactory.CreateNewComponent<T>();
+            GameObjectComponent component = componentFactory.CreateNewComponent<T>(this);
 
             components.Add(component);
-
-            component.OnAdded(this);
 
             ComponentChanged?.Invoke(component, ComponentChangeType.Added);
 

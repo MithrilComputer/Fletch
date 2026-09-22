@@ -28,7 +28,7 @@ namespace Fletch.Physics.Box2D.Natives
                     writeState
                     );
 
-                B2Shapes.b2Shape_SetDensity(colliderHandle.Id, 1f, true);
+                B2Shapes.b2Shape_SetDensity(colliderHandle.Id, writeState.Mass, true);
 
                 return;
             }
@@ -64,7 +64,7 @@ namespace Fletch.Physics.Box2D.Natives
                     );
             }
 
-            B2Shapes.b2Shape_SetDensity(colliderHandle.Id, 1f, true);
+            B2Shapes.b2Shape_SetDensity(colliderHandle.Id, writeState.Mass, true);
         }
 
         public void WriteStateToBody(B2BodyId b2BodyId, BodyWriteState writeState)

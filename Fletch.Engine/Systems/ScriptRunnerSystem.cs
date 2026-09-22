@@ -48,7 +48,7 @@ namespace Fletch.Engine.Systems
             }
         }
 
-        public void Update(float deltaTime)
+        public void Update(FrameTime deltaTime)
         {
 
             FlushPendingAddsAndRemoves();

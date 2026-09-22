@@ -5,7 +5,7 @@
         public float Delta { get; }
         public TimeSpan Total { get; }
 
-        public float? Alpha { get; }
+        public float Alpha { get; } = 0f;
 
         public FrameTime(float delta, TimeSpan total)
         {

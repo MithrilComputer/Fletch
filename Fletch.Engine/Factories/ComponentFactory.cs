@@ -1,5 +1,6 @@
 ﻿using Fletch.Engine.Abstractions.Factories;
 using Fletch.Engine.Components;
+using Fletch.Engine.Hierarchy;
 using System.Reflection;
 
 namespace Fletch.Engine.Factories
@@ -13,7 +14,7 @@ namespace Fletch.Engine.Factories
             this.serviceProvider = serviceProvider;
         }
 
-        public GameObjectComponent CreateNewComponent<T>() where T : GameObjectComponent
+        public GameObjectComponent CreateNewComponent<T>(GameObject gameObject) where T : GameObjectComponent
         {
             Type componentType = typeof(T);
 
@@ -33,6 +34,12 @@ namespace Fletch.Engine.Factories
                 for (int index = 0; index < parameters.Length; index++)
                 {
                     ParameterInfo parameter = parameters[index];
+
+                    if (parameter.ParameterType == typeof(GameObject))
+                    {
+                        arguments[index] = gameObject;
+                        continue;
+                    }
 
                     object? service = serviceProvider.GetService(parameter.ParameterType);
 

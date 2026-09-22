@@ -29,6 +29,7 @@ using Fletch.Runtime.Abstractions.Hosting;
 using Fletch.Runtime.Hosting;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Xna.Framework;
+using Fletch.Runtime.Systems;
 
 namespace Fletch.Platform.MonoGame
 {
@@ -82,6 +83,7 @@ namespace Fletch.Platform.MonoGame
             // Runtime
             services.AddSingleton<IRuntime, FletchRuntime>();
             services.AddSingleton<Func<IRuntime>>(sp => () => sp.GetRequiredService<IRuntime>());
+            services.AddSingleton<PhysicsInterpolator>();
 
             // Engine Factories
             services.AddSingleton<IGameObjectFactory, GameObjectFactory>();

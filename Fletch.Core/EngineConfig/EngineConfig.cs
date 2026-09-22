@@ -1,5 +1,6 @@
 ﻿using Fletch.Core.Colors;
 using Fletch.Core.Math.Geometry;
+using System.Numerics;
 
 namespace Fletch.Core.EngineConfig
 {
@@ -14,5 +15,7 @@ namespace Fletch.Core.EngineConfig
         public static int AudioSourcePoolSize { get; } = 128;
 
         public static int PhysicsSubStepCount { get; } = 4;
+
+        public static Vector2 Gravity { get; } = new Vector2(0f, -0.2f);
     }
 }

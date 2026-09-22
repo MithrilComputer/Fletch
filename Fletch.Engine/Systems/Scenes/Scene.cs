@@ -36,7 +36,7 @@ namespace Fletch.Engine.Scenes
 
         public void Update(FrameTime frameTime)
         {
-            SystemManager.UpdateSystems(frameTime.Delta);
+            SystemManager.UpdateSystems(frameTime);
         }
 
         public void FixedUpdate(FixedTimeStep fixedTime)

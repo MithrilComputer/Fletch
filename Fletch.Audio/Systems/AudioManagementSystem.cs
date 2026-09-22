@@ -6,6 +6,7 @@ using Fletch.Audio.Model.SoundListenerCommands;
 using Fletch.Audio.Model.SoundPlayerCommands;
 using Fletch.Audio.Model.SoundPlayerCommands.Source;
 using Fletch.Core.Components.Update;
+using Fletch.Core.Time;
 using Fletch.Engine.Components;
 using Fletch.Engine.Model;
 using Fletch.Engine.Scenes;
@@ -127,7 +128,7 @@ namespace Fletch.Audio.Systems
         /// Updates audio state.
         /// </summary>
         /// <param name="deltaTime">Frame delta time.</param>
-        public void Update(float deltaTime)
+        public void Update(FrameTime deltaTime)
         {
             if (disposed)
             {

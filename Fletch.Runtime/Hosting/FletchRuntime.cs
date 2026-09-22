@@ -22,6 +22,7 @@ using Fletch.Rendering.Abstractions.Backends;
 using Fletch.Rendering.Components;
 using Fletch.Rendering.Systems;
 using Fletch.Runtime.Abstractions.Hosting;
+using Fletch.Runtime.Systems;
 using System.Diagnostics;
 using System.Numerics;
 
@@ -93,6 +94,7 @@ namespace Fletch.Runtime.Hosting
             pathProvider = platformContext.PathProvider;
             renderingBackend = platformContext.RenderingBackend;
             inputBackend = platformContext.InputBackend;
+            
 
             this.sceneFactory = sceneFactory;
             this.subSystemFactory = subSystemFactory;
@@ -110,7 +112,11 @@ namespace Fletch.Runtime.Hosting
 
             testScene.SystemManager.AddSubSystem<WorldRenderingSystem>();
 
+            testScene.SystemManager.AddSubSystem<PhysicsInterpolator>();
+
             gameObject = testScene.CreateGameObject();
+
+            gameObject.Transform.LocalPosition = new Vector2(3f, 0f);
 
             wallOne = testScene.CreateGameObject();
             wallTwo = testScene.CreateGameObject();
@@ -137,7 +143,7 @@ namespace Fletch.Runtime.Hosting
 
             rb.Mass = 1f;
 
-
+            
             rb.LockX = false;
 
             rb.LockY = false;
@@ -159,16 +165,6 @@ namespace Fletch.Runtime.Hosting
 
             camera.BlendMode = Rendering.Model.BlendMode.Alpha;
 
-            /* testing
-              
-            for (int i = 0; i < 10000; i++)
-            {
-                GameObject objjec = testScene.CreateGameObject();
-                SpriteRenderer sprited = objjec.AddComponent<SpriteRenderer>();
-                sprited.VisualResource.Texture = renderingBackend.TextureFactory.CreateSolidColor(1, 1, Color.Green);
-            }
-            */
-
             camera.SamplerMode = Rendering.Model.SamplerMode.Point;
 
             sprite.VisualResource.Texture = renderingBackend.TextureFactory.Load(Path.Combine(pathProvider.AssetFolderDirectory, "Rat.png"));
@@ -176,7 +172,11 @@ namespace Fletch.Runtime.Hosting
             wtwos.VisualResource.Texture = renderingBackend.TextureFactory.CreateSolidColor(1, 10, Color.Black);
             wthrees.VisualResource.Texture = renderingBackend.TextureFactory.CreateSolidColor(10, 1, Color.White);
 
-            wones.VisualResource.PixelPerWorldUnit = 3;
+            RigidBody rbbb = wallOne.AddComponent<RigidBody>();
+
+            rbbb.AddCollider<BoxCollider>();
+
+            wones.VisualResource.PixelPerWorldUnit = 1;
 
             wtwos.VisualResource.PixelPerWorldUnit = 3;
 
@@ -213,8 +213,6 @@ namespace Fletch.Runtime.Hosting
             inputBackend.UpdateBackend();
 
             gameObject.Transform.LocalPosition = rb.CurrentPose.Position;
-
-            Debug.Print($"{rb.CurrentPose.Position.X}, {rb.CurrentPose.Position.Y}");
 
             //wallTwo.Transform.LocalPosition = rb.CurrentPose.Position;
 
@@ -295,10 +293,10 @@ namespace Fletch.Runtime.Hosting
             timeKeep += time.Delta;
             frames++;
 
-            if (timeKeep >= 1)
+            if (timeKeep >= 1f)
             {
                 timeKeep = 0;
-                //Debug.WriteLine($"FPS: {frames}");
+                Debug.WriteLine($"FPS: {frames}");
                 frames = 0;
             }
 

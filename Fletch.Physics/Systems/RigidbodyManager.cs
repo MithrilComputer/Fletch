@@ -63,11 +63,14 @@ namespace Fletch.Physics.Systems
                 if (!rigidBody.IsEnabled)
                     continue;
 
-                rigidBody.PreviousPose = rigidBody.CurrentPose;
+                rigidBody.PreviousPose.Position = rigidBody.CurrentPose.Position;
+                rigidBody.PreviousPose.Rotation = rigidBody.CurrentPose.Rotation;
 
                 BodyReadState readState = physicsBackend.GetBodyState(rigidBody.BodyHandle);
 
                 PhysicsHelper.ApplyReadStateToRigidBody(rigidBody, readState);
+
+                rigidBody.PoseVersion++;
             }
         }
 

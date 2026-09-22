@@ -31,7 +31,7 @@ namespace Fletch.Engine.Systems
             instance.AttachToScene(loadedScene);
         }
 
-        public void UpdateSystems(float deltaTime)
+        public void UpdateSystems(FrameTime deltaTime)
         {
             for (int i = 0; i < systemEntries.Count; i++)
             {

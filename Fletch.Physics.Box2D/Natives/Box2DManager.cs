@@ -40,7 +40,7 @@ namespace Fletch.Physics.Box2D.Natives
         {
             B2WorldDef worldDef = B2Types.b2DefaultWorldDef();
 
-            worldDef.gravity = new B2Vec2(gravity.X, 0.01f);
+            worldDef.gravity = new B2Vec2(gravity.X, gravity.Y);
 
             worldDef.enableSleep = false;
 
@@ -120,8 +120,6 @@ namespace Fletch.Physics.Box2D.Natives
         {
             if (bodyHandle is not Box2DBodyHandle b2BodyHandle)
                 throw new Exception();
-
-            Debug.Print($"x:{B2Bodies.b2Body_GetPosition(b2BodyHandle.Id).X}, y:{B2Bodies.b2Body_GetPosition(b2BodyHandle.Id).Y}");
 
             Vector2 position = 
                 FletchB2Converter.ConvertToFletch(

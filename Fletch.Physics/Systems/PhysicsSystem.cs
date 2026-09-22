@@ -1,4 +1,5 @@
-﻿using Fletch.Core.Time;
+﻿using Fletch.Core.EngineConfig;
+using Fletch.Core.Time;
 using Fletch.Engine.Components;
 using Fletch.Engine.Components.Updateable;
 using Fletch.Engine.Model;
@@ -29,7 +30,7 @@ namespace Fletch.Physics.Systems
         {
             this.backend = backend;
 
-            worldHandle = backend.CreateWorld(new Vector2(0, -9.81f));
+            worldHandle = backend.CreateWorld(EngineConfig.Gravity);
 
             colliderRigidbodyMap = new ColliderRigidbodyMap();
 

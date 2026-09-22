@@ -111,7 +111,7 @@ namespace Fletch.Rendering.Systems
 
                 foreach (SpriteRenderer sprite in spriteRenderers.Items)
                 {
-                    if (!sprite.IsEnabled || sprite.VisualResource.Texture == null)
+                    if (!sprite.IsEnabled || sprite.VisualResource.Texture == null || sprite.RenderPose == null)
                         continue;
 
                     if (!IsSpriteVisible(visibleArea, sprite))
@@ -125,8 +125,8 @@ namespace Fletch.Rendering.Systems
                         sprite.ScaleOffset *
                         worldUnitsPerPixelForThisSprite;
 
-                    Vector2 drawPosition = sprite.GameObject.Transform.WorldPosition + sprite.PositionOffset;
-                    float drawRotation = sprite.GameObject.Transform.WorldRotation.Radians + sprite.RotationOffset.Radians;
+                    Vector2 drawPosition = sprite.RenderPose.Position + sprite.PositionOffset;
+                    float drawRotation = sprite.RenderPose.Rotation + sprite.RotationOffset.Radians;
 
                     renderingBackend.SpriteBatcher.Draw(
                         texture: sprite.VisualResource.Texture,
@@ -163,7 +163,7 @@ namespace Fletch.Rendering.Systems
             float widthUnits = pixelWidth / importPixelsPerUnit;
             float heightUnits = pixelHeight / importPixelsPerUnit;
 
-            Vector2 worldPosition = sprite.GameObject.Transform.WorldPosition;
+            Vector2 worldPosition = sprite.RenderPose.Position;
             Vector2 worldScale = sprite.GameObject.Transform.WorldScale;
 
             Vector2 finalScale = worldScale * sprite.ScaleOffset;
@@ -177,7 +177,7 @@ namespace Fletch.Rendering.Systems
             float originY = scaledHeight * sprite.Origin.Y;
 
             float rotation =
-                sprite.GameObject.Transform.WorldRotation.Radians +
+                sprite.RenderPose.Rotation +
                 sprite.RotationOffset.Radians;
 
             if (MathF.Abs(rotation) > 0.0001f)

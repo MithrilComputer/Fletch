@@ -1,10 +1,13 @@
 ﻿using Fletch.Engine.Components;
+using Fletch.Engine.Hierarchy;
 
 namespace Fletch.Audio.Components
 {
     public sealed class AudioListener : GameObjectComponent
     {
         //TODO Add a dirty bool for others to use for updating.
+
+        public AudioListener(GameObject gameObject) : base(gameObject) { }
 
         public float Gain { get; set; } = 1f;
 

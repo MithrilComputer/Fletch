@@ -25,5 +25,7 @@ namespace Fletch.Rendering.Components
         public BlendMode BlendMode { get; set; } = BlendMode.Alpha;
 
         public SamplerMode SamplerMode { get; set; } = SamplerMode.Linear;
+
+        public Camera2D(GameObject gameObject) : base(gameObject) { }
     }
 }

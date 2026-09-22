@@ -7,19 +7,12 @@ namespace Fletch.Engine.Components
     {
         public bool IsEnabled { get; set; } = true;
 
-        public GameObject GameObject { get; private set; } = null!;
+        public GameObject GameObject { get; private set; } 
 
-        protected Transform Transform => GameObject?.Transform ?? throw new InvalidOperationException("Component is not attached to a GameObject.");
+        protected Transform Transform => GameObject.Transform;
 
-        internal virtual void OnAdded(GameObject gameObject)
+        public GameObjectComponent(GameObject gameObject)
         {
-            if (gameObject == null)
-                throw new ArgumentNullException(nameof(gameObject));
-
-            if (GameObject != null)
-                throw new InvalidOperationException(
-                    $"{GetType().Name} is already attached to a GameObject.");
-
             GameObject = gameObject;
         }
 
