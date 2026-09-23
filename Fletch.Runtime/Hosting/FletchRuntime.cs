@@ -156,7 +156,7 @@ namespace Fletch.Runtime.Hosting
 
             rb.UseInterpolation = true;
 
-            int objectCount = 7000;
+            int objectCount = 2000;
 
             visuals = new SpriteRenderer[objectCount];
             bodies = new RigidBody[objectCount];
@@ -253,12 +253,18 @@ namespace Fletch.Runtime.Hosting
 
             inputBackend.UpdateBackend();
 
+            Vector3 colorFinal = Vector3.Zero;
+
             for (int i = 0; i < visuals.Length; i++)
             {
-                float scaleMax = 6f;
+                float scaleMax = 5f;
 
-                Vector3 colorA = new Vector3(0, 0, 0);
-                Vector3 colorB = new Vector3(255, 255, 255);
+                Vector3 colorA = new Vector3(0, 0, 255);
+                Vector3 colorB = new Vector3(0, 255, 0);
+                Vector3 colorC = new Vector3(255, 0, 0);
+
+                Vector3 ColorSetA;
+                Vector3 ColorSetB;
 
                 float t = float.Clamp(
                     bodies[i].linearVelocity.Length() / scaleMax,
@@ -266,7 +272,22 @@ namespace Fletch.Runtime.Hosting
                     1f
                 );
 
-                Vector3 colorFinal = Vector3.Lerp(colorA, colorB, t);
+                if(t < 0.5)
+                {
+                    ColorSetA = colorA;
+                    ColorSetB = colorB;
+
+                    t *= 2f;
+                } 
+                else
+                {
+                    ColorSetA = colorB;
+                    ColorSetB = colorC;
+
+                    t = (t - 0.5f) * 2f;
+                }
+
+                colorFinal = Vector3.Lerp(ColorSetA, ColorSetB, t);
 
                 Color color = new Color(
                     (byte)colorFinal.X,
@@ -276,7 +297,7 @@ namespace Fletch.Runtime.Hosting
 
                 visuals[i].Color = color;
 
-                bodies[i].AddImpulse(-bodies[i].CurrentPose.Position * 0.0005f * time.Delta);
+                bodies[i].AddImpulse((-bodies[i].CurrentPose.Position * 0.005f * time.Delta) + new Vector2((float)(random.NextDouble() - 0.5) * 2f * time.Delta, (float)(random.NextDouble() - 0.5)) * 2f * time.Delta);
             }
 
             gameObject.Transform.LocalPosition = rb.CurrentPose.Position;
@@ -360,7 +381,7 @@ namespace Fletch.Runtime.Hosting
 
             wallOne.Transform.LocalPosition += greenMoveAxis * moveSpeed * time.Delta;
 
-            cameraObject.Transform.LocalPosition = gameObject.Transform.LocalPosition;
+            //cameraObject.Transform.LocalPosition = gameObject.Transform.LocalPosition;
 
             /*Vector2 atb = gameObject.Transform.LocalPosition - cameraObject.Transform.LocalPosition;
 
@@ -382,7 +403,7 @@ namespace Fletch.Runtime.Hosting
             if (timeKeep >= 1f)
             {
                 timeKeep = 0;
-                Debug.WriteLine($"FPS: {frames} Speed: {rb.LinearVelocity}");
+                Debug.WriteLine($"FPS: {frames} Speed: {rb.LinearVelocity}, Color: r{colorFinal.X} g{colorFinal.Y} b {colorFinal.Z}");
                 frames = 0;
             }
 
