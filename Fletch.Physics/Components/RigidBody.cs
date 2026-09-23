@@ -24,9 +24,6 @@ namespace Fletch.Physics.Components
     {
         internal bool IsDirty { get; private set; }
 
-        public int PoseVersion { get; internal set; } //Temp
-
-
         internal IBodyHandle? BodyHandle { get; private set; }
 
         internal RigidBodyManager? RigidBodyManager { get; private set; }
@@ -37,8 +34,6 @@ namespace Fletch.Physics.Components
 
         internal PhysicsPose PreviousPose { get; set; } = new PhysicsPose(Vector2.Zero, 0f);
 
-
-        private float mass = 1f;
 
         private float gravityScale = 1f;
 
@@ -76,8 +71,6 @@ namespace Fletch.Physics.Components
             IsDirty = true;
             Initialized = true;
 
-
-
             this.physicsSystem = physicsSystem;
         }
 
@@ -100,7 +93,7 @@ namespace Fletch.Physics.Components
                 writeState = new ColliderWriteState(
                     new PhysicsMaterial(),
                     new RectangleData(new Vector2(1, 1)),
-                    new CollisionFilter(CollisionCategory.Particle, CollisionCategory.Particle),
+                    new CollisionFilter(CollisionCategory.All, CollisionCategory.All),
                     Vector2.Zero,
                     1f,
                     0f,
@@ -114,7 +107,7 @@ namespace Fletch.Physics.Components
                 writeState = new ColliderWriteState(
                     new PhysicsMaterial(),
                     new CapsuleData(0.5f, 2f),
-                    new CollisionFilter(CollisionCategory.Particle, CollisionCategory.Particle),
+                    new CollisionFilter(CollisionCategory.All, CollisionCategory.All),
                     Vector2.Zero,
                     1f,
                     0f,
@@ -128,7 +121,7 @@ namespace Fletch.Physics.Components
                 writeState = new ColliderWriteState(
                     new PhysicsMaterial(),
                     new CircleData(0.5f),
-                    new CollisionFilter(CollisionCategory.Particle, CollisionCategory.Particle),
+                    new CollisionFilter(CollisionCategory.All, CollisionCategory.All),
                     Vector2.Zero,
                     1f,
                     0f,
@@ -144,12 +137,6 @@ namespace Fletch.Physics.Components
             }
 
             return (T)collider;
-        }
-
-        public float Mass
-        {
-            get => mass;
-            set => SetFieldAndDirty(ref mass, value);
         }
 
         public float GravityScale

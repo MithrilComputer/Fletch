@@ -33,7 +33,7 @@ namespace Fletch.Physics.Systems
             {
                 if (!rigidBody.Initialized)
                 {
-                    
+                    InitializeRigidBody(rigidBody);
                     continue;
                 }
 
@@ -56,7 +56,7 @@ namespace Fletch.Physics.Systems
             {
                 if (!rigidBody.Initialized)
                 {
-                    
+                    InitializeRigidBody(rigidBody);
                     continue;
                 }
 
@@ -69,8 +69,6 @@ namespace Fletch.Physics.Systems
                 BodyReadState readState = physicsBackend.GetBodyState(rigidBody.BodyHandle);
 
                 PhysicsHelper.ApplyReadStateToRigidBody(rigidBody, readState);
-
-                rigidBody.PoseVersion++;
             }
         }
 
@@ -82,7 +80,7 @@ namespace Fletch.Physics.Systems
         public void AddRigidBody(RigidBody rigidbody)
         {
             rigidbodies.MarkToAdd(rigidbody);
-            InitalizeRigidBody(rigidbody);
+            InitializeRigidBody(rigidbody);
         }
 
         public void RemoveRigidBody(RigidBody rigidbody)
@@ -90,7 +88,7 @@ namespace Fletch.Physics.Systems
             rigidbodies.MarkToRemove(rigidbody);
         }
 
-        private void InitalizeRigidBody(RigidBody rigidbody)
+        private void InitializeRigidBody(RigidBody rigidbody)
         {
             Vector2 pos = rigidbody.GameObject.Transform.WorldPosition;
             float rot = rigidbody.GameObject.Transform.WorldRotation.Radians;

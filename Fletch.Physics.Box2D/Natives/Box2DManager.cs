@@ -44,6 +44,8 @@ namespace Fletch.Physics.Box2D.Natives
 
             worldDef.enableSleep = false;
 
+            worldDef.maximumLinearSpeed = 5000f;
+
             B2WorldId worldId = B2Worlds.b2CreateWorld(in worldDef);
 
             return new Box2DWorldHandle(worldId);

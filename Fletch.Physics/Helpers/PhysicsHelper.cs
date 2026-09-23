@@ -23,7 +23,6 @@ namespace Fletch.Physics.Helpers
                 rigidBody.LinearDrag,
                 rigidBody.AngularDrag,
                 rigidBody.FixedRotation,
-                rigidBody.Mass,
                 rigidBody.LockX,
                 rigidBody.LockY,
                 rigidBody.IsEnabled,

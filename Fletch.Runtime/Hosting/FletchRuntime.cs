@@ -19,6 +19,7 @@ using Fletch.Platform.Abstractions.Lifecycle;
 using Fletch.Platform.Abstractions.Paths;
 using Fletch.Platform.Abstractions.Window;
 using Fletch.Rendering.Abstractions.Backends;
+using Fletch.Rendering.Abstractions.Resources;
 using Fletch.Rendering.Components;
 using Fletch.Rendering.Systems;
 using Fletch.Runtime.Abstractions.Hosting;
@@ -47,6 +48,12 @@ namespace Fletch.Runtime.Hosting
 
         private readonly ISubSystemFactory subSystemFactory;
 
+        
+        private SpriteRenderer[] visuals;
+
+        private RigidBody[] bodies;
+
+
         public IPlatformContext Platform => throw new NotImplementedException();
 
         public bool IsInitialized { get; private set; }
@@ -71,9 +78,11 @@ namespace Fletch.Runtime.Hosting
 
         private IKeyboard keyboard;
 
+        private IMouse mouse;
+
         private float moveSpeed = 5f;
 
-        private float cameraSmooth = 2f;
+        private float cameraSmooth = 10f;
 
         private float timeKeep = 0f;
 
@@ -112,7 +121,7 @@ namespace Fletch.Runtime.Hosting
 
             gameObject = testScene.CreateGameObject();
 
-            gameObject.Transform.LocalPosition = new Vector2(3f, 0f);
+            gameObject.Transform.LocalPosition = new Vector2(0f, 0f);
 
             wallOne = testScene.CreateGameObject();
             wallTwo = testScene.CreateGameObject();
@@ -133,18 +142,56 @@ namespace Fletch.Runtime.Hosting
 
             rb = gameObject.AddComponent<RigidBody>();
 
-            rb.PhysicsMode = PhysicsMode.Dynamic;
+            BoxCollider bc = rb.AddCollider<BoxCollider>();
+
+            rb.PhysicsMode = PhysicsMode.Static;
 
             rb.GravityScale = 1f;
-
-            rb.Mass = 1f;
-
             
             rb.LockX = false;
 
             rb.LockY = false;
 
-            BoxCollider bc = rb.AddCollider<BoxCollider>();
+            rb.FixedRotation = false;
+
+            rb.UseInterpolation = true;
+
+            int objectCount = 7000;
+
+            visuals = new SpriteRenderer[objectCount];
+            bodies = new RigidBody[objectCount];
+
+            for (int i = 0; i < objectCount; i++)
+            {
+                GameObject gameObjectArrayUnit = testScene.CreateGameObject();
+
+                
+                if(random.NextDouble() < 0.5f)
+                {
+                    gameObjectArrayUnit.Transform.LocalPosition = new Vector2((((float)random.NextDouble() * 100) - 50) + 500, (((float)random.NextDouble() * 100) - 50));
+                } else
+                {
+                    gameObjectArrayUnit.Transform.LocalPosition = new Vector2((((float)random.NextDouble() * 100) - 50) - 500, (((float)random.NextDouble() * 100) - 50));
+                }
+
+                SpriteRenderer spriteUnit = gameObjectArrayUnit.AddComponent<SpriteRenderer>();
+
+                visuals[i] = spriteUnit;
+
+                spriteUnit.VisualResource.Texture = renderingBackend.TextureFactory.CreateSolidColor(2, 2, Color.White);
+
+                spriteUnit.VisualResource.PixelPerWorldUnit = 1;
+
+                RigidBody rbu = gameObjectArrayUnit.AddComponent<RigidBody>();
+
+                bodies[i] = rbu;
+
+                BoxCollider bcu = rbu.AddCollider<BoxCollider>();
+
+                bcu.Mass = 0.01f;
+                bcu.Width = 0.5f;
+                bcu.Height = 0.5f;
+            }
 
             //if (bc == null)
             //throw new InvalidOperationException("Failed to create BoxCollider.");
@@ -168,10 +215,6 @@ namespace Fletch.Runtime.Hosting
             wtwos.VisualResource.Texture = renderingBackend.TextureFactory.CreateSolidColor(1, 10, Color.Black);
             wthrees.VisualResource.Texture = renderingBackend.TextureFactory.CreateSolidColor(10, 1, Color.White);
 
-            RigidBody rbbb = wallOne.AddComponent<RigidBody>();
-
-            rbbb.AddCollider<BoxCollider>();
-
             wones.VisualResource.PixelPerWorldUnit = 1;
 
             wtwos.VisualResource.PixelPerWorldUnit = 3;
@@ -185,6 +228,8 @@ namespace Fletch.Runtime.Hosting
             gamepad = inputBackend.GamepadSlots[0];
 
             keyboard = inputBackend.KeyboardDevice;
+
+            mouse = inputBackend.MouseDevice;
 
             IsInitialized = true;
         }
@@ -207,6 +252,32 @@ namespace Fletch.Runtime.Hosting
                 return;
 
             inputBackend.UpdateBackend();
+
+            for (int i = 0; i < visuals.Length; i++)
+            {
+                float scaleMax = 6f;
+
+                Vector3 colorA = new Vector3(0, 0, 0);
+                Vector3 colorB = new Vector3(255, 255, 255);
+
+                float t = float.Clamp(
+                    bodies[i].linearVelocity.Length() / scaleMax,
+                    0f,
+                    1f
+                );
+
+                Vector3 colorFinal = Vector3.Lerp(colorA, colorB, t);
+
+                Color color = new Color(
+                    (byte)colorFinal.X,
+                    (byte)colorFinal.Y,
+                    (byte)colorFinal.Z
+                );
+
+                visuals[i].Color = color;
+
+                bodies[i].AddImpulse(-bodies[i].CurrentPose.Position * 0.0005f * time.Delta);
+            }
 
             gameObject.Transform.LocalPosition = rb.CurrentPose.Position;
 
@@ -267,18 +338,37 @@ namespace Fletch.Runtime.Hosting
                 greenMoveAxis.Y = -1;
             }
 
+            camera.Zoom += mouse.WheelDelta * 0.2f * time.Delta * camera.Zoom;
+
+            float simspeedDelta = 0f;
+
+            if (keyboard.GetKey(KeyCode.T))
+            {
+                simspeedDelta = 10f * time.Delta;
+            }
+            else if (keyboard.GetKey(KeyCode.G))
+            {
+                simspeedDelta = -10f * time.Delta;
+            }
+
+            EngineConfig.SimSpeed += simspeedDelta;
+
+
             //gameObject.Transform.LocalPosition += moveAxisKey * moveSpeed * time.Delta;
 
-            rb.AddImpulse(moveAxisKey * moveSpeed * time.Delta);
+            rb.AddImpulse(moveAxisKey * moveSpeed * time.Delta * 20f);
 
             wallOne.Transform.LocalPosition += greenMoveAxis * moveSpeed * time.Delta;
 
-            Vector2 atb = gameObject.Transform.LocalPosition - cameraObject.Transform.LocalPosition;
+            cameraObject.Transform.LocalPosition = gameObject.Transform.LocalPosition;
+
+            /*Vector2 atb = gameObject.Transform.LocalPosition - cameraObject.Transform.LocalPosition;
 
             if (atb != Vector2.Zero)
             {
                 cameraObject.Transform.LocalPosition += Vector2.Normalize(atb) * cameraSmooth * time.Delta * Vector2.Distance(gameObject.Transform.LocalPosition, cameraObject.Transform.LocalPosition);
             }
+            */
 
             wallOne.Transform.LocalPosition += gamepad.RightThumbstick * moveSpeed * time.Delta;
 
@@ -292,7 +382,7 @@ namespace Fletch.Runtime.Hosting
             if (timeKeep >= 1f)
             {
                 timeKeep = 0;
-                Debug.WriteLine($"FPS: {frames}");
+                Debug.WriteLine($"FPS: {frames} Speed: {rb.LinearVelocity}");
                 frames = 0;
             }
 

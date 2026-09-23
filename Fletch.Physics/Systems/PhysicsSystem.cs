@@ -10,7 +10,6 @@ using Fletch.Physics.Components;
 using Fletch.Physics.Factories;
 using Fletch.Physics.Maps;
 using Fletch.Physics.Model.ResourceHandles;
-using System.Numerics;
 
 namespace Fletch.Physics.Systems
 {
@@ -54,7 +53,7 @@ namespace Fletch.Physics.Systems
 
             rigidBodyManager.WriteRigidBodies();
 
-            backend.StepWorld(worldHandle, deltaTime.Delta);
+            backend.StepWorld(worldHandle, deltaTime.Delta * EngineConfig.SimSpeed);
 
             rigidBodyManager.ReadRigidBodies();
         }

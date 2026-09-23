@@ -10,12 +10,14 @@ namespace Fletch.Core.EngineConfig
 
         public static float WorldUnitsAcrossScreen { get; } = 20;
 
-        public static Color ClearColor { get; } = Color.SkyBlue;
+        public static Color ClearColor { get; } = Color.Black;
 
         public static int AudioSourcePoolSize { get; } = 128;
 
         public static int PhysicsSubStepCount { get; } = 4;
 
-        public static Vector2 Gravity { get; } = new Vector2(0f, -0.2f);
+        public static Vector2 Gravity { get; } = new Vector2(0f, 0.0f);
+
+        public static float SimSpeed { get; set; } = 1f; //TODO Temp
     }
 }

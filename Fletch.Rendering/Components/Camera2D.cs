@@ -12,7 +12,7 @@ namespace Fletch.Rendering.Components
     {
         public Vector2 Position => GameObject.Transform.WorldPosition;
 
-        public float Zoom { get; set; } = 1;
+        public float Zoom { get; set; } = 1f;
         //TODO MAKE IT REPORT DIRTY with Component.NotifyComponentChanged() when modified
         public int RenderOrder { get; set; } = 0;
 
