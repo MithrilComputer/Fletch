@@ -54,6 +54,9 @@ namespace Fletch.Runtime.Hosting
         private RigidBody[] bodies;
 
 
+        private bool readyToDelete = false;
+
+
         public IPlatformContext Platform => throw new NotImplementedException();
 
         public bool IsInitialized { get; private set; }
@@ -156,7 +159,7 @@ namespace Fletch.Runtime.Hosting
 
             rb.UseInterpolation = true;
 
-            int objectCount = 2000;
+            int objectCount = 5000;
 
             visuals = new SpriteRenderer[objectCount];
             bodies = new RigidBody[objectCount];
@@ -257,11 +260,11 @@ namespace Fletch.Runtime.Hosting
 
             for (int i = 0; i < visuals.Length; i++)
             {
-                float scaleMax = 5f;
+                float scaleMax = 20f;
 
-                Vector3 colorA = new Vector3(0, 0, 255);
-                Vector3 colorB = new Vector3(0, 255, 0);
-                Vector3 colorC = new Vector3(255, 0, 0);
+                Vector3 colorA = new Vector3(0, 0, 0);
+                Vector3 colorB = new Vector3(255, 0, 255);
+                Vector3 colorC = new Vector3(255, 255, 255);
 
                 Vector3 ColorSetA;
                 Vector3 ColorSetB;
@@ -297,7 +300,16 @@ namespace Fletch.Runtime.Hosting
 
                 visuals[i].Color = color;
 
-                bodies[i].AddImpulse((-bodies[i].CurrentPose.Position * 0.005f * time.Delta) + new Vector2((float)(random.NextDouble() - 0.5) * 2f * time.Delta, (float)(random.NextDouble() - 0.5)) * 2f * time.Delta);
+                if(readyToDelete && bodies[i].LinearVelocity.Length() < 0.1f)
+                {
+                    bodies[i].AddImpulse(
+                        new Vector2(
+                            (float)(random.NextDouble() - 0.5) * (2000f * (float)random.NextDouble() * MathF.Pow((float)random.NextDouble(), 2)),
+                            (float)(random.NextDouble() - 0.5) * (2000f * (float)random.NextDouble() * MathF.Pow((float)random.NextDouble(), 2)) 
+                            ));
+                }
+
+                bodies[i].AddImpulse((-bodies[i].CurrentPose.Position * 0.05f * time.Delta) + new Vector2((float)(random.NextDouble() - 0.5) * 2f * time.Delta, (float)(random.NextDouble() - 0.5)) * 2f * time.Delta);
             }
 
             gameObject.Transform.LocalPosition = rb.CurrentPose.Position;
@@ -405,6 +417,8 @@ namespace Fletch.Runtime.Hosting
                 timeKeep = 0;
                 Debug.WriteLine($"FPS: {frames} Speed: {rb.LinearVelocity}, Color: r{colorFinal.X} g{colorFinal.Y} b {colorFinal.Z}");
                 frames = 0;
+
+                readyToDelete = true;
             }
 
             testScene.Update(time);
