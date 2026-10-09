@@ -10,6 +10,7 @@ using Fletch.Physics.Components;
 using Fletch.Physics.Factories;
 using Fletch.Physics.Maps;
 using Fletch.Physics.Model.ResourceHandles;
+using System.Diagnostics;
 
 namespace Fletch.Physics.Systems
 {
@@ -49,7 +50,13 @@ namespace Fletch.Physics.Systems
 
         public void FixedUpdate(FixedTimeStep deltaTime)
         {
+            long before = GC.GetAllocatedBytesForCurrentThread();
+
             rigidBodyManager.UpdateComponents();
+
+            long allocated = GC.GetAllocatedBytesForCurrentThread() - before;
+
+            Debug.WriteLine($"A Bytes: {allocated} bytes");
 
             rigidBodyManager.WriteRigidBodies();
 

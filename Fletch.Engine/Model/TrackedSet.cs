@@ -8,9 +8,9 @@
         private readonly Queue<T> pendingRemoves = new Queue<T>();
 
         /// <summary>
-        /// The current items in the tracked set.
+        /// The current items in the tracked set. Do not modify this list directly; use MarkToAdd and MarkToRemove instead.
         /// </summary>
-        public IReadOnlyList<T> Items => items;
+        public List<T> Items => items;
 
         /// <summary>
         /// The Items that will be removed on refresh.

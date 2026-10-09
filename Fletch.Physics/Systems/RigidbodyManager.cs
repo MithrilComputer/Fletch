@@ -1,5 +1,6 @@
 ﻿using Fletch.Engine.Model;
 using Fletch.Physics.Abstractions.Backends;
+using Fletch.Physics.Abstractions.CollisionShapes;
 using Fletch.Physics.Components;
 using Fletch.Physics.Helpers;
 using Fletch.Physics.Model;
@@ -75,6 +76,16 @@ namespace Fletch.Physics.Systems
         public void UpdateComponents()
         {
             rigidbodies.Refresh();
+
+            foreach (RigidBody rigidBody in rigidbodies.Items)
+            {
+                rigidBody.UpdateColliders();
+            }
+        }
+
+        public void UpdateColliderState(Collider collider)
+        {
+            physicsBackend.SetColliderState(collider.ColliderHandle, PhysicsHelper.CreateColliderWriteState(collider));
         }
 
         public void AddRigidBody(RigidBody rigidbody)
@@ -83,11 +94,19 @@ namespace Fletch.Physics.Systems
             InitializeRigidBody(rigidbody);
         }
 
+        /// <summary>
+        /// Removes a rigid body from the manager and marks it for removal from the physics backend.
+        /// </summary>
+        /// <param name="rigidbody">The rigid body to remove.</param>
         public void RemoveRigidBody(RigidBody rigidbody)
         {
             rigidbodies.MarkToRemove(rigidbody);
         }
 
+        /// <summary>
+        /// Initializes the rigid body by creating a corresponding body in the physics backend and setting its initial pose.
+        /// </summary>
+        /// <param name="rigidbody">The rigid body to initialize.</param>
         private void InitializeRigidBody(RigidBody rigidbody)
         {
             Vector2 pos = rigidbody.GameObject.Transform.WorldPosition;
@@ -101,14 +120,67 @@ namespace Fletch.Physics.Systems
             rigidbody.Initialize(bodyHandle, this, physicsSystem);
         }
 
-        public void ApplyImpulseToBody(RigidBody rigidBody, Vector2 impulse)
-        {
-            physicsBackend.ImpulseBody(rigidBody.BodyHandle, impulse, rigidBody.CurrentPose.Position);
-        }
 
+        /// <summary>
+        /// Applies a force to the rigid body.
+        /// </summary>
+        /// <param name="rigidBody">The rigid body to apply the force to.</param>
+        /// <param name="force">The force to apply.</param>
         public void ApplyForceToBody(RigidBody rigidBody, Vector2 force)
         {
-            physicsBackend.ForceBody(rigidBody.BodyHandle, force, rigidBody.CurrentPose.Position);
+            physicsBackend.ApplyForce(rigidBody.BodyHandle, force);
+        }
+
+        /// <summary>
+        /// Applies a force to the rigid body at a specific point in world space. The point is relative to the rigid body's position.
+        /// </summary>
+        /// <param name="rigidBody">The rigid body to apply the force to.</param>
+        /// <param name="force">The force to apply.</param>
+        /// <param name="point">The point at which to apply the force, relative to the rigid body's position.</param>
+        public void ApplyForceToBodyAt(RigidBody rigidBody, Vector2 force, Vector2 point)
+        {
+            physicsBackend.ApplyForceAt(rigidBody.BodyHandle, force, point + rigidBody.CurrentPose.Position);
+        }
+
+        /// <summary>
+        /// Applies an impulse to a specified rigid body.
+        /// </summary>
+        /// <param name="rigidBody">The rigid body to apply the impulse to.</param>
+        /// <param name="impulse">The impulse vector to apply.</param>
+        public void ApplyImpulseToBody(RigidBody rigidBody, Vector2 impulse)
+        {
+            physicsBackend.ApplyImpulse(rigidBody.BodyHandle, impulse);
+        }
+
+        /// <summary>
+        /// Applies an impulse to the rigid body at a specific point in world space. The point is relative to the rigid body's position.
+        /// </summary>
+        /// <param name="rigidBody">The rigid body to apply the impulse to.</param>
+        /// <param name="impulse">The impulse vector to apply.</param>
+        /// <param name="point">The point at which to apply the impulse, relative to the rigid body's position.</param>
+        public void ApplyImpulseToBodyAt(RigidBody rigidBody, Vector2 impulse, Vector2 point)
+        {
+            physicsBackend.ApplyImpulseAt(rigidBody.BodyHandle, impulse, point + rigidBody.CurrentPose.Position);
+        }
+
+        /// <summary>
+        /// Applies a torque to the rigid body.
+        /// </summary>
+        /// <param name="rigidBody">The rigid body to apply the torque to.</param>
+        /// <param name="torque">The torque to apply.</param>
+        public void ApplyTorqueToBody(RigidBody rigidBody, float torque)
+        {
+            physicsBackend.ApplyTorque(rigidBody.BodyHandle, torque);
+        }
+
+        /// <summary>
+        /// Applies an angular impulse to the rigid body.
+        /// </summary>
+        /// <param name="rigidBody">The rigid body to apply the angular impulse to.</param>
+        /// <param name="angularImpulse">The angular impulse to apply.</param>
+        public void ApplyAngularImpulseToBody(RigidBody rigidBody, float angularImpulse)
+        {
+            physicsBackend.ApplyAngularImpulse(rigidBody.BodyHandle, angularImpulse);
         }
     }
 }

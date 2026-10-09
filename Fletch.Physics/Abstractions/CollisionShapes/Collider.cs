@@ -1,6 +1,7 @@
 ﻿using Fletch.Physics.Model;
 using Fletch.Physics.Model.Info.Collisions;
 using Fletch.Physics.Model.ResourceHandles;
+using Microsoft.VisualBasic;
 using System.Numerics;
 
 namespace Fletch.Physics.Abstractions.CollisionShapes
@@ -44,6 +45,11 @@ namespace Fletch.Physics.Abstractions.CollisionShapes
 
             field = value;
             IsDirty = true;
+        }
+
+        internal void ClearDirty()
+        {
+            IsDirty = false;
         }
     }
 }

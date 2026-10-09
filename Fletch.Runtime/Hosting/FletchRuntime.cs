@@ -158,7 +158,7 @@ namespace Fletch.Runtime.Hosting
 
             rb.UseInterpolation = true;
 
-            int objectCount = 5000;
+            int objectCount = 500;
 
             visuals = new SpriteRenderer[objectCount];
             bodies = new RigidBody[objectCount];
@@ -190,9 +190,9 @@ namespace Fletch.Runtime.Hosting
 
                 BoxCollider bcu = rbu.AddCollider<BoxCollider>();
 
-                bcu.Mass = 0.01f;
-                bcu.Width = 0.5f;
-                bcu.Height = 0.5f;
+                bcu.Mass = (float)random.NextDouble();
+                bcu.Width = 1f;
+                bcu.Height = 1f;
             }
 
             //if (bc == null)
@@ -301,14 +301,14 @@ namespace Fletch.Runtime.Hosting
 
                 if(readyToDelete && bodies[i].LinearVelocity.Length() < 0.1f)
                 {
-                    bodies[i].AddImpulse(
+                    bodies[i].AddForce(
                         new Vector2(
                             (float)(random.NextDouble() - 0.5) * (2000f * (float)random.NextDouble() * MathF.Pow((float)random.NextDouble(), 2)),
                             (float)(random.NextDouble() - 0.5) * (2000f * (float)random.NextDouble() * MathF.Pow((float)random.NextDouble(), 2)) 
                             ));
                 }
 
-                bodies[i].AddImpulse((-bodies[i].CurrentPose.Position * 0.05f * time.Delta) + new Vector2((float)(random.NextDouble() - 0.5) * 2f * time.Delta, (float)(random.NextDouble() - 0.5)) * 2f * time.Delta);
+                bodies[i].AddForce((-bodies[i].CurrentPose.Position * 0.05f * time.Delta) + new Vector2((float)(random.NextDouble() - 0.5) * 2f * time.Delta, (float)(random.NextDouble() - 0.5)) * 2f * time.Delta);
             }
 
             gameObject.Transform.LocalPosition = rb.CurrentPose.Position;
@@ -388,7 +388,7 @@ namespace Fletch.Runtime.Hosting
 
             //gameObject.Transform.LocalPosition += moveAxisKey * moveSpeed * time.Delta;
 
-            rb.AddImpulse(moveAxisKey * moveSpeed * time.Delta * 20f);
+            rb.AddForce(moveAxisKey * moveSpeed * time.Delta * 20f);
 
             wallOne.Transform.LocalPosition += greenMoveAxis * moveSpeed * time.Delta;
 

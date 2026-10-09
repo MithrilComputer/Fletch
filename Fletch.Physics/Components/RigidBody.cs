@@ -15,12 +15,12 @@ using System.Numerics;
 
 namespace Fletch.Physics.Components
 {
-    // TODO At some point I should prob make a way of setting specfic stuff as dirty, I feel like making the whole thing sync is a bit wastefull.
+    // TODO At some point I should prob make a way of setting specfic stuff as dirty, I feel like making the whole thing sync is a bit wastefull, not terrible, but not amazing.
 
     /// <summary>
-    /// TODO 
+    /// A RigidBody is a component that allows a GameObject to be affected by physics. It can have colliders attached to it, and can be affected by forces and impulses. 
     /// </summary>
-    public sealed class RigidBody : GameObjectComponent, IFixedUpdateable
+    public sealed class RigidBody : GameObjectComponent
     {
         internal bool IsDirty { get; private set; }
 
@@ -33,6 +33,9 @@ namespace Fletch.Physics.Components
         internal PhysicsPose CurrentPose { get; set; } = new PhysicsPose(Vector2.Zero, 0f);
 
         internal PhysicsPose PreviousPose { get; set; } = new PhysicsPose(Vector2.Zero, 0f);
+
+
+        private TrackedSet<Collider> colliders = new TrackedSet<Collider>();
 
 
         private float gravityScale = 1f;
@@ -136,7 +139,14 @@ namespace Fletch.Physics.Components
                     $"Collider type {typeof(T).Name} is not supported.");
             }
 
+            colliders.MarkToAdd(collider);
+
             return (T)collider;
+        }
+
+        public void DeleteCollider(Collider collider)
+        {
+            colliders.MarkToRemove(collider);
         }
 
         public float GravityScale
@@ -221,12 +231,12 @@ namespace Fletch.Physics.Components
             RigidBodyManager.ApplyForceToBody(this, force);
         }
 
-        public void AddForce(Vector2 force, Vector2 offset)
+        public void AddForce(Vector2 force, Vector2 point)
         {
             if (!Initialized)
                 return;
 
-            RigidBodyManager.ApplyForceToBody(this, force, offset);
+            RigidBodyManager.ApplyForceToBodyAt(this, force, point);
         }
 
         public void AddImpulse(Vector2 impulse)
@@ -237,25 +247,45 @@ namespace Fletch.Physics.Components
             RigidBodyManager.ApplyImpulseToBody(this, impulse);
         }
 
-        public void AddImpulse(Vector2 impulse, Vector2 offset)
+        public void AddImpulse(Vector2 impulse, Vector2 point)
         {
             if (!Initialized)
                 return;
 
-            RigidBodyManager.ApplyImpulseToBody(this, impulse, offset);
+            RigidBodyManager.ApplyImpulseToBodyAt(this, impulse, point);
         }
 
-        public void AddTorque(float torque) 
+        public void ApplyTorque(float torque)
         {
             if (!Initialized)
                 return;
 
-            //TODO add torque to the body handle
+            RigidBodyManager.ApplyTorqueToBody(this, torque);
         }
 
-        public void FixedUpdate(FixedTimeStep deltaTime)
+        public void ApplyAngularImpulse(float angularImpulse)
         {
-            throw new NotImplementedException();
+            if (!Initialized)
+                return;
+
+            RigidBodyManager.ApplyAngularImpulseToBody(this, angularImpulse);
+        }
+
+        public void UpdateColliders()
+        {
+            if (!Initialized)
+                return;
+
+            colliders.Refresh();
+
+            foreach(Collider collider in colliders.Items)
+            {
+                if(collider.IsDirty)
+                {
+                    RigidBodyManager.UpdateColliderState(collider);
+                    collider.ClearDirty();
+                }
+            }
         }
     }
 }
