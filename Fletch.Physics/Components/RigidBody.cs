@@ -213,21 +213,36 @@ namespace Fletch.Physics.Components
             IsDirty = true;
         }
 
-        public void AddForce(Vector2 force) 
+        public void AddForce(Vector2 force)
         {
             if (!Initialized)
                 return;
 
-            //TODO Addforce to the body handle
-
+            RigidBodyManager.ApplyForceToBody(this, force);
         }
 
-        public void AddImpulse(Vector2 impulse) 
+        public void AddForce(Vector2 force, Vector2 offset)
         {
             if (!Initialized)
                 return;
 
-            RigidBodyManager.OnApplyImpulse(this, impulse);
+            RigidBodyManager.ApplyForceToBody(this, force, offset);
+        }
+
+        public void AddImpulse(Vector2 impulse)
+        {
+            if (!Initialized)
+                return;
+
+            RigidBodyManager.ApplyImpulseToBody(this, impulse);
+        }
+
+        public void AddImpulse(Vector2 impulse, Vector2 offset)
+        {
+            if (!Initialized)
+                return;
+
+            RigidBodyManager.ApplyImpulseToBody(this, impulse, offset);
         }
 
         public void AddTorque(float torque) 

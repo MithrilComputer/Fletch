@@ -101,9 +101,14 @@ namespace Fletch.Physics.Systems
             rigidbody.Initialize(bodyHandle, this, physicsSystem);
         }
 
-        public void OnApplyImpulse(RigidBody rigidBody, Vector2 impulse)
+        public void ApplyImpulseToBody(RigidBody rigidBody, Vector2 impulse)
         {
             physicsBackend.ImpulseBody(rigidBody.BodyHandle, impulse, rigidBody.CurrentPose.Position);
+        }
+
+        public void ApplyForceToBody(RigidBody rigidBody, Vector2 force)
+        {
+            physicsBackend.ForceBody(rigidBody.BodyHandle, force, rigidBody.CurrentPose.Position);
         }
     }
 }

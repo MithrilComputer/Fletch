@@ -19,7 +19,6 @@ using Fletch.Platform.Abstractions.Lifecycle;
 using Fletch.Platform.Abstractions.Paths;
 using Fletch.Platform.Abstractions.Window;
 using Fletch.Rendering.Abstractions.Backends;
-using Fletch.Rendering.Abstractions.Resources;
 using Fletch.Rendering.Components;
 using Fletch.Rendering.Systems;
 using Fletch.Runtime.Abstractions.Hosting;
