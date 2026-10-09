@@ -1,5 +1,6 @@
 ﻿using Fletch.Physics.Abstractions.CollisionShapes;
 using Fletch.Physics.Model;
+using Fletch.Physics.Model.Info.IO;
 using Fletch.Physics.Model.ResourceHandles;
 using System.Numerics;
 
@@ -7,9 +8,9 @@ namespace Fletch.Physics.Components.CollisionShapes
 {
     public class BoxCollider : Collider
     {
-        public float Width { get => width; set => SetFieldAndDirty(ref width, value); }
+        public float Width { get => width; set => SetFieldAndDirty(ref width, value, ColliderDirtyFlags.Shape); }
 
-        public float Height { get => height; set => SetFieldAndDirty(ref height, value); }
+        public float Height { get => height; set => SetFieldAndDirty(ref height, value, ColliderDirtyFlags.Shape); }
 
         private float width;
 

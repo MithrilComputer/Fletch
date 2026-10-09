@@ -35,6 +35,7 @@ namespace Fletch.Physics.Model.Info.IO
         public bool IsSensor { get; } //TODO
 
         public ColliderWriteState(
+            ColliderDirtyFlags dirtyFlags,
             PhysicsMaterial material,
             ShapeData shape,
             CollisionFilter filter,
@@ -43,6 +44,7 @@ namespace Fletch.Physics.Model.Info.IO
             float rotation,
             bool isSensor)
         {
+            DirtyFlags = dirtyFlags;
             Material = material;
             Shape = shape;
             Filter = filter;

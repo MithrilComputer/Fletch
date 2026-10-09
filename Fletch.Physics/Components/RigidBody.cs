@@ -94,6 +94,7 @@ namespace Fletch.Physics.Components
             if (typeof(T) == typeof(BoxCollider))
             {
                 writeState = new ColliderWriteState(
+                    dirtyFlags: ColliderDirtyFlags.All,
                     new PhysicsMaterial(),
                     new RectangleData(new Vector2(1, 1)),
                     new CollisionFilter(CollisionCategory.All, CollisionCategory.All),
@@ -108,6 +109,7 @@ namespace Fletch.Physics.Components
             else if (typeof(T) == typeof(CapsuleCollider))
             {
                 writeState = new ColliderWriteState(
+                    dirtyFlags: ColliderDirtyFlags.All,
                     new PhysicsMaterial(),
                     new CapsuleData(0.5f, 2f),
                     new CollisionFilter(CollisionCategory.All, CollisionCategory.All),
@@ -122,6 +124,7 @@ namespace Fletch.Physics.Components
             else if(typeof(T) == typeof(CircleCollider))
             {
                 writeState = new ColliderWriteState(
+                    dirtyFlags: ColliderDirtyFlags.All,
                     new PhysicsMaterial(),
                     new CircleData(0.5f),
                     new CollisionFilter(CollisionCategory.All, CollisionCategory.All),

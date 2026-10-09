@@ -44,6 +44,7 @@ namespace Fletch.Physics.Helpers
             {
                 case BoxCollider boxCollider:
                     return new ColliderWriteState(
+                        colliderType.DirtyFlags,
                         boxCollider.Material,
                         new RectangleData(
                             new Vector2(
@@ -59,6 +60,7 @@ namespace Fletch.Physics.Helpers
 
                 case CircleCollider circleCollider:
                     return new ColliderWriteState(
+                        colliderType.DirtyFlags,
                         circleCollider.Material,
                         new CircleData(
                             circleCollider.Radius),
@@ -72,6 +74,7 @@ namespace Fletch.Physics.Helpers
 
                 case CapsuleCollider capsuleCollider:
                     return new ColliderWriteState(
+                        colliderType.DirtyFlags,
                         capsuleCollider.Material,
                         new CapsuleData(
                             capsuleCollider.Radius,

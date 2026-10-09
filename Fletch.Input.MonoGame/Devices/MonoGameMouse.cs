@@ -36,6 +36,8 @@ namespace Fletch.Input.MonoGame.Devices
         /// </summary>
         public int WheelDelta => currentMouseState.ScrollWheelValue - previousMouseState.ScrollWheelValue;
 
+        public float WheelDeltaNormalized => WheelDelta / 120f;
+
         /// <summary>
         /// Change in the X position of the mouse cursor since the last update.
         /// </summary>

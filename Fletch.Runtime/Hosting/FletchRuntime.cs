@@ -158,7 +158,7 @@ namespace Fletch.Runtime.Hosting
 
             rb.UseInterpolation = true;
 
-            int objectCount = 500;
+            int objectCount = 5000;
 
             visuals = new SpriteRenderer[objectCount];
             bodies = new RigidBody[objectCount];
@@ -180,9 +180,7 @@ namespace Fletch.Runtime.Hosting
 
                 visuals[i] = spriteUnit;
 
-                spriteUnit.VisualResource.Texture = renderingBackend.TextureFactory.CreateSolidColor(2, 2, Color.White);
-
-                spriteUnit.VisualResource.PixelPerWorldUnit = 1;
+                spriteUnit.VisualResource.PixelPerWorldUnit = 32;
 
                 RigidBody rbu = gameObjectArrayUnit.AddComponent<RigidBody>();
 
@@ -190,9 +188,13 @@ namespace Fletch.Runtime.Hosting
 
                 BoxCollider bcu = rbu.AddCollider<BoxCollider>();
 
-                bcu.Mass = (float)random.NextDouble();
-                bcu.Width = 1f;
-                bcu.Height = 1f;
+                float sizeee = (float)random.NextDouble() * 2f;
+
+                spriteUnit.VisualResource.Texture = renderingBackend.TextureFactory.CreateSolidColor(Math.Clamp((int)MathF.Round(32 * sizeee), 1,32), Math.Clamp((int)MathF.Round(32 * sizeee), 1,32), Color.White);
+
+                bcu.Mass = 1f;
+                bcu.Width = sizeee;
+                bcu.Height = sizeee;
             }
 
             //if (bc == null)
@@ -370,20 +372,26 @@ namespace Fletch.Runtime.Hosting
                 greenMoveAxis.Y = -1;
             }
 
-            camera.Zoom += mouse.WheelDelta * 0.2f * time.Delta * camera.Zoom;
+            camera.Zoom = Math.Clamp(
+                camera.Zoom * MathF.Pow(1.02f, mouse.WheelDeltaNormalized),
+                0.00001f,
+                100f
+            );
 
             float simspeedDelta = 0f;
 
             if (keyboard.GetKey(KeyCode.T))
             {
-                simspeedDelta = 10f * time.Delta;
+                simspeedDelta = 1f * time.Delta;
             }
             else if (keyboard.GetKey(KeyCode.G))
             {
-                simspeedDelta = -10f * time.Delta;
+                simspeedDelta = -1f * time.Delta;
             }
 
             EngineConfig.SimSpeed += simspeedDelta;
+
+            EngineConfig.SimSpeed = Math.Clamp(EngineConfig.SimSpeed, 0.01f, 5f);
 
 
             //gameObject.Transform.LocalPosition += moveAxisKey * moveSpeed * time.Delta;
@@ -415,6 +423,8 @@ namespace Fletch.Runtime.Hosting
             {
                 timeKeep = 0;
                 Debug.WriteLine($"FPS: {frames} Speed: {rb.LinearVelocity}, Color: r{colorFinal.X} g{colorFinal.Y} b {colorFinal.Z}");
+
+                Debug.WriteLine($"SimSpeed: {EngineConfig.SimSpeed}, Camera Zoom: {camera.Zoom}");
                 frames = 0;
 
                 readyToDelete = true;

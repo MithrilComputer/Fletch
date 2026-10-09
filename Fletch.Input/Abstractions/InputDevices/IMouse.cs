@@ -35,6 +35,13 @@ namespace Fletch.Input.Abstractions.InputDevices
         /// <summary>
         /// Change in the X position of the mouse cursor since the last update.
         /// </summary>
+
+        float WheelDeltaNormalized { get; }
+
+        /// <summary>
+        /// Change in the X position of the mouse cursor since the last update.
+        /// </summary>
+
         int DeltaX { get; }
 
         /// <summary>
