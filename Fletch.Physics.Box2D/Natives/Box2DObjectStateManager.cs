@@ -6,6 +6,7 @@ using Fletch.Physics.Box2D.Registries;
 using Fletch.Physics.Model.Info.IO;
 using Fletch.Physics.Model.Info.Shapes;
 using Fletch.Physics.Model.ResourceHandles;
+using System.Diagnostics;
 using System.Numerics;
 
 namespace Fletch.Physics.Box2D.Natives
@@ -138,6 +139,8 @@ namespace Fletch.Physics.Box2D.Natives
                     B2Polygon rectangleShape = ShapeFactory.CreateRectangle(rectangleData.Size, offset, rotation);
 
                     B2Shapes.b2Shape_SetPolygon(shapeId, ref rectangleShape);
+
+                    Debug.WriteLine($"Set Rectangle Shape data width: {rectangleData.Size.X}, height: {rectangleData.Size.Y}");
 
                     break;
 

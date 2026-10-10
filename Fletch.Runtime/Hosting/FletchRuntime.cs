@@ -192,6 +192,8 @@ namespace Fletch.Runtime.Hosting
 
                 spriteUnit.VisualResource.Texture = renderingBackend.TextureFactory.CreateSolidColor(Math.Clamp((int)MathF.Round(32 * sizeee), 1,32), Math.Clamp((int)MathF.Round(32 * sizeee), 1,32), Color.White);
 
+                Debug.WriteLine($"Created object {i} with size {sizeee}");
+
                 bcu.Mass = 1f;
                 bcu.Width = sizeee;
                 bcu.Height = sizeee;

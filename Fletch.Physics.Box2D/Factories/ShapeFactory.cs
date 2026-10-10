@@ -8,8 +8,8 @@ namespace Fletch.Physics.Box2D.Factories
         public static B2Polygon CreateRectangle(Vector2 size, Vector2 offset, float rotation)
         {
             return B2Geometries.b2MakeOffsetBox(
-                size.X / 2, 
-                size.Y / 2, 
+                size.X / 2,
+                size.Y / 2,
                 new B2Vec2(offset.X, offset.Y),
                 new B2Rot(MathF.Cos(rotation), MathF.Sin(rotation)));
         }

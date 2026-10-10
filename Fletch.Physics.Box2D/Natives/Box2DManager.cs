@@ -72,7 +72,7 @@ namespace Fletch.Physics.Box2D.Natives
 
             B2ShapeDef newShapeDef = ShapeDefinitionFactory.CreateShapeDef(writeState.Material, writeState.IsSensor, writeState.Filter, writeState.Mass);
 
-            B2ShapeId newShapeId = B2Shapes.b2CreatePolygonShape(b2BodyHandle.Id, newShapeDef, B2Geometries.b2MakeBox(1f, 1f));
+            B2ShapeId newShapeId = B2Shapes.b2CreatePolygonShape(b2BodyHandle.Id, newShapeDef, B2Geometries.b2MakeBox(100f, 1f));
 
             objectStateManager.SetShapeData(newShapeId, writeState.Shape, writeState.Rotation, writeState.Offset);
 
@@ -150,6 +150,8 @@ namespace Fletch.Physics.Box2D.Natives
         {
             if (colliderHandle is not Box2DColiderHandle b2colliderHandle)
                 throw new Exception();
+
+            Debug.WriteLine("Updated collider state");
 
             objectStateManager.WriteStateToCollider(b2colliderHandle, writeState);
         }

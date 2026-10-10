@@ -23,7 +23,7 @@ namespace Fletch.Physics.Abstractions.CollisionShapes
 
         private bool isSensor;
 
-        internal bool IsDirty { get; private set; }
+        internal bool IsDirty => DirtyFlags != ColliderDirtyFlags.None;
 
         internal IColliderHandle ColliderHandle { get; }
 
