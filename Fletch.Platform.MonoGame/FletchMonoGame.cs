@@ -73,6 +73,8 @@ namespace Fletch.Platform.MonoGame
 
             fixedStep = TimeSpan.FromSeconds(fixedDelta);
 
+            graphics.IsFullScreen = options.StartFullscreen;
+
             Window.AllowUserResizing = true;
 
             IsFixedTimeStep = false;

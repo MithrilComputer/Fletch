@@ -19,7 +19,9 @@ using Fletch.Platform.Abstractions.Lifecycle;
 using Fletch.Platform.Abstractions.Paths;
 using Fletch.Platform.Abstractions.Window;
 using Fletch.Rendering.Abstractions.Backends;
+using Fletch.Rendering.Abstractions.Resources;
 using Fletch.Rendering.Components;
+using Fletch.Rendering.Model;
 using Fletch.Rendering.Systems;
 using Fletch.Runtime.Abstractions.Hosting;
 using Fletch.Runtime.Systems;
@@ -158,45 +160,56 @@ namespace Fletch.Runtime.Hosting
 
             rb.UseInterpolation = true;
 
-            int objectCount = 5000;
+            int objectCount = 3000;
 
             visuals = new SpriteRenderer[objectCount];
             bodies = new RigidBody[objectCount];
+
+            ITexture texture = renderingBackend.TextureFactory.CreateSolidColor(
+                    64,
+                    32,
+                    Color.White
+                );
+
+            ITexture ratTexture = renderingBackend.TextureFactory.Load(Path.Combine(pathProvider.AssetFolderDirectory, "Rat.png"));
 
             for (int i = 0; i < objectCount; i++)
             {
                 GameObject gameObjectArrayUnit = testScene.CreateGameObject();
 
-                
-                if(random.NextDouble() < 0.5f)
-                {
-                    gameObjectArrayUnit.Transform.LocalPosition = new Vector2((((float)random.NextDouble() * 100) - 50) + 500, (((float)random.NextDouble() * 100) - 50));
-                } else
-                {
-                    gameObjectArrayUnit.Transform.LocalPosition = new Vector2((((float)random.NextDouble() * 100) - 50) - 500, (((float)random.NextDouble() * 100) - 50));
-                }
+                float x = (float)random.NextDouble() * 100f - 50f;
+                float y = (float)random.NextDouble() * 100f - 50f;
+
+                x += random.NextDouble() < 0.5 ? -500f : 500f;
+
+                gameObjectArrayUnit.Transform.LocalPosition = new Vector2(x, y);
+
+                //float size = 0.25f + (float)random.NextDouble() * 1.75f;
+
+                float size = 2f;
 
                 SpriteRenderer spriteUnit = gameObjectArrayUnit.AddComponent<SpriteRenderer>();
-
                 visuals[i] = spriteUnit;
 
-                spriteUnit.VisualResource.PixelPerWorldUnit = 32;
+                spriteUnit.VisualResource.Texture =
+                    ratTexture;
+
+                spriteUnit.VisualResource.PixelPerWorldUnit = Math.Max(1, (int)MathF.Round(32f / size));
 
                 RigidBody rbu = gameObjectArrayUnit.AddComponent<RigidBody>();
 
+                rbu.AngularDrag = 1f;
+                                rbu.LinearDrag = 1f;
+
                 bodies[i] = rbu;
+
+
 
                 BoxCollider bcu = rbu.AddCollider<BoxCollider>();
 
-                float sizeee = (float)random.NextDouble() * 2f;
-
-                spriteUnit.VisualResource.Texture = renderingBackend.TextureFactory.CreateSolidColor(Math.Clamp((int)MathF.Round(32 * sizeee), 1,32), Math.Clamp((int)MathF.Round(32 * sizeee), 1,32), Color.White);
-
-                Debug.WriteLine($"Created object {i} with size {sizeee}");
-
                 bcu.Mass = 1f;
-                bcu.Width = sizeee;
-                bcu.Height = sizeee;
+                bcu.Width = size;
+                bcu.Height = size;
             }
 
             //if (bc == null)
@@ -214,9 +227,10 @@ namespace Fletch.Runtime.Hosting
 
             camera.BlendMode = Rendering.Model.BlendMode.Alpha;
 
-            camera.SamplerMode = Rendering.Model.SamplerMode.Point;
+            camera.SamplerMode = Rendering.Model.SamplerMode.Linear;
 
-            sprite.VisualResource.Texture = renderingBackend.TextureFactory.Load(Path.Combine(pathProvider.AssetFolderDirectory, "Rat.png"));
+
+            sprite.VisualResource.Texture = ratTexture;
             wones.VisualResource.Texture = renderingBackend.TextureFactory.CreateSolidColor(1, 1, Color.Green);
             wtwos.VisualResource.Texture = renderingBackend.TextureFactory.CreateSolidColor(1, 10, Color.Black);
             wthrees.VisualResource.Texture = renderingBackend.TextureFactory.CreateSolidColor(10, 1, Color.White);
@@ -261,58 +275,59 @@ namespace Fletch.Runtime.Hosting
 
             Vector3 colorFinal = Vector3.Zero;
 
+            float scaleMax = 20f;
+
+            Vector3 colorA = new Vector3(0, 255, 0);
+            Vector3 colorB = new Vector3(255, 255, 0);
+            Vector3 colorC = new Vector3(255, 0, 0);
+
             for (int i = 0; i < visuals.Length; i++)
             {
-                float scaleMax = 20f;
+                RigidBody body = bodies[i];
 
-                Vector3 colorA = new Vector3(0, 0, 0);
-                Vector3 colorB = new Vector3(255, 0, 255);
-                Vector3 colorC = new Vector3(255, 255, 255);
+                float speed = body.LinearVelocity.Length();
+                float t = Math.Clamp(speed / scaleMax, 0f, 1f);
 
-                Vector3 ColorSetA;
-                Vector3 ColorSetB;
-
-                float t = float.Clamp(
-                    bodies[i].linearVelocity.Length() / scaleMax,
-                    0f,
-                    1f
-                );
-
-                if(t < 0.5)
+                if (t < 0.5f)
                 {
-                    ColorSetA = colorA;
-                    ColorSetB = colorB;
-
-                    t *= 2f;
-                } 
+                    colorFinal = Vector3.Lerp(colorA, colorB, t * 2f);
+                }
                 else
                 {
-                    ColorSetA = colorB;
-                    ColorSetB = colorC;
-
-                    t = (t - 0.5f) * 2f;
+                    colorFinal = Vector3.Lerp(colorB, colorC, (t - 0.5f) * 2f);
                 }
 
-                colorFinal = Vector3.Lerp(ColorSetA, ColorSetB, t);
-
-                Color color = new Color(
+                visuals[i].Color = new Color(
                     (byte)colorFinal.X,
                     (byte)colorFinal.Y,
                     (byte)colorFinal.Z
                 );
 
-                visuals[i].Color = color;
-
-                if(readyToDelete && bodies[i].LinearVelocity.Length() < 0.1f)
+                if (readyToDelete && speed < 0.1f)
                 {
-                    bodies[i].AddForce(
-                        new Vector2(
-                            (float)(random.NextDouble() - 0.5) * (2000f * (float)random.NextDouble() * MathF.Pow((float)random.NextDouble(), 2)),
-                            (float)(random.NextDouble() - 0.5) * (2000f * (float)random.NextDouble() * MathF.Pow((float)random.NextDouble(), 2)) 
-                            ));
+                    float forceX = (float)(random.NextDouble() - 0.5)
+                        * 2000f
+                        * (float)random.NextDouble()
+                        * MathF.Pow((float)random.NextDouble(), 2);
+
+                    float forceY = (float)(random.NextDouble() - 0.5)
+                        * 2000f
+                        * (float)random.NextDouble()
+                        * MathF.Pow((float)random.NextDouble(), 2);
+
+                    body.AddForce(new Vector2(forceX, forceY));
                 }
 
-                bodies[i].AddForce((-bodies[i].CurrentPose.Position * 0.05f * time.Delta) + new Vector2((float)(random.NextDouble() - 0.5) * 2f * time.Delta, (float)(random.NextDouble() - 0.5)) * 2f * time.Delta);
+                Vector2 position = body.CurrentPose.Position;
+
+                Vector2 centerForce = wallOne.Transform.LocalPosition - position * 500f * time.Delta;
+
+                Vector2 randomForce = new Vector2(
+                    (float)(random.NextDouble() - 0.5) * 2f,
+                    (float)(random.NextDouble() - 0.5) * 2f
+                );
+
+                body.AddForce(centerForce);
             }
 
             gameObject.Transform.LocalPosition = rb.CurrentPose.Position;
@@ -396,7 +411,7 @@ namespace Fletch.Runtime.Hosting
             EngineConfig.SimSpeed = Math.Clamp(EngineConfig.SimSpeed, 0.01f, 5f);
 
 
-            //gameObject.Transform.LocalPosition += moveAxisKey * moveSpeed * time.Delta;
+            gameObject.Transform.LocalPosition += moveAxisKey * moveSpeed * time.Delta;
 
             rb.AddForce(moveAxisKey * moveSpeed * time.Delta * 20f);
 
@@ -421,10 +436,10 @@ namespace Fletch.Runtime.Hosting
             timeKeep += time.Delta;
             frames++;
 
-            if (timeKeep >= 1f)
+            if (timeKeep >= 30f)
             {
                 timeKeep = 0;
-                Debug.WriteLine($"FPS: {frames} Speed: {rb.LinearVelocity}, Color: r{colorFinal.X} g{colorFinal.Y} b {colorFinal.Z}");
+                Debug.WriteLine($"FPS: {frames / 30}");
 
                 Debug.WriteLine($"SimSpeed: {EngineConfig.SimSpeed}, Camera Zoom: {camera.Zoom}");
                 frames = 0;

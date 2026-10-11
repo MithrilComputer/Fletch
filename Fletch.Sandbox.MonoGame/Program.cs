@@ -5,11 +5,11 @@ using Microsoft.Xna.Framework;
 
 MonoGamePlatformOptions options = new MonoGamePlatformOptions
 {
-    Width = 1280,
-    Height = 720,
+    Width = 1920,
+    Height = 1080,
     Title = "Fletch Sandbox",
     VSync = false,
-    StartFullscreen = false,
+    StartFullscreen = true,
     FixedUpdatesPerSecond = 30,
     MaxFixedUpdatesPerFrame = 5
 };

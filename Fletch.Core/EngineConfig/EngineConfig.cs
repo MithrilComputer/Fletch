@@ -6,7 +6,7 @@ namespace Fletch.Core.EngineConfig
 {
     internal static class EngineConfig
     {
-        public static Vector2Int VirtualResolution { get; } = new Vector2Int(1280, 720);
+        public static Vector2Int VirtualResolution { get; } = new Vector2Int(1920, 1080);
 
         public static float WorldUnitsAcrossScreen { get; } = 20;
 
@@ -16,7 +16,7 @@ namespace Fletch.Core.EngineConfig
 
         public static int PhysicsSubStepCount { get; } = 4;
 
-        public static Vector2 Gravity { get; } = new Vector2(0f, 0.0f); //TODO Temp, Per scene setting
+        public static Vector2 Gravity { get; } = new Vector2(0f, 0f); //TODO Temp, Per scene setting
 
         public static float SimSpeed { get; set; } = 1f; //TODO Temp
     }

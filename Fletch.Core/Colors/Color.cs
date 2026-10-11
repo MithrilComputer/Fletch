@@ -3,27 +3,27 @@
     /// <summary>
     /// Represents a color with red, green, blue, and alpha components.
     /// </summary>
-    public struct Color
+    public readonly struct Color
     {
         /// <summary>
         /// The red component of the color.
         /// </summary>
-        public byte R;
+        public readonly byte R;
 
         /// <summary>
         /// The green component of the color.
         /// </summary>
-        public byte G;
+        public readonly byte G;
 
         /// <summary>
         /// The blue component of the color.
         /// </summary>
-        public byte B;
+        public readonly byte B;
 
         /// <summary>
         /// The alpha (transparency) component of the color.
         /// </summary>
-        public byte A;
+        public readonly byte A;
 
         public Color(byte r, byte g, byte b, byte a = 255)
         {
@@ -57,6 +57,5 @@
         public static readonly Color LimeGreen = new Color(50, 205, 50, 255);
 
         public static readonly Color Transparent = new Color(0, 0, 0, 0);
-
     }
 }

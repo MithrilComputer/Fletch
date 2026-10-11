@@ -161,7 +161,9 @@ namespace Fletch.Physics.Box2D.Natives
             if (worldHandle is not Box2DWorldHandle b2WorldHandle)
                 throw new Exception();
 
-            return collisionEventManager.GetCollisionEvents(b2WorldHandle.Id);
+            //return collisionEventManager.GetCollisionEvents(b2WorldHandle.Id);
+
+            return null;
         }
     }
 }

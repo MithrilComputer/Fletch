@@ -111,7 +111,7 @@ namespace Fletch.Rendering.Systems
 
                 foreach (SpriteRenderer sprite in spriteRenderers.Items)
                 {
-                    if (!sprite.IsEnabled || sprite.VisualResource.Texture == null || sprite.RenderPose == null)
+                    if (!sprite.IsEnabled || sprite.VisualResource.Texture == null)
                         continue;
 
                     if (!IsSpriteVisible(visibleArea, sprite))
