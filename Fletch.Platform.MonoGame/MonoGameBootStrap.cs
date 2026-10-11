@@ -35,7 +35,7 @@ namespace Fletch.Platform.MonoGame
 {
     public static class MonoGameBootstrap
     {
-        public static ServiceProvider CreateDefault(MonoGamePlatformOptions options)
+        public static ServiceProvider CreateDefault(MonoGamePlatformOptions options, Action<IServiceCollection>? configureServices = null)
         {
             if (options is null) throw new ArgumentNullException(nameof(options));
 
@@ -90,6 +90,8 @@ namespace Fletch.Platform.MonoGame
             services.AddSingleton<ISceneFactory, SceneFactory>();
             services.AddSingleton<ISubSystemFactory, SubSystemFactory>();
             services.AddSingleton<IComponentFactory, ComponentFactory>();
+
+            configureServices?.Invoke(services);
 
             return services.BuildServiceProvider(new ServiceProviderOptions
             {
