@@ -42,6 +42,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Fletch.Physics.Box2D", "Fle
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Fletch.Hosting", "Fletch.Hosting\Fletch.Hosting.csproj", "{88AB3479-E834-4EBA-8E2F-64EA700D608E}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Fletch.Application", "Fletch.Application\Fletch.Application.csproj", "{FD200A69-7CF3-9D82-C80C-E27CF84FADB4}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -256,6 +258,18 @@ Global
 		{88AB3479-E834-4EBA-8E2F-64EA700D608E}.Release|ARM32.Build.0 = Release|Any CPU
 		{88AB3479-E834-4EBA-8E2F-64EA700D608E}.Release|x64.ActiveCfg = Release|Any CPU
 		{88AB3479-E834-4EBA-8E2F-64EA700D608E}.Release|x64.Build.0 = Release|Any CPU
+		{FD200A69-7CF3-9D82-C80C-E27CF84FADB4}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{FD200A69-7CF3-9D82-C80C-E27CF84FADB4}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{FD200A69-7CF3-9D82-C80C-E27CF84FADB4}.Debug|ARM32.ActiveCfg = Debug|Any CPU
+		{FD200A69-7CF3-9D82-C80C-E27CF84FADB4}.Debug|ARM32.Build.0 = Debug|Any CPU
+		{FD200A69-7CF3-9D82-C80C-E27CF84FADB4}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{FD200A69-7CF3-9D82-C80C-E27CF84FADB4}.Debug|x64.Build.0 = Debug|Any CPU
+		{FD200A69-7CF3-9D82-C80C-E27CF84FADB4}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{FD200A69-7CF3-9D82-C80C-E27CF84FADB4}.Release|Any CPU.Build.0 = Release|Any CPU
+		{FD200A69-7CF3-9D82-C80C-E27CF84FADB4}.Release|ARM32.ActiveCfg = Release|Any CPU
+		{FD200A69-7CF3-9D82-C80C-E27CF84FADB4}.Release|ARM32.Build.0 = Release|Any CPU
+		{FD200A69-7CF3-9D82-C80C-E27CF84FADB4}.Release|x64.ActiveCfg = Release|Any CPU
+		{FD200A69-7CF3-9D82-C80C-E27CF84FADB4}.Release|x64.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

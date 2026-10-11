@@ -6,4 +6,11 @@
     <Nullable>enable</Nullable>
   </PropertyGroup>
 
+  <ItemGroup>
+    <ProjectReference Include="..\Fletch.Core\Fletch.Core.csproj" />
+    <ProjectReference Include="..\Fletch.Hosting\Fletch.Hosting.csproj" />
+    <ProjectReference Include="..\Fletch.Platform.MonoGame\Fletch.Platform.MonoGame.csproj" />
+    <ProjectReference Include="..\Fletch.Platform\Fletch.Platform.csproj" />
+  </ItemGroup>
+
 </Project>

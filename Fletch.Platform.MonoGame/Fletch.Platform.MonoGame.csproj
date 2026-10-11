@@ -18,6 +18,7 @@
     <ProjectReference Include="..\Fletch.Audio.Silk.NET.OpenAL\Fletch.Audio.Silk.NET.OpenAL.csproj" />
     <ProjectReference Include="..\Fletch.Audio\Fletch.Audio.csproj" />
     <ProjectReference Include="..\Fletch.Core\Fletch.Core.csproj" />
+    <ProjectReference Include="..\Fletch.Hosting\Fletch.Hosting.csproj" />
     <ProjectReference Include="..\Fletch.Input.MonoGame\Fletch.Input.MonoGame.csproj" />
     <ProjectReference Include="..\Fletch.Input\Fletch.Input.csproj" />
     <ProjectReference Include="..\Fletch.Physics.Box2D\Fletch.Physics.Box2D.csproj" />

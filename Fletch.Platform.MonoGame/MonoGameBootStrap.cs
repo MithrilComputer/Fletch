@@ -3,6 +3,7 @@ using Fletch.Audio.Abstractions.Assets;
 using Fletch.Audio.Abstractions.Backend;
 using Fletch.Audio.Silk.NET.OpenAL.Backend;
 using Fletch.Core.Diagnostics;
+using Fletch.Core.EngineConfig;
 using Fletch.Core.Platform;
 using Fletch.Engine.Abstractions.Factories;
 using Fletch.Engine.Factories;
@@ -16,7 +17,6 @@ using Fletch.Platform.Abstractions.Paths;
 using Fletch.Platform.Abstractions.Window;
 using Fletch.Platform.MonoGame.Contexts;
 using Fletch.Platform.MonoGame.Diagnostics;
-using Fletch.Platform.MonoGame.Host;
 using Fletch.Platform.MonoGame.Lifecycle;
 using Fletch.Platform.MonoGame.Paths;
 using Fletch.Platform.MonoGame.Window;
@@ -35,7 +35,7 @@ namespace Fletch.Platform.MonoGame
 {
     public static class MonoGameBootstrap
     {
-        public static ServiceProvider CreateDefault(MonoGamePlatformOptions options, Action<IServiceCollection>? configureServices = null)
+        public static ServiceProvider CreateDefault(FletchOptions options, Action<IServiceCollection>? configureServices = null)
         {
             if (options is null) throw new ArgumentNullException(nameof(options));
 
