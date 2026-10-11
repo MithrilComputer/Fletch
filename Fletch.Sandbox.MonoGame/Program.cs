@@ -1,9 +1,8 @@
-﻿using Fletch.Platform.MonoGame;
-using Fletch.Platform.MonoGame.Host;
-using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Xna.Framework;
+﻿using Fletch.Application;
+using Fletch.Core.EngineConfig;
+using Fletch.Sandbox;
 
-MonoGamePlatformOptions options = new MonoGamePlatformOptions
+FletchOptions options = new FletchOptions
 {
     Width = 1920,
     Height = 1080,
@@ -14,8 +13,4 @@ MonoGamePlatformOptions options = new MonoGamePlatformOptions
     MaxFixedUpdatesPerFrame = 5
 };
 
-using ServiceProvider provider = MonoGameBootstrap.CreateDefault(options);
-
-Game game = provider.GetRequiredService<Game>();
-
-game.Run();
+FletchApplication.Run<TestGame>(options);

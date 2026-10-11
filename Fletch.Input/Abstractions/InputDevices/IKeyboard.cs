@@ -5,7 +5,7 @@ namespace Fletch.Input.Abstractions.InputDevices
     /// <summary>
     /// The keyboard input device abstraction.
     /// </summary>
-    internal interface IKeyboard
+    public interface IKeyboard
     {
         /// <summary>
         /// Gets the current state of the specified key.

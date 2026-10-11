@@ -1,4 +1,5 @@
-﻿using Fletch.Core.Time;
+﻿using Fletch.Core.EngineConfig;
+using Fletch.Core.Time;
 using Fletch.Platform.Abstractions.Lifecycle;
 using Fletch.Platform.Abstractions.Paths;
 using Fletch.Platform.MonoGame.Host;
@@ -47,7 +48,7 @@ namespace Fletch.Platform.MonoGame
 
         private TimeSpan fixedStep;
 
-        public FletchMonoGame(MonoGamePlatformOptions options, IPathProvider pathProvider, IRenderingBackend renderingBackend, Func<IRuntime> runtimeFactory)
+        public FletchMonoGame(FletchOptions options, IPathProvider pathProvider, IRenderingBackend renderingBackend, Func<IRuntime> runtimeFactory)
         {
             this.options = options;
 

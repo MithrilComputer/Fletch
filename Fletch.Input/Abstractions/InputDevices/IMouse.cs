@@ -2,7 +2,7 @@
 
 namespace Fletch.Input.Abstractions.InputDevices
 {
-    internal interface IMouse
+    public interface IMouse
     {
         /// <summary>
         /// The current cumulative position of the mouse wheel since the start of the game in ticks.

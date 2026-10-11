@@ -1,6 +1,13 @@
-﻿namespace Fletch.Hosting.Abstractions.Game
+﻿using Fletch.Hosting.Abstractions.Contexts;
+
+namespace Fletch.Hosting.Abstractions.Game
 {
-    internal interface IFletchGame
+    public interface IFletchGame
     {
+        void Initialize(IGameContext context);
+
+        void Start();
+
+        void Shutdown();
     }
 }

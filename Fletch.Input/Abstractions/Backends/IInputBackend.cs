@@ -5,7 +5,7 @@ using System.Runtime.CompilerServices;
 
 namespace Fletch.Input.Abstractions.Backends
 {
-    internal interface IInputBackend
+    public interface IInputBackend
     {
         /// <summary>
         /// The keyboard input device.

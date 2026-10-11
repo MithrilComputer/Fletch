@@ -12,3 +12,5 @@
 [assembly: InternalsVisibleTo("Fletch.Audio.Silk.NET.OpenAL")]
 [assembly: InternalsVisibleTo("Fletch.Physics.Box2D")]
 [assembly: InternalsVisibleTo("Fletch.Physics")]
+[assembly: InternalsVisibleTo("Fletch.Hosting")]
+[assembly: InternalsVisibleTo("Fletch.Application")]

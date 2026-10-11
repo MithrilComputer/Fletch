@@ -3,7 +3,7 @@ using System.Numerics;
 
 namespace Fletch.Input.Abstractions.InputDevices
 {
-    internal interface IGamepad
+    public interface IGamepad
     {
         /// <summary>
         /// The logical player ID associated with this gamepad.
