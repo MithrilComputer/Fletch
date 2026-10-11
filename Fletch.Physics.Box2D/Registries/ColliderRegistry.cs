@@ -6,7 +6,7 @@ namespace Fletch.Physics.Box2D.Registries
     internal class ColliderRegistry
     {
         private static readonly Dictionary<B2ShapeId, Box2DColiderHandle> shapeIdColliderBinding;
-        
+
         static ColliderRegistry()
         {
             shapeIdColliderBinding = new Dictionary<B2ShapeId, Box2DColiderHandle>();
@@ -14,7 +14,7 @@ namespace Fletch.Physics.Box2D.Registries
 
         public bool TryGetColliderHandleFromShapeId(B2ShapeId shapeId, out Box2DColiderHandle? handle)
         {
-            if(shapeIdColliderBinding.TryGetValue(shapeId, out Box2DColiderHandle getHandle))
+            if (shapeIdColliderBinding.TryGetValue(shapeId, out Box2DColiderHandle getHandle))
             {
                 handle = getHandle;
 
@@ -28,7 +28,7 @@ namespace Fletch.Physics.Box2D.Registries
 
         public void RegisterCollider(Box2DColiderHandle handle)
         {
-            if(!shapeIdColliderBinding.ContainsKey(handle.Id))
+            if (!shapeIdColliderBinding.ContainsKey(handle.Id))
             {
                 shapeIdColliderBinding.Add(handle.Id, handle);
                 return;

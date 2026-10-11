@@ -14,10 +14,10 @@ namespace Fletch.Physics.Maps
 
         public void AddMapping(IColliderHandle colliderHandle, RigidBody rigidBody)
         {
-            if(!rigidBodyMap.TryAdd(colliderHandle, rigidBody))
+            if (!rigidBodyMap.TryAdd(colliderHandle, rigidBody))
             {
                 throw new ArgumentException("A rigid body is already mapped to the specified collider handle.");
-            } 
+            }
         }
 
         public void RemoveMapping(IColliderHandle colliderHandle)

@@ -1,5 +1,4 @@
 ﻿using Fletch.Core.Colors;
-using Fletch.Core.LifeCycle;
 using Fletch.Core.Math.Geometry;
 using Fletch.Engine.Attributes;
 using Fletch.Engine.Components;

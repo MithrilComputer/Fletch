@@ -1,6 +1,6 @@
 ﻿using Fletch.Core.Time;
 
-namespace Fletch.Core.Components.Update
+namespace Fletch.Core.LifeCycle
 {
     internal interface IUpdateable
     {

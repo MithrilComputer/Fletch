@@ -7,7 +7,7 @@ namespace Fletch.Engine.Components
     {
         public bool IsEnabled { get; set; } = true;
 
-        public GameObject GameObject { get; private set; } 
+        public GameObject GameObject { get; private set; }
 
         protected Transform Transform => GameObject.Transform;
 

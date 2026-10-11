@@ -116,7 +116,7 @@ namespace Fletch.Physics.Systems
 
             BodyWriteState writeState = PhysicsHelper.CreateBodyWriteState(rigidbody);
             IBodyHandle bodyHandle = physicsBackend.CreateBody(worldHandle, writeState);
-            
+
             rigidbody.Initialize(bodyHandle, this, physicsSystem);
         }
 

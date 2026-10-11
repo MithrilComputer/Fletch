@@ -45,7 +45,7 @@ namespace Fletch.Physics.Box2D.Natives
                     );
             }
 
-            if((writeState.DirtyFlags & ColliderDirtyFlags.Shape) != 0)
+            if ((writeState.DirtyFlags & ColliderDirtyFlags.Shape) != 0)
             {
                 SetShapeData(
                     colliderHandle.Id,
@@ -96,7 +96,7 @@ namespace Fletch.Physics.Box2D.Natives
                     writeState.LockY,
                     writeState.FixedRotation
                     ));
-            
+
             if (writeState.Enabled)
             {
                 B2Bodies.b2Body_Enable(b2BodyId);

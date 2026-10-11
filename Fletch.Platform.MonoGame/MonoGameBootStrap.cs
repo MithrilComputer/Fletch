@@ -27,9 +27,9 @@ using Fletch.Rendering.MonoGame.Backend;
 using Fletch.Rendering.Systems;
 using Fletch.Runtime.Abstractions.Hosting;
 using Fletch.Runtime.Hosting;
+using Fletch.Runtime.Systems;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Xna.Framework;
-using Fletch.Runtime.Systems;
 
 namespace Fletch.Platform.MonoGame
 {

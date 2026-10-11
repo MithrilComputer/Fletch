@@ -38,7 +38,7 @@ namespace Fletch.Runtime.Hosting
             pathProvider = platformContext.PathProvider;
             renderingBackend = platformContext.RenderingBackend;
             inputBackend = platformContext.InputBackend;
-            
+
 
             this.sceneFactory = sceneFactory;
             this.subSystemFactory = subSystemFactory;

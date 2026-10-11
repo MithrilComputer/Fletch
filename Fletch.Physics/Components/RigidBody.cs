@@ -1,6 +1,4 @@
-﻿using Fletch.Core.Time;
-using Fletch.Engine.Components;
-using Fletch.Engine.Components.Updateable;
+﻿using Fletch.Engine.Components;
 using Fletch.Engine.Hierarchy;
 using Fletch.Engine.Model;
 using Fletch.Physics.Abstractions.CollisionShapes;
@@ -121,7 +119,7 @@ namespace Fletch.Physics.Components
 
                 collider = physicsSystem.colliderFactory.CreateNewCollider(this, writeState);
             }
-            else if(typeof(T) == typeof(CircleCollider))
+            else if (typeof(T) == typeof(CircleCollider))
             {
                 writeState = new ColliderWriteState(
                     dirtyFlags: ColliderDirtyFlags.All,
@@ -281,9 +279,9 @@ namespace Fletch.Physics.Components
 
             colliders.Refresh();
 
-            foreach(Collider collider in colliders.Items)
+            foreach (Collider collider in colliders.Items)
             {
-                if(collider.IsDirty)
+                if (collider.IsDirty)
                 {
                     RigidBodyManager.UpdateColliderState(collider);
                     collider.ClearDirty();

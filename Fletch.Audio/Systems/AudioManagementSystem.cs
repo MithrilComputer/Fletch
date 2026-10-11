@@ -5,13 +5,12 @@ using Fletch.Audio.Model;
 using Fletch.Audio.Model.SoundListenerCommands;
 using Fletch.Audio.Model.SoundPlayerCommands;
 using Fletch.Audio.Model.SoundPlayerCommands.Source;
-using Fletch.Core.Components.Update;
+using Fletch.Core.LifeCycle;
 using Fletch.Core.Time;
 using Fletch.Engine.Components;
 using Fletch.Engine.Model;
-using Fletch.Engine.Scenes;
 using Fletch.Engine.Systems;
-
+using Fletch.Engine.Systems.Scenes;
 using System.Numerics;
 
 namespace Fletch.Audio.Systems

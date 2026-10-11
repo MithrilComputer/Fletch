@@ -17,15 +17,15 @@ namespace Fletch.Physics.Components.CollisionShapes
         private float height;
 
         internal CapsuleCollider(
-            float radius, 
-            float height, 
-            IBodyHandle parentBody, 
-            IColliderHandle colliderHandle, 
+            float radius,
+            float height,
+            IBodyHandle parentBody,
+            IColliderHandle colliderHandle,
             PhysicsMaterial material = new(),
             Vector2 offset = default)
             : base(
-                  colliderHandle, 
-                  parentBody, 
+                  colliderHandle,
+                  parentBody,
                   material,
                   offset)
         {

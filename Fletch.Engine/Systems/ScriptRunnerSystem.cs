@@ -1,10 +1,9 @@
-﻿using Fletch.Core.Components.Update;
-using Fletch.Core.Diagnostics;
+﻿using Fletch.Core.Diagnostics;
+using Fletch.Core.LifeCycle;
 using Fletch.Core.Time;
 using Fletch.Engine.Components;
-using Fletch.Engine.Components.Updateable;
 using Fletch.Engine.Model;
-using Fletch.Engine.Scenes;
+using Fletch.Engine.Systems.Scenes;
 
 namespace Fletch.Engine.Systems
 {

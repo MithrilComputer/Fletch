@@ -7,7 +7,6 @@ using Fletch.Platform.MonoGame.Loader;
 using Fletch.Rendering.Abstractions.Backends;
 using Fletch.Rendering.MonoGame.Backend;
 using Fletch.Runtime.Abstractions.Hosting;
-using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Xna.Framework;
 using SDL2;
 
@@ -22,7 +21,7 @@ namespace Fletch.Platform.MonoGame
 
         private readonly MonoGamePlatformOptions options;
 
-        
+
         private TimeSpan accumulatedTime = TimeSpan.Zero;
 
         private TimeSpan fixedTotalTime = TimeSpan.Zero;

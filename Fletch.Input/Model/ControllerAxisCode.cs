@@ -1,4 +1,4 @@
-﻿namespace Fletch.Input.Model.Systems.Axis
+﻿namespace Fletch.Input.Model
 {
     public enum ControllerAxisCode
     {

@@ -1,16 +1,15 @@
 ﻿using Fletch.Core.EngineConfig;
+using Fletch.Core.LifeCycle;
 using Fletch.Core.Time;
 using Fletch.Engine.Components;
-using Fletch.Engine.Components.Updateable;
 using Fletch.Engine.Model;
-using Fletch.Engine.Scenes;
 using Fletch.Engine.Systems;
+using Fletch.Engine.Systems.Scenes;
 using Fletch.Physics.Abstractions.Backends;
 using Fletch.Physics.Components;
 using Fletch.Physics.Factories;
 using Fletch.Physics.Maps;
 using Fletch.Physics.Model.ResourceHandles;
-using System.Diagnostics;
 
 namespace Fletch.Physics.Systems
 {
@@ -61,12 +60,12 @@ namespace Fletch.Physics.Systems
 
         private void OnRigidBodyChange(GameObjectComponent component, ComponentChangeType changeType)
         {
-            if(component is not RigidBody rigidBody)
+            if (component is not RigidBody rigidBody)
             {
                 throw new InvalidOperationException();
             }
 
-            switch(changeType)
+            switch (changeType)
             {
                 case ComponentChangeType.Added:
 
@@ -77,7 +76,7 @@ namespace Fletch.Physics.Systems
 
                     rigidBodyManager.RemoveRigidBody(rigidBody);
                     break;
-                
+
                 default: // We can ignore other change types, as the rigidbodies track their modifed changes internaly.
                     break;
             }

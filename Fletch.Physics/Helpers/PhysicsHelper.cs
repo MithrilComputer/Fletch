@@ -4,7 +4,6 @@ using Fletch.Physics.Components.CollisionShapes;
 using Fletch.Physics.Model.Info.IO;
 using Fletch.Physics.Model.Info.Masking.Collisions;
 using Fletch.Physics.Model.Info.Shapes;
-using System.Diagnostics;
 using System.Numerics;
 
 namespace Fletch.Physics.Helpers
@@ -40,7 +39,7 @@ namespace Fletch.Physics.Helpers
 
         internal static ColliderWriteState CreateColliderWriteState(Collider colliderType)
         {
-            switch(colliderType)
+            switch (colliderType)
             {
                 case BoxCollider boxCollider:
                     return new ColliderWriteState(

@@ -1,7 +1,5 @@
-﻿using Fletch.Core.Components.Update;
-using Fletch.Core.LifeCycle;
+﻿using Fletch.Core.LifeCycle;
 using Fletch.Core.Time;
-using Fletch.Engine.Components.Updateable;
 using Fletch.Engine.Hierarchy;
 
 namespace Fletch.Engine.Components

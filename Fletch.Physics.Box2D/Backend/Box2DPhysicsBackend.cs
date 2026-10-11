@@ -6,7 +6,6 @@ using Fletch.Physics.Box2D.Natives;
 using Fletch.Physics.Model.Info.Collisions;
 using Fletch.Physics.Model.Info.IO;
 using Fletch.Physics.Model.ResourceHandles;
-using System.Drawing;
 using System.Numerics;
 
 namespace Fletch.Physics.Box2D.Backend
@@ -14,7 +13,7 @@ namespace Fletch.Physics.Box2D.Backend
     internal sealed class Box2DPhysicsBackend : IPhysicsBackend
     {
         private readonly Box2DManager b2Manager;
-        
+
         // running ---------------------
 
         public void Initialize() { }
@@ -94,7 +93,7 @@ namespace Fletch.Physics.Box2D.Backend
 
         public void ApplyForce(IBodyHandle bodyHandle, Vector2 force)
         {
-            if(bodyHandle is not Box2DBodyHandle b2bodyHandle)
+            if (bodyHandle is not Box2DBodyHandle b2bodyHandle)
                 throw new ArgumentException("Invalid body handle type. Expected Box2DBodyHandle.", nameof(bodyHandle));
 
             B2Bodies.b2Body_ApplyForceToCenter(b2bodyHandle.Id, FletchB2Converter.ConvertToB2(force), true);

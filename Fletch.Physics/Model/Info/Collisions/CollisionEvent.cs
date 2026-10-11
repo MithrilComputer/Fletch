@@ -1,5 +1,4 @@
-﻿using Fletch.Engine.Hierarchy;
-using Fletch.Physics.Components;
+﻿using Fletch.Physics.Components;
 
 namespace Fletch.Physics.Model.Info.Collisions
 {

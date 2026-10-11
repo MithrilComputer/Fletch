@@ -1,11 +1,11 @@
-﻿using Fletch.Core.Components.Update;
+﻿using Fletch.Core.LifeCycle;
 using Fletch.Core.Math.Geometry;
 using Fletch.Core.Time;
 using Fletch.Engine.Components;
 using Fletch.Engine.Hierarchy;
 using Fletch.Engine.Model;
-using Fletch.Engine.Scenes;
 using Fletch.Engine.Systems;
+using Fletch.Engine.Systems.Scenes;
 using Fletch.Physics.Components;
 using Fletch.Rendering.Components;
 using Fletch.Rendering.Model;
@@ -54,9 +54,9 @@ namespace Fletch.Runtime.Systems
                         renderingComponent.SetRenderPose(new RenderPose(renderPostion, rotation));
                     }
                 }
-                else if(poseBind.RenderingComponents.Count > 0)
+                else if (poseBind.RenderingComponents.Count > 0)
                 {
-                    foreach(IInternalRenderingComponent renderingComponent in poseBind.RenderingComponents)
+                    foreach (IInternalRenderingComponent renderingComponent in poseBind.RenderingComponents)
                     {
                         RenderPose renderPose = new RenderPose(gameObject.Transform.WorldPosition, gameObject.Transform.WorldRotation.Radians);
 
@@ -71,7 +71,7 @@ namespace Fletch.Runtime.Systems
             if (component is not IInternalRenderingComponent renderingComponent)
                 throw new Exception();
 
-            if(!gameObjectPoseBinds.TryGetValue(component.GameObject, out PoseBind? bind))
+            if (!gameObjectPoseBinds.TryGetValue(component.GameObject, out PoseBind? bind))
             {
                 bind = new PoseBind();
 
@@ -98,7 +98,7 @@ namespace Fletch.Runtime.Systems
             if (!gameObjectPoseBinds.TryGetValue(component.GameObject, out PoseBind? bind))
             {
                 bind = new PoseBind();
-                
+
                 gameObjectPoseBinds[component.GameObject] = bind;
             }
 

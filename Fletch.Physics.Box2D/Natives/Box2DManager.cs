@@ -123,7 +123,7 @@ namespace Fletch.Physics.Box2D.Natives
             if (bodyHandle is not Box2DBodyHandle b2BodyHandle)
                 throw new Exception();
 
-            Vector2 position = 
+            Vector2 position =
                 FletchB2Converter.ConvertToFletch(
                     B2Bodies.b2Body_GetPosition(b2BodyHandle.Id));
 

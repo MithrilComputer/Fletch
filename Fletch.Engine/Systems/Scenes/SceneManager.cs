@@ -1,4 +1,4 @@
-﻿namespace Fletch.Engine.Scenes
+﻿namespace Fletch.Engine.Systems.Scenes
 {
     internal class SceneManager
     {
