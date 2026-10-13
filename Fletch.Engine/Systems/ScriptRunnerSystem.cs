@@ -42,7 +42,7 @@ namespace Fletch.Engine.Systems
             for (int i = 0; i < scripts.Count; i++)
             {
                 Script script = scripts[i];
-                if (script.IsEnabled)
+                if (script.IsEnabled && script.HasStarted)
                     script.FixedUpdate(deltaTime);
             }
         }
@@ -57,7 +57,7 @@ namespace Fletch.Engine.Systems
             for (int i = 0; i < scripts.Count; i++)
             {
                 Script script = scripts[i];
-                if (script.IsEnabled)
+                if (script.IsEnabled && script.HasStarted)
                     script.Update(deltaTime);
             }
 

@@ -21,7 +21,13 @@ namespace Fletch.Sandbox
 
         private void AddBackgroundObjects()
         {
+            GameObject background = levelScene.CreateGameObject();
 
+            SpriteRenderer backgroundSprite = background.AddComponent<SpriteRenderer>();
+
+            backgroundSprite.VisualResource.PixelPerWorldUnit = 16;
+
+            backgroundSprite.VisualResource.Texture = textureFactory.Load(Path.Combine(pathProvider.AssetFolderDirectory, "Background.png"));
         }
 
         private void AddPlayer()
@@ -30,7 +36,9 @@ namespace Fletch.Sandbox
 
             SpriteRenderer sprite = player.AddComponent<SpriteRenderer>();
 
-            sprite.VisualResource.Texture = textureFactory.Load(Path.Combine(pathProvider.AssetFolderDirectory, "Rat.png"));
+            sprite.VisualResource.PixelPerWorldUnit = 16;
+
+            sprite.VisualResource.Texture = textureFactory.CreateSolidColor(8, 8, Color.Red);
 
             player.AddComponent<CharacterController>();
 
