@@ -18,7 +18,7 @@ namespace Fletch.Input.Abstractions.Backends
         IMouse MouseDevice { get; }
 
         /// <summary>
-        /// All logical gamepad slots.
+        /// All gamepad slots.
         /// </summary>
         IGamepad[] GamepadSlots { get; }
 

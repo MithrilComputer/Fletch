@@ -1,6 +1,8 @@
 ﻿using Fletch.Engine.Systems.Scenes;
-using Fletch.Input.Abstractions.Backends;
-using Fletch.Rendering.Abstractions.Backends;
+using Fletch.Hosting.API;
+using Fletch.Input.API;
+using Fletch.Platform.Abstractions.Paths;
+using Fletch.Rendering.API;
 
 namespace Fletch.Hosting.Abstractions.Contexts
 {
@@ -8,8 +10,14 @@ namespace Fletch.Hosting.Abstractions.Contexts
     {
         SceneManager SceneManager { get; }
 
-        IRenderingBackend RenderingBackend { get; }
+        RenderingResources Rendering { get; }
 
-        IInputBackend InputBackend { get; }
+        InputService Input { get; }
+
+        IPathProvider PathProvider { get; }
+
+        ApplicationLifetime ApplicationLifetime { get; }
+
+        //TODO Physics, raycasts, ect
     }
 }

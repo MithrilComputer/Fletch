@@ -3,7 +3,7 @@ using Fletch.Rendering.Abstractions.Resources;
 
 namespace Fletch.Rendering.Abstractions.Factories
 {
-    internal interface ITextureFactory
+    public interface ITextureFactory
     {
         ITexture Load(string path);
 

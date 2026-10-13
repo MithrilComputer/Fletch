@@ -1,9 +1,13 @@
-﻿using Fletch.Core.Diagnostics;
+﻿using Fletch.Audio.Systems;
+using Fletch.Core.Diagnostics;
 using Fletch.Engine.Abstractions.Factories;
+using Fletch.Engine.Systems;
 using Fletch.Engine.Systems.Scenes;
+using Fletch.Physics.Systems;
+using Fletch.Rendering.Systems;
+using Fletch.Runtime.Systems;
 
-
-namespace Fletch.Engine.Factories
+namespace Fletch.Runtime.Factories
 {
     internal class SceneFactory : ISceneFactory
     {
@@ -22,7 +26,17 @@ namespace Fletch.Engine.Factories
 
         public Scene CreateEmptyScene()
         {
-            return new Scene(sceneLogger, gameObjectFactory, subSystemFactory);
+            Scene scene = new Scene(sceneLogger, gameObjectFactory, subSystemFactory);
+
+            scene.SystemManager.AddSubSystem<ScriptRunnerSystem>();
+
+            scene.SystemManager.AddSubSystem<AudioManagementSystem>();
+            scene.SystemManager.AddSubSystem<WorldRenderingSystem>();
+            scene.SystemManager.AddSubSystem<PhysicsSystem>();
+
+            scene.SystemManager.AddSubSystem<PhysicsInterpolator>();
+
+            return scene;
         }
     }
 }

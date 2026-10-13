@@ -7,9 +7,9 @@ namespace Fletch.Platform.MonoGame
 {
     internal class MonoGameLauncher : IPlatformLauncher
     {
-        void IPlatformLauncher.Run<TApplication>(FletchOptions options)
+        void IPlatformLauncher.Run<TGame>(FletchOptions options, Action<IServiceCollection>? configureServices = null)
         {
-            using ServiceProvider provider = MonoGameBootstrap.CreateDefault(options);
+            using ServiceProvider provider = MonoGameBootstrap.CreateDefault<TGame>(options, configureServices);
 
             Game game = provider.GetRequiredService<Game>();
 

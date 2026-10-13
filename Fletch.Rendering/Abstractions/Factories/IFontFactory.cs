@@ -2,7 +2,7 @@
 
 namespace Fletch.Rendering.Abstractions.Factories
 {
-    internal interface IFontFactory
+    public interface IFontFactory
     {
         /// <summary>
         /// Registers a font family from a TrueType Font (.ttf) file.

@@ -33,17 +33,17 @@ namespace Fletch.Engine.Systems.Scenes
             SystemManager = new SubSystemManager(subSystemFactory, this);
         }
 
-        public void Update(FrameTime frameTime)
+        internal void Update(FrameTime frameTime)
         {
             SystemManager.UpdateSystems(frameTime);
         }
 
-        public void FixedUpdate(FixedTimeStep fixedTime)
+        internal void FixedUpdate(FixedTimeStep fixedTime)
         {
             SystemManager.UpdateFixedSystems(fixedTime);
         }
 
-        public void Render(FrameTime frameTime)
+        internal void Render(FrameTime frameTime)
         {
             SystemManager.UpdateRenderables(frameTime);
         }
@@ -53,7 +53,7 @@ namespace Fletch.Engine.Systems.Scenes
         /// </summary>
         /// <exception cref="ArgumentNullException"></exception>
         /// <exception cref="InvalidOperationException"></exception>
-        public void AddSystemComponentRegistration(
+        internal void AddSystemComponentRegistration(
             Type componentType,
             Action<GameObjectComponent, ComponentChangeType> callback)
         {
@@ -73,7 +73,7 @@ namespace Fletch.Engine.Systems.Scenes
             list.Add(callback);
         }
 
-        public void RemoveSystemComponentRegistration(
+        internal void RemoveSystemComponentRegistration(
             Type componentType,
             Action<GameObjectComponent, ComponentChangeType> callback)
         {
@@ -94,7 +94,7 @@ namespace Fletch.Engine.Systems.Scenes
                 componentCallBacks.Remove(componentType);
         }
 
-        public void OnComponentChange(GameObjectComponent component, ComponentChangeType changeType)
+        internal void OnComponentChange(GameObjectComponent component, ComponentChangeType changeType)
         {
             if (component == null || component.GameObject == null)
                 return;

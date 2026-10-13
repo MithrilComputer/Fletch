@@ -3,3 +3,5 @@
 [assembly: InternalsVisibleTo("Fletch.Runtime")]
 [assembly: InternalsVisibleTo("Fletch.Platform.MonoGame")]
 [assembly: InternalsVisibleTo("Fletch.Rendering")]
+[assembly: InternalsVisibleTo("Fletch.Hosting")]
+

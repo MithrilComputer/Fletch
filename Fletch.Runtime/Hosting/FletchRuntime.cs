@@ -1,6 +1,8 @@
 ﻿using Fletch.Core.EngineConfig;
 using Fletch.Core.Time;
-using Fletch.Engine.Abstractions.Factories;
+using Fletch.Engine.Systems.Scenes;
+using Fletch.Hosting.Abstractions.Contexts;
+using Fletch.Hosting.Abstractions.Game;
 using Fletch.Input.Abstractions.Backends;
 using Fletch.Platform.Abstractions.Contexts;
 using Fletch.Platform.Abstractions.Lifecycle;
@@ -8,47 +10,44 @@ using Fletch.Platform.Abstractions.Paths;
 using Fletch.Platform.Abstractions.Window;
 using Fletch.Rendering.Abstractions.Backends;
 using Fletch.Runtime.Abstractions.Hosting;
+using System.Diagnostics;
 
 namespace Fletch.Runtime.Hosting
 {
     internal class FletchRuntime : IRuntime
     {
-        private readonly IWindow window;
-
-        private readonly IApplicationLifetime applicationLifeTime;
-
-        private readonly IPathProvider pathProvider;
+        private readonly SceneManager sceneManager;
 
         private readonly IRenderingBackend renderingBackend;
 
         private readonly IInputBackend inputBackend;
 
-        private readonly ISceneFactory sceneFactory;
+        private readonly IFletchGame game;
 
-        private readonly ISubSystemFactory subSystemFactory;
+        private readonly IGameContext gameContext;
 
         public IPlatformContext Platform => throw new NotImplementedException();
 
-        public bool IsInitialized { get; private set; }
+        public bool IsInitialized { get; private set; } = false;
 
-        public FletchRuntime(IPlatformContext platformContext, ISceneFactory sceneFactory, ISubSystemFactory subSystemFactory)
+        public FletchRuntime(IPlatformContext platformContext, SceneManager sceneManager, IFletchGame game, IGameContext gameContext)
         {
-            window = platformContext.Window;
-            applicationLifeTime = platformContext.Lifetime;
-            pathProvider = platformContext.PathProvider;
             renderingBackend = platformContext.RenderingBackend;
             inputBackend = platformContext.InputBackend;
 
-
-            this.sceneFactory = sceneFactory;
-            this.subSystemFactory = subSystemFactory;
+            this.gameContext = gameContext;
+            this.sceneManager = sceneManager;
+            this.game = game;
         }
 
         public void Initialize()
         {
-            IsInitialized = true;
+            if (IsInitialized)
+                return;
 
-            //Initialize the Active Scene
+            game.Initialize(gameContext);
+
+            IsInitialized = true;
         }
 
         public void Pause()
@@ -64,7 +63,7 @@ namespace Fletch.Runtime.Hosting
             if (!IsInitialized)
                 return;
 
-            //Start the Active Scene
+            game.Start();
         }
 
         public void Update(FrameTime time)
@@ -74,7 +73,7 @@ namespace Fletch.Runtime.Hosting
 
             inputBackend.UpdateBackend();
 
-            //Update the Active Scene
+            sceneManager.ActiveScene?.Update(time);
         }
 
         public void FixedUpdate(FixedTimeStep time)
@@ -82,7 +81,7 @@ namespace Fletch.Runtime.Hosting
             if (!IsInitialized)
                 return;
 
-            //Fixed Update the Active Scene
+            sceneManager.ActiveScene?.FixedUpdate(time);
         }
 
         public void Render(FrameTime time)
@@ -92,7 +91,7 @@ namespace Fletch.Runtime.Hosting
 
             renderingBackend.BeginFrame(EngineConfig.ClearColor);
 
-            //Render Active Scene
+            sceneManager.ActiveScene?.Render(time);
 
             renderingBackend.EndFrame();
         }

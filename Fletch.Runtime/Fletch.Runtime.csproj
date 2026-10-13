@@ -9,6 +9,7 @@
   <ItemGroup>
     <ProjectReference Include="..\Fletch.Audio\Fletch.Audio.csproj" />
     <ProjectReference Include="..\Fletch.Core\Fletch.Core.csproj" />
+    <ProjectReference Include="..\Fletch.Hosting\Fletch.Hosting.csproj" />
     <ProjectReference Include="..\Fletch.Physics\Fletch.Physics.csproj" />
     <ProjectReference Include="..\Fletch.Platform\Fletch.Platform.csproj" />
   </ItemGroup>

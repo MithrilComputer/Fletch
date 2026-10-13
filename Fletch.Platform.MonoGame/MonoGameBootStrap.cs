@@ -7,7 +7,13 @@ using Fletch.Core.EngineConfig;
 using Fletch.Core.Platform;
 using Fletch.Engine.Abstractions.Factories;
 using Fletch.Engine.Factories;
+using Fletch.Engine.Systems.Scenes;
+using Fletch.Hosting.Abstractions.Contexts;
+using Fletch.Hosting.Abstractions.Game;
+using Fletch.Hosting.API;
+using Fletch.Hosting.Contexts;
 using Fletch.Input.Abstractions.Backends;
+using Fletch.Input.API;
 using Fletch.Input.MonoGame.Backend;
 using Fletch.Physics.Abstractions.Backends;
 using Fletch.Physics.Box2D.Backend;
@@ -22,10 +28,12 @@ using Fletch.Platform.MonoGame.Paths;
 using Fletch.Platform.MonoGame.Window;
 using Fletch.Rendering.Abstractions.Backends;
 using Fletch.Rendering.Abstractions.Managers;
+using Fletch.Rendering.API;
 using Fletch.Rendering.Managers;
 using Fletch.Rendering.MonoGame.Backend;
 using Fletch.Rendering.Systems;
 using Fletch.Runtime.Abstractions.Hosting;
+using Fletch.Runtime.Factories;
 using Fletch.Runtime.Hosting;
 using Fletch.Runtime.Systems;
 using Microsoft.Extensions.DependencyInjection;
@@ -35,7 +43,7 @@ namespace Fletch.Platform.MonoGame
 {
     public static class MonoGameBootstrap
     {
-        public static ServiceProvider CreateDefault(FletchOptions options, Action<IServiceCollection>? configureServices = null)
+        public static ServiceProvider CreateDefault<TGame>(FletchOptions options, Action<IServiceCollection>? configureServices = null) where TGame : class, IFletchGame
         {
             if (options is null) throw new ArgumentNullException(nameof(options));
 
@@ -59,14 +67,14 @@ namespace Fletch.Platform.MonoGame
             // Platform pieces
             services.AddSingleton<IWindow, MonoGameWindow>();
 
-            // Backends
-            services.AddSingleton<IInputBackend, MonoGameInputBackend>();
+            // Rendering
             services.AddSingleton<IRenderingBackend, MonoGameRenderingBackend>();
-
-            //Rendering
             services.AddSingleton<ICameraManager, CameraManager>();
             services.AddSingleton<IRenderSurface, MonoGameRenderSurface>();
             services.AddTransient<WorldRenderingSystem>();
+
+            // Input
+            services.AddSingleton<IInputBackend, MonoGameInputBackend>();
 
             // Audio
             services.AddSingleton<IAudioBackend, OpenALAudioBackend>();
@@ -83,6 +91,7 @@ namespace Fletch.Platform.MonoGame
             // Runtime
             services.AddSingleton<IRuntime, FletchRuntime>();
             services.AddSingleton<Func<IRuntime>>(sp => () => sp.GetRequiredService<IRuntime>());
+            
             services.AddSingleton<PhysicsInterpolator>();
 
             // Engine Factories
@@ -90,6 +99,16 @@ namespace Fletch.Platform.MonoGame
             services.AddSingleton<ISceneFactory, SceneFactory>();
             services.AddSingleton<ISubSystemFactory, SubSystemFactory>();
             services.AddSingleton<IComponentFactory, ComponentFactory>();
+
+            // Public API
+            services.AddSingleton<IFletchGame, TGame>();
+
+            services.AddSingleton(sp => new RenderingResources(sp.GetRequiredService<IRenderingBackend>()));
+            services.AddSingleton(sp => new InputService(sp.GetRequiredService<IInputBackend>()));
+            services.AddSingleton(sp => new SceneManager(sp.GetRequiredService<ISceneFactory>()));
+            services.AddSingleton(sp => new ApplicationLifetime(sp.GetRequiredService<IApplicationLifetime>()));
+
+            services.AddSingleton<IGameContext, FletchGameContext>();
 
             configureServices?.Invoke(services);
 

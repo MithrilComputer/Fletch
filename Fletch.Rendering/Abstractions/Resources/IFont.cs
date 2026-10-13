@@ -5,7 +5,7 @@ namespace Fletch.Rendering.Abstractions.Resources
     /// <summary>
     /// Represents a font resource usable by the rendering system.
     /// </summary>
-    internal interface IFont
+    public interface IFont
     {
         /// <summary>
         /// Measures the size of the given text in pixels.
