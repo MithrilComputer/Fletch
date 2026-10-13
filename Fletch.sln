@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 18
-VisualStudioVersion = 18.8.12023.21 stable
+VisualStudioVersion = 18.8.12023.21
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Fletch.Tests", "Fletch.Tests\Fletch.Tests.csproj", "{6B8080E8-8C98-43A9-8F09-F665E88FF144}"
 EndProject
@@ -20,8 +20,6 @@ EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Fletch.Platform", "Fletch.Platform\Fletch.Platform.csproj", "{250BE990-FF06-4681-9E65-B01C8FA8FA13}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Fletch.Platform.MonoGame", "Fletch.Platform.MonoGame\Fletch.Platform.MonoGame.csproj", "{7B15A5B3-07A2-42CF-83E8-49A95CE33F43}"
-EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Fletch.Sandbox", "Fletch.Sandbox.MonoGame\Fletch.Sandbox.csproj", "{DE2ECC2C-518A-4A0F-A2E2-18CC147DF7C4}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Fletch.Engine", "Fletch.Engine\Fletch.Engine.csproj", "{5E66BEB4-0014-4BBC-B559-F06BA72A0CAC}"
 EndProject
@@ -44,6 +42,8 @@ EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Fletch.Hosting", "Fletch.Hosting\Fletch.Hosting.csproj", "{88AB3479-E834-4EBA-8E2F-64EA700D608E}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Fletch.Application", "Fletch.Application\Fletch.Application.csproj", "{FD200A69-7CF3-9D82-C80C-E27CF84FADB4}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Fletch.Sandbox", "Fletch.Sandbox\Fletch.Sandbox.csproj", "{AC9FC2BC-A748-698C-C1DE-901663540E8F}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -163,18 +163,6 @@ Global
 		{7B15A5B3-07A2-42CF-83E8-49A95CE33F43}.Release|ARM32.Build.0 = Release|Any CPU
 		{7B15A5B3-07A2-42CF-83E8-49A95CE33F43}.Release|x64.ActiveCfg = Release|x64
 		{7B15A5B3-07A2-42CF-83E8-49A95CE33F43}.Release|x64.Build.0 = Release|x64
-		{DE2ECC2C-518A-4A0F-A2E2-18CC147DF7C4}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{DE2ECC2C-518A-4A0F-A2E2-18CC147DF7C4}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{DE2ECC2C-518A-4A0F-A2E2-18CC147DF7C4}.Debug|ARM32.ActiveCfg = Debug|Any CPU
-		{DE2ECC2C-518A-4A0F-A2E2-18CC147DF7C4}.Debug|ARM32.Build.0 = Debug|Any CPU
-		{DE2ECC2C-518A-4A0F-A2E2-18CC147DF7C4}.Debug|x64.ActiveCfg = Debug|x64
-		{DE2ECC2C-518A-4A0F-A2E2-18CC147DF7C4}.Debug|x64.Build.0 = Debug|x64
-		{DE2ECC2C-518A-4A0F-A2E2-18CC147DF7C4}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{DE2ECC2C-518A-4A0F-A2E2-18CC147DF7C4}.Release|Any CPU.Build.0 = Release|Any CPU
-		{DE2ECC2C-518A-4A0F-A2E2-18CC147DF7C4}.Release|ARM32.ActiveCfg = Release|Any CPU
-		{DE2ECC2C-518A-4A0F-A2E2-18CC147DF7C4}.Release|ARM32.Build.0 = Release|Any CPU
-		{DE2ECC2C-518A-4A0F-A2E2-18CC147DF7C4}.Release|x64.ActiveCfg = Release|x64
-		{DE2ECC2C-518A-4A0F-A2E2-18CC147DF7C4}.Release|x64.Build.0 = Release|x64
 		{5E66BEB4-0014-4BBC-B559-F06BA72A0CAC}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{5E66BEB4-0014-4BBC-B559-F06BA72A0CAC}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{5E66BEB4-0014-4BBC-B559-F06BA72A0CAC}.Debug|ARM32.ActiveCfg = Debug|Any CPU
@@ -271,6 +259,18 @@ Global
 		{FD200A69-7CF3-9D82-C80C-E27CF84FADB4}.Release|ARM32.Build.0 = Release|Any CPU
 		{FD200A69-7CF3-9D82-C80C-E27CF84FADB4}.Release|x64.ActiveCfg = Release|Any CPU
 		{FD200A69-7CF3-9D82-C80C-E27CF84FADB4}.Release|x64.Build.0 = Release|Any CPU
+		{AC9FC2BC-A748-698C-C1DE-901663540E8F}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{AC9FC2BC-A748-698C-C1DE-901663540E8F}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{AC9FC2BC-A748-698C-C1DE-901663540E8F}.Debug|ARM32.ActiveCfg = Debug|Any CPU
+		{AC9FC2BC-A748-698C-C1DE-901663540E8F}.Debug|ARM32.Build.0 = Debug|Any CPU
+		{AC9FC2BC-A748-698C-C1DE-901663540E8F}.Debug|x64.ActiveCfg = Debug|x64
+		{AC9FC2BC-A748-698C-C1DE-901663540E8F}.Debug|x64.Build.0 = Debug|x64
+		{AC9FC2BC-A748-698C-C1DE-901663540E8F}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{AC9FC2BC-A748-698C-C1DE-901663540E8F}.Release|Any CPU.Build.0 = Release|Any CPU
+		{AC9FC2BC-A748-698C-C1DE-901663540E8F}.Release|ARM32.ActiveCfg = Release|Any CPU
+		{AC9FC2BC-A748-698C-C1DE-901663540E8F}.Release|ARM32.Build.0 = Release|Any CPU
+		{AC9FC2BC-A748-698C-C1DE-901663540E8F}.Release|x64.ActiveCfg = Release|x64
+		{AC9FC2BC-A748-698C-C1DE-901663540E8F}.Release|x64.Build.0 = Release|x64
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
