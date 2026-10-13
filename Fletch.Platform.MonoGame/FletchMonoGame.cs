@@ -2,7 +2,6 @@
 using Fletch.Core.Time;
 using Fletch.Platform.Abstractions.Lifecycle;
 using Fletch.Platform.Abstractions.Paths;
-using Fletch.Platform.MonoGame.Host;
 using Fletch.Platform.MonoGame.Lifecycle;
 using Fletch.Platform.MonoGame.Loader;
 using Fletch.Rendering.Abstractions.Backends;
@@ -20,7 +19,7 @@ namespace Fletch.Platform.MonoGame
     {
         private readonly GraphicsDeviceManager graphics;
 
-        private readonly MonoGamePlatformOptions options;
+        private readonly FletchOptions options;
 
 
         private TimeSpan accumulatedTime = TimeSpan.Zero;

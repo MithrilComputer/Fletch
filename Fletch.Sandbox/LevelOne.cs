@@ -1,6 +1,6 @@
 ﻿using Fletch.Engine.Systems.Scenes;
 
-namespace Fletch.Sandbox.MonoGame
+namespace Fletch.Sandbox
 {
     internal sealed class LevelOne
     {
@@ -8,7 +8,7 @@ namespace Fletch.Sandbox.MonoGame
 
         public LevelOne()
         {
-            scene = new Scene();
+            //scene = new Scene();
         }
 
         // add objects and stuff to scene

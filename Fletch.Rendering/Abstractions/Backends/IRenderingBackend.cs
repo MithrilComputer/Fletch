@@ -8,7 +8,7 @@ using Fletch.Rendering.Model;
 
 namespace Fletch.Rendering.Abstractions.Backends
 {
-    public interface IRenderingBackend : IDisposable
+    internal interface IRenderingBackend : IDisposable
     {
         /// <summary>
         /// Begins a new frame by clearing the back buffer to the given color.
