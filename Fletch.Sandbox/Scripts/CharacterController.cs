@@ -1,10 +1,14 @@
-﻿using Fletch.Core.Time;
+﻿using Fletch.Audio.Components;
+using Fletch.Audio.Model;
+using Fletch.Core.Time;
 using Fletch.Engine.Components;
 using Fletch.Engine.Hierarchy;
 using Fletch.Hosting.Abstractions.Contexts;
 using Fletch.Input.API;
 using Fletch.Input.Model;
 using Fletch.Physics.Components;
+using System;
+using System.IO;
 using System.Numerics;
 
 namespace Fletch.Sandbox.Scripts
@@ -18,9 +22,16 @@ namespace Fletch.Sandbox.Scripts
         private readonly float jumpCooloffTime = 0.1f;
 
 
+        private readonly float pitchRange = 0.5f;
+
+
         private readonly IGameContext context;
 
         private RigidBody rb;
+
+        private SoundPlayer jumpSoundPlayer;
+
+        private Random random;
 
 
         private bool jumpPressed = false;
@@ -32,11 +43,19 @@ namespace Fletch.Sandbox.Scripts
         public CharacterController(GameObject gameObject, IGameContext context) : base(gameObject)
         {
             this.context = context;
+
+            random = new Random();
         }
 
         public override void OnStart()
         {
             rb = GameObject.GetComponent<RigidBody>();
+            GameObject.GetComponent<AudioSource>()
+                .TryCreateSoundPlayer(
+                Path.Combine(context.PathProvider.AssetFolderDirectory, "jump.wav"),
+                out SoundPlayer soundPlayer);
+
+            jumpSoundPlayer = soundPlayer;
         }
 
         public override void Update(FrameTime deltaTime)
@@ -88,6 +107,10 @@ namespace Fletch.Sandbox.Scripts
         {
             if(jumpPressed && !jumpCoolingOff)
             {
+                jumpSoundPlayer.Pitch = ((float)random.NextDouble() * pitchRange) + (1f - pitchRange);
+
+                jumpSoundPlayer.PlaySound();
+
                 rb.LinearVelocity = new Vector2(0f, 0f);
 
                 rb.AddImpulse(Vector2.UnitY * jumpForce);

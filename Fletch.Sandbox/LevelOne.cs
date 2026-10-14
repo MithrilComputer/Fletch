@@ -1,4 +1,5 @@
-﻿using Fletch.Core.Colors;
+﻿using Fletch.Audio.Components;
+using Fletch.Core.Colors;
 using Fletch.Engine.Hierarchy;
 using Fletch.Hosting.Abstractions.Contexts;
 using Fletch.Physics.Components;
@@ -47,6 +48,8 @@ namespace Fletch.Sandbox
 
             player.AddComponent<CharacterController>();
 
+            player.AddComponent<AudioSource>();
+
             BoxCollider box = player.AddComponent<RigidBody>().AddCollider<BoxCollider>();
 
             box.Width = 0.5f;
@@ -58,6 +61,8 @@ namespace Fletch.Sandbox
             GameObject camera = levelScene.CreateGameObject();
 
             Camera2D cameraComponent = camera.AddComponent<Camera2D>();
+
+            camera.AddComponent<AudioListener>();
 
             cameraComponent.SamplerMode = Rendering.Model.SamplerMode.Point;
         }
