@@ -11,9 +11,9 @@ namespace Fletch.Sandbox.Scripts
 {
     internal class CharacterController : Script
     {
-        private readonly float fallForce = 15f;
+        private readonly float fallForce = 3f;
 
-        private readonly float jumpForce = 7f;
+        private readonly float jumpForce = 1.2f;
 
         private readonly float jumpCooloffTime = 0.1f;
 
@@ -43,10 +43,15 @@ namespace Fletch.Sandbox.Scripts
         {
             HandleInput();
 
+            if(jumpPressed && !GameState.Started)
+            {
+                GameState.Started = true;
+            }
+
             if(jumpCoolingOff)
             {
                 timeKeep += deltaTime.Delta;
-                
+
                 if(timeKeep >= jumpCooloffTime)
                 {
                     jumpCoolingOff = false;
@@ -57,9 +62,10 @@ namespace Fletch.Sandbox.Scripts
 
         public override void FixedUpdate(FixedTimeStep deltaTime)
         {
-            rb.AddForce(Vector2.UnitY * -fallForce);
+            if (!GameState.Started)
+                return;
 
-            HandleInput();
+            rb.AddForce(Vector2.UnitY * -fallForce);
 
             MoveCharater();
         }

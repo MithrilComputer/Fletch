@@ -8,11 +8,14 @@ using Fletch.Engine.Systems.Scenes;
 using Fletch.Physics.Abstractions.Backends;
 using Fletch.Physics.Components;
 using Fletch.Physics.Factories;
+using Fletch.Physics.Managers;
 using Fletch.Physics.Maps;
 using Fletch.Physics.Model.ResourceHandles;
 
 namespace Fletch.Physics.Systems
 {
+    //TODO Need to implment a system to Queue impulses...
+
     internal class PhysicsSystem : SceneSubsystem, IFixedUpdateable
     {
         private readonly IPhysicsBackend backend;
@@ -52,6 +55,8 @@ namespace Fletch.Physics.Systems
             rigidBodyManager.UpdateComponents();
 
             rigidBodyManager.WriteRigidBodies();
+
+            rigidBodyManager.ApplyPendingForces();
 
             backend.StepWorld(worldHandle, deltaTime.Delta * EngineConfig.SimSpeed);
 

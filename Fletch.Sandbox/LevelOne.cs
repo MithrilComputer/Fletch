@@ -7,11 +7,14 @@ using Fletch.Rendering.Components;
 using Fletch.Sandbox.Abstractions;
 using Fletch.Sandbox.Scripts;
 using System.IO;
+using System.Numerics;
 
 namespace Fletch.Sandbox
 {
     internal sealed class LevelOne : GameLevel
     {
+        private Vector2 playerStartPosition = new Vector2(-5f, 0f);
+
         public LevelOne(IGameContext gameContext) : base(gameContext)
         {
             AddCamera();
@@ -34,6 +37,8 @@ namespace Fletch.Sandbox
         {
             GameObject player = levelScene.CreateGameObject();
 
+            player.Transform.LocalPosition = playerStartPosition;
+
             SpriteRenderer sprite = player.AddComponent<SpriteRenderer>();
 
             sprite.VisualResource.PixelPerWorldUnit = 16;
@@ -42,7 +47,10 @@ namespace Fletch.Sandbox
 
             player.AddComponent<CharacterController>();
 
-            player.AddComponent<RigidBody>().AddCollider<BoxCollider>();
+            BoxCollider box = player.AddComponent<RigidBody>().AddCollider<BoxCollider>();
+
+            box.Width = 0.5f;
+            box.Height = 0.5f;
         }
 
         private void AddCamera()
@@ -53,6 +61,5 @@ namespace Fletch.Sandbox
 
             cameraComponent.SamplerMode = Rendering.Model.SamplerMode.Point;
         }
-
     }
 }

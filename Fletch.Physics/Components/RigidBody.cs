@@ -3,6 +3,7 @@ using Fletch.Engine.Hierarchy;
 using Fletch.Engine.Model;
 using Fletch.Physics.Abstractions.CollisionShapes;
 using Fletch.Physics.Components.CollisionShapes;
+using Fletch.Physics.Managers;
 using Fletch.Physics.Model;
 using Fletch.Physics.Model.Info.IO;
 using Fletch.Physics.Model.Info.Masking.Collisions;

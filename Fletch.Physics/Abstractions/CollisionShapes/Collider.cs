@@ -15,13 +15,13 @@ namespace Fletch.Physics.Abstractions.CollisionShapes
 
         public bool IsSensor { get => isSensor; set => SetFieldAndDirty(ref isSensor, value, ColliderDirtyFlags.IsSensor); }
 
-        private PhysicsMaterial material;
+        private PhysicsMaterial material = new PhysicsMaterial();
 
-        private Vector2 offset;
+        private Vector2 offset = Vector2.Zero;
 
-        private float mass;
+        private float mass = 1f;
 
-        private bool isSensor;
+        private bool isSensor = false;
 
         internal bool IsDirty => DirtyFlags != ColliderDirtyFlags.None;
 

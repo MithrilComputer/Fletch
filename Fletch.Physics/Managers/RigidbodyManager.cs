@@ -4,12 +4,14 @@ using Fletch.Physics.Abstractions.CollisionShapes;
 using Fletch.Physics.Components;
 using Fletch.Physics.Helpers;
 using Fletch.Physics.Model;
+using Fletch.Physics.Model.Forces;
 using Fletch.Physics.Model.Info.IO;
 using Fletch.Physics.Model.ResourceHandles;
+using Fletch.Physics.Systems;
 using System.Diagnostics;
 using System.Numerics;
 
-namespace Fletch.Physics.Systems
+namespace Fletch.Physics.Managers
 {
     internal class RigidBodyManager
     {
@@ -21,11 +23,20 @@ namespace Fletch.Physics.Systems
 
         private readonly PhysicsSystem physicsSystem;
 
+        private readonly PhysicsForcesQueue forceQueue;
+
         public RigidBodyManager(IPhysicsBackend physicsBackend, IWorldHandle worldHandle, PhysicsSystem physicsSystem)
         {
             this.physicsBackend = physicsBackend;
             this.worldHandle = worldHandle;
             this.physicsSystem = physicsSystem;
+
+            forceQueue = new PhysicsForcesQueue(physicsBackend);
+        }
+
+        public void ApplyPendingForces()
+        {
+            forceQueue.ApplyPendingForces();
         }
 
         public void WriteRigidBodies()
@@ -46,7 +57,6 @@ namespace Fletch.Physics.Systems
                     BodyWriteState writeState = PhysicsHelper.CreateBodyWriteState(rigidBody);
                     physicsBackend.SetBodyState(rigidBody.BodyHandle, writeState);
                     rigidBody.ClearDirty();
-                    Debug.Print($"RigidBody state updated for GameObject: {rigidBody.GameObject.Name}");
                 }
             }
         }
@@ -128,7 +138,7 @@ namespace Fletch.Physics.Systems
         /// <param name="force">The force to apply.</param>
         public void ApplyForceToBody(RigidBody rigidBody, Vector2 force)
         {
-            physicsBackend.ApplyForce(rigidBody.BodyHandle, force);
+            forceQueue.AddCommand(rigidBody, ForceType.Force, force);
         }
 
         /// <summary>
@@ -139,7 +149,7 @@ namespace Fletch.Physics.Systems
         /// <param name="point">The point at which to apply the force, relative to the rigid body's position.</param>
         public void ApplyForceToBodyAt(RigidBody rigidBody, Vector2 force, Vector2 point)
         {
-            physicsBackend.ApplyForceAt(rigidBody.BodyHandle, force, point + rigidBody.CurrentPose.Position);
+            forceQueue.AddCommand(rigidBody, ForceType.ForceAtPoint, force, 0f, point);
         }
 
         /// <summary>
@@ -149,7 +159,7 @@ namespace Fletch.Physics.Systems
         /// <param name="impulse">The impulse vector to apply.</param>
         public void ApplyImpulseToBody(RigidBody rigidBody, Vector2 impulse)
         {
-            physicsBackend.ApplyImpulse(rigidBody.BodyHandle, impulse);
+            forceQueue.AddCommand(rigidBody, ForceType.Impulse, impulse);
         }
 
         /// <summary>
@@ -160,7 +170,7 @@ namespace Fletch.Physics.Systems
         /// <param name="point">The point at which to apply the impulse, relative to the rigid body's position.</param>
         public void ApplyImpulseToBodyAt(RigidBody rigidBody, Vector2 impulse, Vector2 point)
         {
-            physicsBackend.ApplyImpulseAt(rigidBody.BodyHandle, impulse, point + rigidBody.CurrentPose.Position);
+            forceQueue.AddCommand(rigidBody, ForceType.ImpulseAtPoint, impulse, 0f, point);
         }
 
         /// <summary>
@@ -170,7 +180,7 @@ namespace Fletch.Physics.Systems
         /// <param name="torque">The torque to apply.</param>
         public void ApplyTorqueToBody(RigidBody rigidBody, float torque)
         {
-            physicsBackend.ApplyTorque(rigidBody.BodyHandle, torque);
+            forceQueue.AddCommand(rigidBody, ForceType.Torque, null, torque);
         }
 
         /// <summary>
@@ -180,7 +190,7 @@ namespace Fletch.Physics.Systems
         /// <param name="angularImpulse">The angular impulse to apply.</param>
         public void ApplyAngularImpulseToBody(RigidBody rigidBody, float angularImpulse)
         {
-            physicsBackend.ApplyAngularImpulse(rigidBody.BodyHandle, angularImpulse);
+            forceQueue.AddCommand(rigidBody, ForceType.AngularImpulse, null, angularImpulse);
         }
     }
 }

@@ -6,13 +6,29 @@ using Fletch.Engine.Model;
 
 namespace Fletch.Engine.Hierarchy
 {
+    /// <summary>
+    /// Represents an entity in a scene, containing a transform and a collection of components.
+    /// </summary>
     public sealed class GameObject : IDisposable
     {
+        /// <summary>
+        /// Gets or sets the name of the GameObject.
+        /// </summary>
         public string Name { get; set; } = "GameObject";
 
+        /// <summary>
+        /// Gets the unique identifier of the GameObject.
+        /// </summary>
         public uint ID { get; internal set; }
 
+        /// <summary>
+        /// Gets the GameObject's transform.
+        /// </summary>
         public Transform Transform { get; } = new Transform();
+
+        private bool disposed = false;
+
+        private readonly IComponentFactory componentFactory;
 
         // TODO At some point convert this into a Dictionary<typeof(Component), list<Component>> for faster lookups
         private readonly List<GameObjectComponent> components = new List<GameObjectComponent>();
@@ -26,8 +42,6 @@ namespace Fletch.Engine.Hierarchy
 
         public event ComponentChangedHandler? ComponentChanged;
 
-        private readonly IComponentFactory componentFactory;
-
         internal GameObject(uint id, IFletchContextLogger<GameObject> logger, IComponentFactory componentFactory)
         {
             this.logger = logger;
@@ -39,6 +53,11 @@ namespace Fletch.Engine.Hierarchy
             Transform = new Transform();
         }
 
+        /// <summary>
+        /// Creates and adds a component of the specified type.
+        /// </summary>
+        /// <typeparam name="T">The component type.</typeparam>
+        /// <returns>The added or existing component.</returns>
         public T? AddComponent<T>() where T : GameObjectComponent
         {
             Type type = typeof(T);
@@ -60,6 +79,11 @@ namespace Fletch.Engine.Hierarchy
             return (T)component;
         }
 
+        /// <summary>
+        /// Gets the first component of the specified type.
+        /// </summary>
+        /// <typeparam name="T">The component type.</typeparam>
+        /// <returns>The component, or null if none exists.</returns>
         public T? GetComponent<T>() where T : GameObjectComponent
         {
             if (components.Count == 0)
@@ -78,6 +102,11 @@ namespace Fletch.Engine.Hierarchy
             return null;
         }
 
+        /// <summary>
+        /// Gets all components of the specified type.
+        /// </summary>
+        /// <typeparam name="T">The component type.</typeparam>
+        /// <returns>A list of matching components.</returns>
         public List<T> GetComponents<T>() where T : GameObjectComponent
         {
             if (components.Count == 0)
@@ -98,6 +127,12 @@ namespace Fletch.Engine.Hierarchy
             return typedComponents;
         }
 
+
+        /// <summary>
+        /// Attempts to remove a component from the GameObject.
+        /// </summary>
+        /// <param name="component">The component to remove.</param>
+        /// <returns>True if removed; otherwise, false.</returns>
         public bool TryRemoveComponent(GameObjectComponent component)
         {
             if (component == null)
@@ -115,6 +150,10 @@ namespace Fletch.Engine.Hierarchy
             return true;
         }
 
+        /// <summary>
+        /// Enables a component owned by this GameObject.
+        /// </summary>
+        /// <param name="component">The component to enable.</param>
         public void EnableComponent(GameObjectComponent component)
         {
             if (component == null)
@@ -139,6 +178,10 @@ namespace Fletch.Engine.Hierarchy
             ComponentChanged?.Invoke(component, ComponentChangeType.Enabled);
         }
 
+        /// <summary>
+        /// Disables a component owned by this GameObject.
+        /// </summary>
+        /// <param name="component">The component to disable.</param>
         public void DisableComponent(GameObjectComponent component)
         {
             if (component == null)
@@ -193,10 +236,24 @@ namespace Fletch.Engine.Hierarchy
             }
         }
 
+
+        /// <summary>
+        /// Removes all components and releases their resources.
+        /// </summary>
         public void Dispose()
         {
+            if (disposed)
+                return;
+
+            disposed = true;
+
             RequestComponentsDestroy();
+
             components.Clear();
+
+            ComponentChanged = null;
+
+            GC.SuppressFinalize(this);
         }
     }
 }

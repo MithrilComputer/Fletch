@@ -15,6 +15,8 @@ using MonoGame.Extended.ViewportAdapters;
 using FletchColor = Fletch.Core.Colors.Color;
 using XnaColor = Microsoft.Xna.Framework.Color;
 using XnaViewport = Microsoft.Xna.Framework.Graphics.Viewport;
+using NumericsMatrix = System.Numerics.Matrix3x2;
+using System.Diagnostics;
 
 namespace Fletch.Rendering.MonoGame.Backend
 {
@@ -147,8 +149,21 @@ namespace Fletch.Rendering.MonoGame.Backend
             XnaViewport realViewport = VirtualViewportToRealViewport(virtualViewport);
 
             graphicsDevice.Viewport = new XnaViewport(realViewport.X, realViewport.Y, realViewport.Width, realViewport.Height);
+            
+            var pp = graphicsDevice.PresentationParameters;
+            /*
+            graphicsDevice.Viewport = new XnaViewport(
+                0, 0,
+                pp.BackBufferWidth,
+                pp.BackBufferHeight);
+            */
+            spriteBatcher.Begin(
+                currentCamera.GetViewMatrix(),
+                blendMode,
+                samplerMode);
 
-            spriteBatcher.Begin(currentCamera.GetViewMatrix(), blendMode, samplerMode);
+            var window = gameWindow.ClientBounds;
+            var boxed = viewportAdapter.Viewport;
         }
 
         /// <summary>
@@ -183,12 +198,6 @@ namespace Fletch.Rendering.MonoGame.Backend
 
             graphicsDevice.SetRenderTarget(null);
 
-            graphicsDevice.Viewport = new Viewport(
-                0,
-                0,
-                fullViewport.Width,
-                fullViewport.Height);
-
             XnaColor xnaColor = new XnaColor(
                 clearColor.R,
                 clearColor.G,
@@ -196,6 +205,8 @@ namespace Fletch.Rendering.MonoGame.Backend
                 clearColor.A);
 
             graphicsDevice.Clear(xnaColor);
+
+            viewportAdapter.Reset();
         }
 
         /// <summary>
@@ -280,45 +291,41 @@ namespace Fletch.Rendering.MonoGame.Backend
         /// Converts a camera's viewport defined in VIRTUAL coordinates (inside the virtual resolution)
         /// into a REAL GraphicsDevice Viewport (inside the backbuffer), respecting BoxingViewportAdapter.
         /// </summary>
-        private Viewport VirtualViewportToRealViewport(RectangleInt virtualViewportRect)
+        private Viewport VirtualViewportToRealViewport(
+            RectangleInt virtualViewportRect)
         {
-            // This is the real boxed area (already centered with black bars)
-            Viewport boxedReal = graphicsDevice.Viewport;
+            Viewport boxedReal = viewportAdapter.Viewport;
 
-            // Uniform scale used by boxing
-            float scaleX = boxedReal.Width / (float)viewportAdapter.VirtualWidth;
-            float scaleY = boxedReal.Height / (float)viewportAdapter.VirtualHeight;
+            float scaleX =
+                boxedReal.Width / (float)viewportAdapter.VirtualWidth;
 
-            // In boxing these should match; use X (or Min to be safe)
+            float scaleY =
+                boxedReal.Height / (float)viewportAdapter.VirtualHeight;
+
             float scale = MathF.Min(scaleX, scaleY);
 
-            int realX = boxedReal.X + (int)MathF.Round(virtualViewportRect.X * scale);
-            int realY = boxedReal.Y + (int)MathF.Round(virtualViewportRect.Y * scale);
+            int realX = boxedReal.X +
+                (int)MathF.Round(virtualViewportRect.X * scale);
 
-            int realW = (int)MathF.Round(virtualViewportRect.Width * scale);
-            int realH = (int)MathF.Round(virtualViewportRect.Height * scale);
+            int realY = boxedReal.Y +
+                (int)MathF.Round(virtualViewportRect.Y * scale);
 
-            // Clamp so you never spill outside the boxed area (nice for edge rounding)
-            int maxX = boxedReal.X + boxedReal.Width;
-            int maxY = boxedReal.Y + boxedReal.Height;
+            int realW =
+                (int)MathF.Round(virtualViewportRect.Width * scale);
 
-            if (realX < boxedReal.X) realX = boxedReal.X;
-            if (realY < boxedReal.Y) realY = boxedReal.Y;
-
-            if (realX + realW > maxX) realW = maxX - realX;
-            if (realY + realH > maxY) realH = maxY - realY;
+            int realH =
+                (int)MathF.Round(virtualViewportRect.Height * scale);
 
             return new Viewport(realX, realY, realW, realH);
         }
 
         private void OnResize(object? sender, EventArgs e)
         {
-            if (!isInitialized)
-                throw new InvalidOperationException("Backend Not Initialized Yet!");
-
-            XnaViewport viewport = graphicsDevice.Viewport;
-
-            fullViewport = new RectangleInt(viewport.X, viewport.Y, viewport.Width, viewport.Height);
+            fullViewport = new RectangleInt(
+                0,
+                0,
+                graphicsDevice.PresentationParameters.BackBufferWidth,
+                graphicsDevice.PresentationParameters.BackBufferHeight);
         }
 
         public void Dispose()
