@@ -50,10 +50,13 @@ namespace Fletch.Sandbox.Scripts
         public override void OnStart()
         {
             rb = GameObject.GetComponent<RigidBody>();
+
             GameObject.GetComponent<AudioSource>()
                 .TryCreateSoundPlayer(
                 Path.Combine(context.PathProvider.AssetFolderDirectory, "jump.wav"),
                 out SoundPlayer soundPlayer);
+
+            soundPlayer.IsSpatial = false;
 
             jumpSoundPlayer = soundPlayer;
         }

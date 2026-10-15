@@ -275,10 +275,13 @@ namespace Fletch.Audio.Systems
 
                 SetPlayerVolumeCommand volumeCommand = new SetPlayerVolumeCommand(soundPlayer.SourceHandle, soundPlayer.Volume);
 
+                SetIsPlayerSpatialCommand spatialCommand = new SetIsPlayerSpatialCommand(soundPlayer.SourceHandle, soundPlayer.IsSpatial);
+
                 audioBackend.SendCommand(setPositionCommand); //TODO Use Dirty detection to avoid sending this every frame.
                 audioBackend.SendCommand(pitchCommand); //TODO Use Dirty detection to avoid sending this every frame.
                 audioBackend.SendCommand(loopingCommand); //TODO Use Dirty detection to avoid sending this every frame.
                 audioBackend.SendCommand(volumeCommand); //TODO Use Dirty detection to avoid sending this every frame.
+                audioBackend.SendCommand(spatialCommand);
             }
         }
 

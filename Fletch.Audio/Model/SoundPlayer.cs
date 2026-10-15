@@ -25,6 +25,11 @@ namespace Fletch.Audio.Model
         public float Pitch { get; set; } = 1f;
 
         /// <summary>
+        /// If the audio plays spatialy.
+        /// </summary>
+        public bool IsSpatial { get; set; } = true;
+
+        /// <summary>
         /// Whether the sound loops.
         /// </summary>
         public bool IsLooping { get; set; } = false;
