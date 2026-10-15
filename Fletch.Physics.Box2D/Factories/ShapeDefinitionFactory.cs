@@ -11,6 +11,8 @@ namespace Fletch.Physics.Box2D.Factories
         {
             B2ShapeDef shapeDef = B2Types.b2DefaultShapeDef();
 
+            shapeDef.enableContactEvents = true;
+
             shapeDef.density = mass;
 
             if (isSensor)

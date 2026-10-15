@@ -5,12 +5,7 @@ namespace Fletch.Physics.Box2D.Registries
 {
     internal class ColliderRegistry
     {
-        private static readonly Dictionary<B2ShapeId, Box2DColiderHandle> shapeIdColliderBinding;
-
-        static ColliderRegistry()
-        {
-            shapeIdColliderBinding = new Dictionary<B2ShapeId, Box2DColiderHandle>();
-        }
+        private readonly Dictionary<B2ShapeId, Box2DColiderHandle> shapeIdColliderBinding = new Dictionary<B2ShapeId, Box2DColiderHandle>();
 
         public bool TryGetColliderHandleFromShapeId(B2ShapeId shapeId, out Box2DColiderHandle? handle)
         {

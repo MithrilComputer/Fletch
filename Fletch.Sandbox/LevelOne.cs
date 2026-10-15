@@ -4,6 +4,7 @@ using Fletch.Engine.Hierarchy;
 using Fletch.Hosting.Abstractions.Contexts;
 using Fletch.Physics.Components;
 using Fletch.Physics.Components.CollisionShapes;
+using Fletch.Physics.Model;
 using Fletch.Rendering.Components;
 using Fletch.Sandbox.Abstractions;
 using Fletch.Sandbox.Scripts;
@@ -20,6 +21,7 @@ namespace Fletch.Sandbox
         {
             AddCamera();
             AddBackgroundObjects();
+            AddGroundObject();
             AddPlayer();
         }
 
@@ -32,6 +34,32 @@ namespace Fletch.Sandbox
             backgroundSprite.VisualResource.PixelPerWorldUnit = 16;
 
             backgroundSprite.VisualResource.Texture = textureFactory.Load(Path.Combine(pathProvider.AssetFolderDirectory, "Background.png"));
+        }
+
+        private void AddGroundObject()
+        {
+            Vector2 size = new Vector2(20f, 1f);
+
+            Vector2 startLocation = new Vector2(0f, -4.5f);
+
+            GameObject ground = levelScene.CreateGameObject();
+
+            ground.Transform.LocalPosition = startLocation;
+
+            SpriteRenderer backgroundSprite = ground.AddComponent<SpriteRenderer>();
+
+            backgroundSprite.VisualResource.PixelPerWorldUnit = 1;
+
+            backgroundSprite.VisualResource.Texture = textureFactory.CreateSolidColor((int)size.X, (int)size.Y, Color.Green);
+
+            RigidBody body = ground.AddComponent<RigidBody>();
+
+            body.PhysicsMode = PhysicsMode.Static;
+
+            BoxCollider box = body.AddCollider<BoxCollider>();
+
+            box.Width = size.X;
+            box.Height = size.Y;
         }
 
         private void AddPlayer()

@@ -1,22 +1,23 @@
-﻿using Fletch.Physics.Components;
+﻿using Fletch.Physics.Abstractions.CollisionShapes;
+using Fletch.Physics.Components;
 
 namespace Fletch.Physics.Model.Info.Collisions
 {
     public class CollisionEvent
     {
-        public RigidBody Self { get; }
+        public Collider A { get; }
 
-        public RigidBody Other { get; }
+        public Collider B { get; }
 
         public CollisionEventType EventType { get; }
 
         internal CollisionEvent(
-            RigidBody self,
-            RigidBody other,
+            Collider a,
+            Collider b,
             CollisionEventType eventType)
         {
-            Self = self;
-            Other = other;
+            A = a;
+            B = b;
             EventType = eventType;
         }
     }

@@ -1,4 +1,5 @@
-﻿using Fletch.Physics.Model;
+﻿using Fletch.Physics.Components;
+using Fletch.Physics.Model;
 using Fletch.Physics.Model.Info.IO;
 using Fletch.Physics.Model.ResourceHandles;
 using System.Numerics;
@@ -7,6 +8,8 @@ namespace Fletch.Physics.Abstractions.CollisionShapes
 {
     public abstract class Collider
     {
+        public RigidBody RigidBody { get; }
+
         public PhysicsMaterial Material { get => material; set => SetFieldAndDirty(ref material, value, ColliderDirtyFlags.Material); }
 
         public Vector2 Offset { get => offset; set => SetFieldAndDirty(ref offset, value, ColliderDirtyFlags.Shape); }
@@ -32,11 +35,13 @@ namespace Fletch.Physics.Abstractions.CollisionShapes
         internal ColliderDirtyFlags DirtyFlags { get; private set; } = ColliderDirtyFlags.None;
 
         internal Collider(
+            RigidBody rigidBody,
             IColliderHandle colliderHandle,
             IBodyHandle parentBodyHandle,
             PhysicsMaterial material = new(),
             Vector2 offset = default)
         {
+            RigidBody = rigidBody;
             ColliderHandle = colliderHandle;
             ParentBodyHandle = parentBodyHandle;
             this.material = material;

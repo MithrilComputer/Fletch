@@ -1,7 +1,9 @@
-﻿using Box2D.NET;
+﻿
+using Box2D.NET;
 using Fletch.Physics.Box2D.Model.ResourceHandles;
 using Fletch.Physics.Box2D.Registries;
 using Fletch.Physics.Model.Info.Collisions;
+using System.Diagnostics;
 
 namespace Fletch.Physics.Box2D.Natives
 {
@@ -22,8 +24,11 @@ namespace Fletch.Physics.Box2D.Natives
             int beginCount = contactEvents.beginCount;
             int endCount = contactEvents.endCount;
 
-            BackendCollisionEvent[] eventInfos =
-                new BackendCollisionEvent[beginCount + endCount];
+            if (beginCount == 0 && endCount == 0)
+                return Array.Empty<BackendCollisionEvent>();
+
+            List<BackendCollisionEvent> eventInfos =
+                new List<BackendCollisionEvent>(beginCount + endCount);
 
             for (int i = 0; i < beginCount; i++)
             {
@@ -31,7 +36,7 @@ namespace Fletch.Physics.Box2D.Natives
 
                 if (!colliderRegistry.TryGetColliderHandleFromShapeId(
                         contact.shapeIdA,
-                        out Box2DColiderHandle aColliderHandle))
+                        out Box2DColiderHandle? aColliderHandle))
                 {
                     throw new InvalidOperationException(
                         "Could not find collider for contact shape A.");
@@ -39,16 +44,16 @@ namespace Fletch.Physics.Box2D.Natives
 
                 if (!colliderRegistry.TryGetColliderHandleFromShapeId(
                         contact.shapeIdB,
-                        out Box2DColiderHandle bColliderHandle))
+                        out Box2DColiderHandle? bColliderHandle))
                 {
                     throw new InvalidOperationException(
                         "Could not find collider for contact shape B.");
                 }
 
-                eventInfos[i] = new BackendCollisionEvent(
+                eventInfos.Add(new BackendCollisionEvent(
                     aColliderHandle,
                     bColliderHandle,
-                    CollisionEventType.Enter);
+                    CollisionEventType.Enter));
             }
 
             for (int i = 0; i < endCount; i++)
@@ -57,24 +62,22 @@ namespace Fletch.Physics.Box2D.Natives
 
                 if (!colliderRegistry.TryGetColliderHandleFromShapeId(
                         contact.shapeIdA,
-                        out Box2DColiderHandle aColliderHandle))
+                        out Box2DColiderHandle? aColliderHandle))
                 {
-                    throw new InvalidOperationException(
-                        "Could not find collider for contact shape A.");
+                    continue;
                 }
 
                 if (!colliderRegistry.TryGetColliderHandleFromShapeId(
                         contact.shapeIdB,
-                        out Box2DColiderHandle bColliderHandle))
+                        out Box2DColiderHandle? bColliderHandle))
                 {
-                    throw new InvalidOperationException(
-                        "Could not find collider for contact shape B.");
+                    continue;
                 }
 
-                eventInfos[beginCount + i] = new BackendCollisionEvent(
+                eventInfos.Add(new BackendCollisionEvent(
                     aColliderHandle,
                     bColliderHandle,
-                    CollisionEventType.Exit);
+                    CollisionEventType.Exit));
             }
 
             return eventInfos;

@@ -25,13 +25,21 @@ namespace Fletch.Physics.Managers
 
         private readonly PhysicsForcesQueue forceQueue;
 
-        public RigidBodyManager(IPhysicsBackend physicsBackend, IWorldHandle worldHandle, PhysicsSystem physicsSystem)
+        private readonly ColliderManager colliderManager;
+
+        public RigidBodyManager(IPhysicsBackend physicsBackend, IWorldHandle worldHandle, PhysicsSystem physicsSystem, ColliderManager colliderManager)
         {
             this.physicsBackend = physicsBackend;
             this.worldHandle = worldHandle;
             this.physicsSystem = physicsSystem;
+            this.colliderManager = colliderManager;
 
             forceQueue = new PhysicsForcesQueue(physicsBackend);
+        }
+
+        public void UpdateComponents()
+        {
+            rigidbodies.Refresh();
         }
 
         public void ApplyPendingForces()
@@ -66,10 +74,7 @@ namespace Fletch.Physics.Managers
             foreach (RigidBody rigidBody in rigidbodies.Items)
             {
                 if (!rigidBody.Initialized)
-                {
-                    InitializeRigidBody(rigidBody);
                     continue;
-                }
 
                 if (!rigidBody.IsEnabled)
                     continue;
@@ -81,21 +86,6 @@ namespace Fletch.Physics.Managers
 
                 PhysicsHelper.ApplyReadStateToRigidBody(rigidBody, readState);
             }
-        }
-
-        public void UpdateComponents()
-        {
-            rigidbodies.Refresh();
-
-            foreach (RigidBody rigidBody in rigidbodies.Items)
-            {
-                rigidBody.UpdateColliders();
-            }
-        }
-
-        public void UpdateColliderState(Collider collider)
-        {
-            physicsBackend.SetColliderState(collider.ColliderHandle, PhysicsHelper.CreateColliderWriteState(collider));
         }
 
         public void AddRigidBody(RigidBody rigidbody)
@@ -111,6 +101,9 @@ namespace Fletch.Physics.Managers
         public void RemoveRigidBody(RigidBody rigidbody)
         {
             rigidbodies.MarkToRemove(rigidbody);
+
+            if(rigidbody.BodyHandle != null)
+                physicsBackend.DestroyBody(rigidbody.BodyHandle);
         }
 
         /// <summary>
@@ -127,7 +120,7 @@ namespace Fletch.Physics.Managers
             BodyWriteState writeState = PhysicsHelper.CreateBodyWriteState(rigidbody);
             IBodyHandle bodyHandle = physicsBackend.CreateBody(worldHandle, writeState);
 
-            rigidbody.Initialize(bodyHandle, this, physicsSystem);
+            rigidbody.Initialize(bodyHandle, this, colliderManager, physicsSystem);
         }
 
 

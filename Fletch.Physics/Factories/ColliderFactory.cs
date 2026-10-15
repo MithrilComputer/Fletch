@@ -35,6 +35,7 @@ namespace Fletch.Physics.Factories
                     colliderRigidbodyMap.AddMapping(boxColliderHandle, parentBody);
 
                     return new BoxCollider(
+                        parentBody,
                         boxShape.Size.X,
                         boxShape.Size.Y,
                         parentBody.BodyHandle,
@@ -49,6 +50,7 @@ namespace Fletch.Physics.Factories
                     colliderRigidbodyMap.AddMapping(circleColliderHandle, parentBody);
 
                     return new CircleCollider(
+                        parentBody,
                         circleShape.Radius,
                         parentBody.BodyHandle,
                         circleColliderHandle,
@@ -62,6 +64,7 @@ namespace Fletch.Physics.Factories
                     colliderRigidbodyMap.AddMapping(capsoleColliderHandle, parentBody);
 
                     return new CapsuleCollider(
+                        parentBody,
                         capsuleShape.Radius,
                         capsuleShape.Height,
                         parentBody.BodyHandle,

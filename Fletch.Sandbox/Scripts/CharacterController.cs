@@ -6,8 +6,10 @@ using Fletch.Engine.Hierarchy;
 using Fletch.Hosting.Abstractions.Contexts;
 using Fletch.Input.API;
 using Fletch.Input.Model;
+using Fletch.Physics.Abstractions.CollisionShapes;
 using Fletch.Physics.Components;
 using System;
+using System.Diagnostics;
 using System.IO;
 using System.Numerics;
 
@@ -26,6 +28,7 @@ namespace Fletch.Sandbox.Scripts
 
 
         private readonly IGameContext context;
+
 
         private RigidBody rb;
 
@@ -51,6 +54,10 @@ namespace Fletch.Sandbox.Scripts
         {
             rb = GameObject.GetComponent<RigidBody>();
 
+            rb.OnCollisionEnter += OnCollisionEnter;
+
+            rb.OnCollisionExit += OnCollisionExit;
+
             GameObject.GetComponent<AudioSource>()
                 .TryCreateSoundPlayer(
                 Path.Combine(context.PathProvider.AssetFolderDirectory, "jump.wav"),
@@ -65,16 +72,16 @@ namespace Fletch.Sandbox.Scripts
         {
             HandleInput();
 
-            if(jumpPressed && !GameState.Started)
+            if (jumpPressed && !GameState.Started)
             {
                 GameState.Started = true;
             }
 
-            if(jumpCoolingOff)
+            if (jumpCoolingOff)
             {
                 timeKeep += deltaTime.Delta;
 
-                if(timeKeep >= jumpCooloffTime)
+                if (timeKeep >= jumpCooloffTime)
                 {
                     jumpCoolingOff = false;
                     timeKeep = 0f;
@@ -108,7 +115,7 @@ namespace Fletch.Sandbox.Scripts
 
         private void MoveCharater()
         {
-            if(jumpPressed && !jumpCoolingOff)
+            if (jumpPressed && !jumpCoolingOff)
             {
                 jumpSoundPlayer.Pitch = ((float)random.NextDouble() * pitchRange) + (1f - pitchRange);
 
@@ -121,6 +128,16 @@ namespace Fletch.Sandbox.Scripts
             }
 
             jumpPressed = false;
+        }
+
+        private void OnCollisionEnter(Collider self, Collider other)
+        {
+            Debug.WriteLine("Touched!");
+        }
+
+        private void OnCollisionExit(Collider self, Collider other)
+        {
+            Debug.WriteLine("Stoped Touching!");
         }
     }
 }

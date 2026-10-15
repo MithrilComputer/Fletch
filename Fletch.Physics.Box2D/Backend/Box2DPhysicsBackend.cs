@@ -3,6 +3,7 @@ using Fletch.Physics.Abstractions.Backends;
 using Fletch.Physics.Box2D.Helpers;
 using Fletch.Physics.Box2D.Model.ResourceHandles;
 using Fletch.Physics.Box2D.Natives;
+using Fletch.Physics.Box2D.Registries;
 using Fletch.Physics.Model.Info.Collisions;
 using Fletch.Physics.Model.Info.IO;
 using Fletch.Physics.Model.ResourceHandles;

@@ -1,13 +1,8 @@
 ﻿using Fletch.Engine.Components;
 using Fletch.Engine.Hierarchy;
-using Fletch.Engine.Model;
 using Fletch.Physics.Abstractions.CollisionShapes;
-using Fletch.Physics.Components.CollisionShapes;
 using Fletch.Physics.Managers;
 using Fletch.Physics.Model;
-using Fletch.Physics.Model.Info.IO;
-using Fletch.Physics.Model.Info.Masking.Collisions;
-using Fletch.Physics.Model.Info.Shapes;
 using Fletch.Physics.Model.ResourceHandles;
 using Fletch.Physics.Systems;
 using System.Numerics;
@@ -21,11 +16,29 @@ namespace Fletch.Physics.Components
     /// </summary>
     public sealed class RigidBody : GameObjectComponent
     {
+        /// <summary>
+        /// A list of all the colliders owned by the <see cref="RigidBody"/>.
+        /// </summary>
+        public IReadOnlyList<Collider> Colliders => colliders;
+
+        private readonly List<Collider> colliders = new List<Collider>();
+
+
+        /// <summary>
+        /// Occurs when this collider begins making contact with another collider.
+        /// </summary>
+        public event Action<Collider, Collider>? OnCollisionEnter;
+
+        /// <summary>
+        /// Occurs when this collider stops making contact with another collider.
+        /// </summary>
+        public event Action<Collider, Collider>? OnCollisionExit;
+
         internal bool IsDirty { get; private set; }
 
         internal IBodyHandle? BodyHandle { get; private set; }
 
-        internal RigidBodyManager? RigidBodyManager { get; private set; }
+        internal RigidBodyManager RigidBodyManager { get; private set; }
 
         internal bool Initialized { get; private set; }
 
@@ -34,38 +47,39 @@ namespace Fletch.Physics.Components
         internal PhysicsPose PreviousPose { get; set; } = new PhysicsPose(Vector2.Zero, 0f);
 
 
-        private TrackedSet<Collider> colliders = new TrackedSet<Collider>();
+        private ColliderManager colliderManager;
 
 
         private float gravityScale = 1f;
 
 
-        private float linearDrag;
+        private float linearDrag = 0.2f;
 
-        private float angularDrag;
-
-
-        internal Vector2 linearVelocity;
-
-        internal float angularVelocity;
+        private float angularDrag = 0.1f;
 
 
-        private bool useInterpolation;
+        internal Vector2 linearVelocity = Vector2.Zero;
 
-        private bool fixedRotation;
+        internal float angularVelocity = 0f;
 
-        private bool lockX;
 
-        private bool lockY;
+        private bool useInterpolation = false;
+
+        private bool fixedRotation = false;
+
+        private bool lockX = false;
+
+        private bool lockY = false;
 
 
         private PhysicsMode physicsMode = PhysicsMode.Dynamic;
 
-        private PhysicsSystem physicsSystem;
-
         public RigidBody(GameObject gameObject) : base(gameObject) { }
 
-        internal void Initialize(IBodyHandle bodyHandle, RigidBodyManager rigidBodyManager, PhysicsSystem physicsSystem)
+        /// <summary>
+        /// Initalizes the RigidBody's states.
+        /// </summary>
+        internal void Initialize(IBodyHandle bodyHandle, RigidBodyManager rigidBodyManager, ColliderManager colliderManager, PhysicsSystem physicsSystem)
         {
             BodyHandle = bodyHandle;
             RigidBodyManager = rigidBodyManager;
@@ -73,7 +87,17 @@ namespace Fletch.Physics.Components
             IsDirty = true;
             Initialized = true;
 
-            this.physicsSystem = physicsSystem;
+            this.colliderManager = colliderManager;
+        }
+
+        internal void InvokeOnCollisionEnter(Collider self, Collider other)
+        {
+            OnCollisionEnter?.Invoke(self, other);
+        }
+
+        internal void InvokeOnCollisionExit(Collider self, Collider other)
+        {
+            OnCollisionExit?.Invoke(self, other);
         }
 
         /// <summary>
@@ -87,68 +111,28 @@ namespace Fletch.Physics.Components
             if (!Initialized)
                 return null;
 
-            Collider collider;
-            ColliderWriteState writeState;
+            T newCollider = colliderManager.AddCollider<T>(this);
 
-            if (typeof(T) == typeof(BoxCollider))
-            {
-                writeState = new ColliderWriteState(
-                    dirtyFlags: ColliderDirtyFlags.All,
-                    new PhysicsMaterial(),
-                    new RectangleData(new Vector2(1, 1)),
-                    new CollisionFilter(CollisionCategory.All, CollisionCategory.All),
-                    Vector2.Zero,
-                    1f,
-                    0f,
-                    false
-                    );
+            colliders.Add(newCollider);
 
-                collider = physicsSystem.colliderFactory.CreateNewCollider(this, writeState);
-            }
-            else if (typeof(T) == typeof(CapsuleCollider))
-            {
-                writeState = new ColliderWriteState(
-                    dirtyFlags: ColliderDirtyFlags.All,
-                    new PhysicsMaterial(),
-                    new CapsuleData(0.5f, 2f),
-                    new CollisionFilter(CollisionCategory.All, CollisionCategory.All),
-                    Vector2.Zero,
-                    1f,
-                    0f,
-                    false
-                    );
-
-                collider = physicsSystem.colliderFactory.CreateNewCollider(this, writeState);
-            }
-            else if (typeof(T) == typeof(CircleCollider))
-            {
-                writeState = new ColliderWriteState(
-                    dirtyFlags: ColliderDirtyFlags.All,
-                    new PhysicsMaterial(),
-                    new CircleData(0.5f),
-                    new CollisionFilter(CollisionCategory.All, CollisionCategory.All),
-                    Vector2.Zero,
-                    1f,
-                    0f,
-                    false
-                    );
-
-                collider = physicsSystem.colliderFactory.CreateNewCollider(this, writeState);
-            }
-            else
-            {
-                throw new NotSupportedException(
-                    $"Collider type {typeof(T).Name} is not supported.");
-            }
-
-            colliders.MarkToAdd(collider);
-
-            return (T)collider;
+            return newCollider;
         }
 
+        /// <summary>
+        /// Removes the specified collider from the internal collection and unregisters it from the collider manager.
+        /// </summary>
+        /// <remarks>If not initialized and the collider is present in the collection, the method returns
+        /// without removing it.</remarks>
+        /// <param name="collider">Collider to remove.</param>
         public void DeleteCollider(Collider collider)
         {
-            colliders.MarkToRemove(collider);
+            if (!Initialized)
+                return;
+
+            if (!colliders.Remove(collider))
+                return;
+
+            colliderManager.Remove(collider);
         }
 
         public float GravityScale
@@ -271,23 +255,6 @@ namespace Fletch.Physics.Components
                 return;
 
             RigidBodyManager.ApplyAngularImpulseToBody(this, angularImpulse);
-        }
-
-        public void UpdateColliders()
-        {
-            if (!Initialized)
-                return;
-
-            colliders.Refresh();
-
-            foreach (Collider collider in colliders.Items)
-            {
-                if (collider.IsDirty)
-                {
-                    RigidBodyManager.UpdateColliderState(collider);
-                    collider.ClearDirty();
-                }
-            }
         }
     }
 }

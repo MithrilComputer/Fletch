@@ -10,15 +10,15 @@ using Fletch.Physics.Components;
 using Fletch.Physics.Factories;
 using Fletch.Physics.Managers;
 using Fletch.Physics.Maps;
+using Fletch.Physics.Model.Info.Collisions;
+using Fletch.Physics.Model.Info.Masking.Collisions;
 using Fletch.Physics.Model.ResourceHandles;
 
 namespace Fletch.Physics.Systems
 {
-    //TODO Need to implment a system to Queue impulses...
-
     internal class PhysicsSystem : SceneSubsystem, IFixedUpdateable
     {
-        private readonly IPhysicsBackend backend;
+        public IPhysicsBackend PhysicsBackend { get; }
 
         private readonly IWorldHandle worldHandle;
 
@@ -28,9 +28,11 @@ namespace Fletch.Physics.Systems
 
         private readonly ColliderRigidbodyMap colliderRigidbodyMap;
 
+        private readonly ColliderManager colliderManager;
+
         public PhysicsSystem(IPhysicsBackend backend)
         {
-            this.backend = backend;
+            PhysicsBackend = backend;
 
             worldHandle = backend.CreateWorld(EngineConfig.Gravity);
 
@@ -38,7 +40,9 @@ namespace Fletch.Physics.Systems
 
             colliderFactory = new ColliderFactory(backend, colliderRigidbodyMap);
 
-            rigidBodyManager = new RigidBodyManager(backend, worldHandle, this);
+            colliderManager = new ColliderManager(this);
+
+            rigidBodyManager = new RigidBodyManager(backend, worldHandle, this, colliderManager);
         }
 
         public override void AttachToScene(Scene scene)
@@ -54,13 +58,25 @@ namespace Fletch.Physics.Systems
         {
             rigidBodyManager.UpdateComponents();
 
+            colliderManager.UpdateColliders();
+
             rigidBodyManager.WriteRigidBodies();
 
             rigidBodyManager.ApplyPendingForces();
 
-            backend.StepWorld(worldHandle, deltaTime.Delta * EngineConfig.SimSpeed);
+            PhysicsBackend.StepWorld(worldHandle, deltaTime.Delta * EngineConfig.SimSpeed);
 
             rigidBodyManager.ReadRigidBodies();
+
+            HandleBackendCollisionEvents();
+        }
+
+        private void HandleBackendCollisionEvents()
+        {
+            foreach(BackendCollisionEvent backendCollisionEvent in PhysicsBackend.GetCollisionEvents(worldHandle))
+            {
+                colliderManager.HandleCollisionEvent(backendCollisionEvent);
+            }
         }
 
         private void OnRigidBodyChange(GameObjectComponent component, ComponentChangeType changeType)

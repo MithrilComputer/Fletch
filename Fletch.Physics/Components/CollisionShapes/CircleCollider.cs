@@ -13,12 +13,14 @@ namespace Fletch.Physics.Components.CollisionShapes
         private float radius;
 
         internal CircleCollider(
+            RigidBody rigidBody,
             float radius,
             IBodyHandle parentBody,
             IColliderHandle colliderHandle,
             PhysicsMaterial material = new(),
             Vector2 offset = default)
             : base(
+                  rigidBody,
                   colliderHandle,
                   parentBody,
                   material,
