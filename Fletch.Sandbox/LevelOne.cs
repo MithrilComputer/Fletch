@@ -54,7 +54,7 @@ namespace Fletch.Sandbox
 
             RigidBody body = ground.AddComponent<RigidBody>();
 
-            body.PhysicsMode = PhysicsMode.Static;
+            body.PhysicsMode = PhysicsMode.Static ;
 
             BoxCollider box = body.AddCollider<BoxCollider>();
 

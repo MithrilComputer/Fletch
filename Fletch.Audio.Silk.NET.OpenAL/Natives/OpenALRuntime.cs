@@ -198,6 +198,9 @@ namespace Fletch.Audio.Silk.NET.OpenAL.Natives
                     if (pitchSoundSoruce is not OpenALSourceHandle pitchALSource)
                         throw new InvalidCastException();
 
+                    if (pitch <= 0.001f)
+                        pitch = 0.001f;
+
                     al.SetSourceProperty(pitchALSource.Id, SourceFloat.Pitch, pitch);
 
                     break;

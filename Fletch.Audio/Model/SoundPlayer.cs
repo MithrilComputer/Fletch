@@ -15,12 +15,12 @@ namespace Fletch.Audio.Model
         public AudioSource? ParentAudioSource { get; private set; }
 
         /// <summary>
-        /// Sound volume.
+        /// Sound volume, must be a postive value.
         /// </summary>
         public float Volume { get; set; } = 1f;
 
         /// <summary>
-        /// Sound pitch.
+        /// Sound pitch, must be a postive value.
         /// </summary>
         public float Pitch { get; set; } = 1f;
 
@@ -35,7 +35,7 @@ namespace Fletch.Audio.Model
         public bool IsLooping { get; set; } = false;
 
         /// <summary>
-        /// Whether playback has been requested.
+        /// Whether playback has been requested and is actively playing audio.
         /// </summary>
         public bool IsPlaying { get; private set; } = false;
 

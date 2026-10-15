@@ -117,13 +117,14 @@ namespace Fletch.Sandbox.Scripts
         {
             if (jumpPressed && !jumpCoolingOff)
             {
-                jumpSoundPlayer.Pitch = ((float)random.NextDouble() * pitchRange) + (1f - pitchRange);
+                jumpSoundPlayer.Pitch = 1 + ((2 * (float)random.NextDouble()) - 1) * pitchRange;
 
                 jumpSoundPlayer.PlaySound();
 
                 rb.LinearVelocity = new Vector2(0f, 0f);
 
                 rb.AddImpulse(Vector2.UnitY * jumpForce);
+
                 jumpCoolingOff = true;
             }
 
