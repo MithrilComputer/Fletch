@@ -6,6 +6,7 @@ using Fletch.Hosting.Abstractions.Contexts;
 using Fletch.Physics.Components;
 using Fletch.Physics.Components.CollisionShapes;
 using Fletch.Physics.Model;
+using Fletch.Rendering.Abstractions.Resources;
 using Fletch.Rendering.Components;
 using Fletch.Sandbox.Abstractions;
 using Fletch.Sandbox.Scripts;
@@ -35,11 +36,9 @@ namespace Fletch.Sandbox
         double lowestFrameTime = 1000000d;
 
         double highestFrameTime = 0d;
-
-
-        bool mesurmentReady = false;
-
+        
         float timeToMesurte = 3f;
+
 
         public LevelOne(IGameContext gameContext) : base(gameContext)
         {
@@ -47,7 +46,6 @@ namespace Fletch.Sandbox
             AddBackgroundObjects();
             AddGroundObject();
             AddPlayer();
-            AddThousandObjects();
 
             scrollingSystem = new WorldScrollingSystem(levelScene, textureFactory);
 
@@ -62,19 +60,8 @@ namespace Fletch.Sandbox
 
             timeKeep += frameTime.Delta;
 
-            if (timeKeep <= timeToMesurte && !mesurmentReady)
-                return;
-
-            mesurmentReady = true;
-
             if (timeKeep >= 1f)
             {
-                if (timeKeep > 1.3f)
-                {
-                    timeKeep = 0f;
-                    return;
-                }
-
                 Debug.WriteLine($"FPS: {frames}, Average Frame Time: {timeKeep * 1000d / frames}ms, Lowest Frame Time: {lowestFrameTime}ms, Highest Frame Time: {highestFrameTime}ms");
 
                 highestFrameTime = 0f;
@@ -137,29 +124,6 @@ namespace Fletch.Sandbox
             box.Height = size.Y;
         }
 
-        private void AddThousandObjects()
-        {
-            Stopwatch sw = Stopwatch.StartNew();
-
-            List<GameObject> objects = new();
-
-            for (int i = 0; i < 1000000; i++)
-            {
-                objects.Add(levelScene.CreateGameObject());
-            }
-
-            Debug.WriteLine($"GameObjects: {sw.Elapsed.TotalSeconds:F3}s");
-
-            sw.Restart();
-
-            foreach (GameObject obj in objects)
-            {
-                obj.AddComponent<EmptyScript>();
-            }
-
-            Debug.WriteLine($"Components: {sw.Elapsed.TotalSeconds:F3}s");
-        }
-
         private void AddPlayer()
         {
             GameObject player = levelScene.CreateGameObject();
@@ -169,8 +133,6 @@ namespace Fletch.Sandbox
             SpriteRenderer sprite = player.AddComponent<SpriteRenderer>();
 
             sprite.VisualResource.PixelPerWorldUnit = 16;
-
-            sprite.VisualResource.Texture = textureFactory.CreateSolidColor(8, 8, Color.Red);
 
             CharacterController charaterControler = player.AddComponent<CharacterController>();
 
@@ -186,10 +148,13 @@ namespace Fletch.Sandbox
 
             playerRb.FixedRotation = true;
 
-            BoxCollider box = playerRb.AddCollider<BoxCollider>();
+            playerRb.LockX = true;
 
-            box.Width = 0.5f;
-            box.Height = 0.5f;
+            CircleCollider circle = playerRb.AddCollider<CircleCollider>();
+
+            circle.Radius = 0.25f;
+
+            circle.Mass = 1.21f;
         }
 
         private void AddCamera()
