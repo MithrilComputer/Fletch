@@ -30,6 +30,9 @@ namespace Fletch.Sandbox.Scripts
         private readonly IGameContext context;
 
 
+        public event Action? OnJump;
+
+
         private RigidBody rb;
 
         private SoundPlayer jumpSoundPlayer;
@@ -120,6 +123,8 @@ namespace Fletch.Sandbox.Scripts
                 jumpSoundPlayer.Pitch = 1 + ((2 * (float)random.NextDouble()) - 1) * pitchRange;
 
                 jumpSoundPlayer.PlaySound();
+
+                OnJump?.Invoke();
 
                 rb.LinearVelocity = new Vector2(0f, 0f);
 

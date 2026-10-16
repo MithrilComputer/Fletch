@@ -40,21 +40,15 @@ namespace Fletch.Sandbox
         {
             Vector2 size = new Vector2(20f, 1f);
 
-            Vector2 startLocation = new Vector2(0f, -4.5f);
+            Vector2 startLocation = new Vector2(0f, -4.1f);
 
             GameObject ground = levelScene.CreateGameObject();
 
             ground.Transform.LocalPosition = startLocation;
 
-            SpriteRenderer backgroundSprite = ground.AddComponent<SpriteRenderer>();
-
-            backgroundSprite.VisualResource.PixelPerWorldUnit = 1;
-
-            backgroundSprite.VisualResource.Texture = textureFactory.CreateSolidColor((int)size.X, (int)size.Y, Color.Green);
-
             RigidBody body = ground.AddComponent<RigidBody>();
 
-            body.PhysicsMode = PhysicsMode.Static ;
+            body.PhysicsMode = PhysicsMode.Static;
 
             BoxCollider box = body.AddCollider<BoxCollider>();
 
@@ -74,7 +68,11 @@ namespace Fletch.Sandbox
 
             sprite.VisualResource.Texture = textureFactory.CreateSolidColor(8, 8, Color.Red);
 
-            player.AddComponent<CharacterController>();
+            CharacterController charaterControler = player.AddComponent<CharacterController>();
+
+            CharaterAnimation animationComp = player.AddComponent<CharaterAnimation>();
+
+            charaterControler.OnJump += animationComp.OnJump;
 
             player.AddComponent<AudioSource>();
 

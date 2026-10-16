@@ -209,8 +209,8 @@ namespace Fletch.Audio.Model
 
             throw new NotImplementedException();
         }
-        */
 
+        
         /// <summary>
         /// Gets audio effects.
         /// </summary>
@@ -219,6 +219,7 @@ namespace Fletch.Audio.Model
         {
             return effects;
         }
+        */
 
         /// <summary>
         /// Checks whether the sound player is initialized.
