@@ -18,10 +18,7 @@ namespace Fletch.Engine.Factories
         {
             Type componentType = typeof(T);
 
-            ConstructorInfo[] constructors = componentType
-                .GetConstructors(BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic)
-                .OrderByDescending(constructorInfo => constructorInfo.GetParameters().Length)
-                .ToArray();
+            ConstructorInfo[] constructors = ConstructorCache<T>.Constructors;
 
             foreach (ConstructorInfo constructor in constructors)
             {
@@ -62,6 +59,18 @@ namespace Fletch.Engine.Factories
 
             throw new InvalidOperationException(
                 $"No usable constructor was found for component type '{componentType.FullName}'.");
+        }
+
+        private static class ConstructorCache<T> where T : GameObjectComponent
+        {
+            public static readonly ConstructorInfo[] Constructors =
+                typeof(T)
+                    .GetConstructors(
+                        BindingFlags.Instance |
+                        BindingFlags.Public |
+                        BindingFlags.NonPublic)
+                    .OrderByDescending(c => c.GetParameters().Length)
+                    .ToArray();
         }
     }
 }

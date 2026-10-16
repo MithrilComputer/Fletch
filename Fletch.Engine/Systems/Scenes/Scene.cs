@@ -117,13 +117,15 @@ namespace Fletch.Engine.Systems.Scenes
 
             Type concreteType = component.GetType();
 
-            foreach (var registration in componentCallBacks)
+            foreach (KeyValuePair<Type, List<Action<GameObjectComponent, ComponentChangeType>>> registration in componentCallBacks)
             {
                 if (!registration.Key.IsAssignableFrom(concreteType))
                     continue;
 
-                foreach (var callback in registration.Value.ToArray())
+                foreach (Action<GameObjectComponent, ComponentChangeType> callback in registration.Value.ToArray())
+                {
                     callback(component, changeType);
+                }
             }
         }
 

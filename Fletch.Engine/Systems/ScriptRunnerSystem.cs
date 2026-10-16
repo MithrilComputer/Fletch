@@ -9,15 +9,10 @@ namespace Fletch.Engine.Systems
 {
     internal class ScriptRunnerSystem : SceneSubsystem, IUpdateable, IFixedUpdateable
     {
-        // TODO, optimize script storage and lookup, prob use a HashSet, perhpase somthing to avoid checking non enabled scripts
-
-        private readonly List<Script> scripts = new List<Script>();
+        private readonly TrackedSet<Script> scripts = new TrackedSet<Script>();
 
         private readonly Queue<Script> startQueue = new Queue<Script>();
         private readonly Queue<Script> lateStartQueue = new Queue<Script>();
-
-        private readonly Queue<Script> pendingAdds = new Queue<Script>();
-        private readonly Queue<Script> pendingRemoves = new Queue<Script>();
 
         private readonly IFletchContextLogger<ScriptRunnerSystem> logger;
 
@@ -37,11 +32,11 @@ namespace Fletch.Engine.Systems
 
         public void FixedUpdate(FixedTimeStep deltaTime)
         {
-            FlushPendingAddsAndRemoves();
+            scripts.Refresh();
 
-            for (int i = 0; i < scripts.Count; i++)
+            for (int i = 0; i < scripts.Items.Count; i++)
             {
-                Script script = scripts[i];
+                Script script = scripts.Items[i];
                 if (script.IsEnabled && script.HasStarted)
                     script.FixedUpdate(deltaTime);
             }
@@ -50,32 +45,19 @@ namespace Fletch.Engine.Systems
         public void Update(FrameTime deltaTime)
         {
 
-            FlushPendingAddsAndRemoves();
+            scripts.Refresh();
 
             RunStartQueue();
 
-            for (int i = 0; i < scripts.Count; i++)
+            for (int i = 0; i < scripts.Items.Count; i++)
             {
-                Script script = scripts[i];
+                Script script = scripts.Items[i];
+
                 if (script.IsEnabled && script.HasStarted)
                     script.Update(deltaTime);
             }
 
             RunLateStartQueue();
-        }
-
-        private void FlushPendingAddsAndRemoves()
-        {
-            while (pendingAdds.Count > 0)
-            {
-                Script addingScript = pendingAdds.Dequeue();
-                scripts.Add(addingScript);
-            }
-            while (pendingRemoves.Count > 0)
-            {
-                Script removingScript = pendingRemoves.Dequeue();
-                scripts.Remove(removingScript);
-            }
         }
 
         private void RunStartQueue()
@@ -111,40 +93,15 @@ namespace Fletch.Engine.Systems
 
         public ScriptRunnerSystem AddScriptComponent(Script script)
         {
-            if (script == null)
-            {
-                logger.LogWarning("Cant add a null script. Did you register a null?");
-                return this;
-            }
-
-            if (scripts.Contains(script) || pendingAdds.Contains(script))
-            {
-                logger.LogWarning("Cant add an already existing script. Did you register it twice?");
-                return this;
-            }
-
+            scripts.MarkToAdd(script);
             startQueue.Enqueue(script);
-            pendingAdds.Enqueue(script);
 
             return this;
         }
 
         public ScriptRunnerSystem RemoveScriptComponent(Script script)
         {
-            if (script == null)
-            {
-                logger.LogWarning("Cant remove a null script.");
-                return this;
-            }
-
-            if (!scripts.Contains(script) || pendingRemoves.Contains(script))
-            {
-                logger.LogWarning("Cant remove a script that is not on the list. Did you forget to register it?");
-                return this;
-            }
-
-            pendingRemoves.Enqueue(script);
-
+            scripts.MarkToRemove(script);
             return this;
         }
 

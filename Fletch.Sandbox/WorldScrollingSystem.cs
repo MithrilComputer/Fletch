@@ -6,7 +6,6 @@ using Fletch.Physics.Components.CollisionShapes;
 using Fletch.Physics.Model;
 using Fletch.Rendering.Abstractions.Factories;
 using Fletch.Rendering.Abstractions.Resources;
-using Fletch.Rendering.API;
 using Fletch.Rendering.Components;
 using System;
 using System.Collections.Generic;
@@ -44,6 +43,8 @@ namespace Fletch.Sandbox
             random = new Random();
 
             barTexture = textureFactory.CreateSolidColor(1, 1, Color.Green);
+
+
         }
 
         private void MoveWorld(float deltaTime)
@@ -63,7 +64,7 @@ namespace Fletch.Sandbox
                     return;
                 }
 
-                //body.LinearVelocity = new Vector2(-PlaySpeed, 0f);
+                body.LinearVelocity = new Vector2(-PlaySpeed, 0f);
             }
         }
 
@@ -104,7 +105,7 @@ namespace Fletch.Sandbox
 
             if (distanceSinceLastBar >= barGap)
             {
-                //SpawnBar();
+                SpawnBar();
                 distanceSinceLastBar -= barGap;
             }
         }

@@ -9,6 +9,10 @@ using Fletch.Physics.Model;
 using Fletch.Rendering.Components;
 using Fletch.Sandbox.Abstractions;
 using Fletch.Sandbox.Scripts;
+using MonoGame.Extended.Timers;
+using System;
+using System.Collections.Generic;
+using System.Diagnostics;
 using System.IO;
 using System.Numerics;
 
@@ -20,12 +24,30 @@ namespace Fletch.Sandbox
 
         private readonly WorldScrollingSystem scrollingSystem;
 
+        private float timeKeep = 0f;
+
+        private int frames = 0;
+
+        private readonly Stopwatch frameTimer = Stopwatch.StartNew();
+
+        double lastFrameTime = 0d;
+
+        double lowestFrameTime = 1000000d;
+
+        double highestFrameTime = 0d;
+
+
+        bool mesurmentReady = false;
+
+        float timeToMesurte = 3f;
+
         public LevelOne(IGameContext gameContext) : base(gameContext)
         {
             AddCamera();
             AddBackgroundObjects();
             AddGroundObject();
             AddPlayer();
+            AddThousandObjects();
 
             scrollingSystem = new WorldScrollingSystem(levelScene, textureFactory);
 
@@ -35,7 +57,48 @@ namespace Fletch.Sandbox
 
         private void Update(FrameTime frameTime)
         {
+            
             scrollingSystem.UpdateWorld(frameTime.Delta);
+
+            timeKeep += frameTime.Delta;
+
+            if (timeKeep <= timeToMesurte && !mesurmentReady)
+                return;
+
+            mesurmentReady = true;
+
+            if (timeKeep >= 1f)
+            {
+                if (timeKeep > 1.3f)
+                {
+                    timeKeep = 0f;
+                    return;
+                }
+
+                Debug.WriteLine($"FPS: {frames}, Average Frame Time: {timeKeep * 1000d / frames}ms, Lowest Frame Time: {lowestFrameTime}ms, Highest Frame Time: {highestFrameTime}ms");
+
+                highestFrameTime = 0f;
+                lowestFrameTime = 1000d;
+
+                timeKeep = 0f;
+
+                frames = 0;
+            }
+
+            double frameTimeMs = frameTimer.Elapsed.TotalMilliseconds;
+            frameTimer.Restart();
+
+            if(frameTimeMs > highestFrameTime)
+            {
+                highestFrameTime = frameTimeMs;
+            }
+
+            if (frameTimeMs < lowestFrameTime)
+            {
+                lowestFrameTime = frameTimeMs;
+            }
+
+            frames++;
         }
 
         private void FixedUpdate(FixedTimeStep fixedTime)
@@ -72,6 +135,29 @@ namespace Fletch.Sandbox
 
             box.Width = size.X;
             box.Height = size.Y;
+        }
+
+        private void AddThousandObjects()
+        {
+            Stopwatch sw = Stopwatch.StartNew();
+
+            List<GameObject> objects = new();
+
+            for (int i = 0; i < 1000000; i++)
+            {
+                objects.Add(levelScene.CreateGameObject());
+            }
+
+            Debug.WriteLine($"GameObjects: {sw.Elapsed.TotalSeconds:F3}s");
+
+            sw.Restart();
+
+            foreach (GameObject obj in objects)
+            {
+                obj.AddComponent<EmptyScript>();
+            }
+
+            Debug.WriteLine($"Components: {sw.Elapsed.TotalSeconds:F3}s");
         }
 
         private void AddPlayer()
