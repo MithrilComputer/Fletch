@@ -4,6 +4,7 @@ using Fletch.Engine.Abstractions.Factories;
 using Fletch.Engine.Components;
 using Fletch.Engine.Hierarchy;
 using Fletch.Engine.Model;
+using System.Runtime.CompilerServices;
 
 namespace Fletch.Engine.Systems.Scenes
 {
@@ -33,14 +34,29 @@ namespace Fletch.Engine.Systems.Scenes
             SystemManager = new SubSystemManager(subSystemFactory, this);
         }
 
+        /// <summary>
+        /// Occurs first on each update, before everything else.
+        /// </summary>
+        public event Action<FrameTime>? OnUpdate;
+
+        /// <summary>
+        /// Occurs first on each fixed update, before everything else.
+        /// </summary>
+        public event Action<FixedTimeStep>? OnFixedUpdate;
+
+
         internal void Update(FrameTime frameTime)
         {
+            OnUpdate?.Invoke(frameTime);
+
             SystemManager.UpdateSystems(frameTime);
         }
 
         internal void FixedUpdate(FixedTimeStep fixedTime)
         {
             SystemManager.UpdateFixedSystems(fixedTime);
+
+            OnFixedUpdate?.Invoke(fixedTime);
         }
 
         internal void Render(FrameTime frameTime)

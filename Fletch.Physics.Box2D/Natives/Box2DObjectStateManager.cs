@@ -3,6 +3,7 @@ using Fletch.Physics.Box2D.Factories;
 using Fletch.Physics.Box2D.Helpers;
 using Fletch.Physics.Box2D.Model.ResourceHandles;
 using Fletch.Physics.Box2D.Registries;
+using Fletch.Physics.Model;
 using Fletch.Physics.Model.Info.IO;
 using Fletch.Physics.Model.Info.Shapes;
 using System.Numerics;
@@ -68,42 +69,74 @@ namespace Fletch.Physics.Box2D.Natives
 
         public void WriteStateToBody(B2BodyId b2BodyId, BodyWriteState writeState)
         {
-            B2Vec2 position = new B2Vec2(writeState.Position.X, writeState.Position.Y);
+            RigidBodyDirtyFlags flags = writeState.DirtyFlags;
 
-            B2Rot rotation = new B2Rot(MathF.Cos(writeState.Rotation), MathF.Sin(writeState.Rotation));
+            if ((flags & RigidBodyDirtyFlags.EnabledState) != 0)
+            {
+                if (writeState.Enabled)
+                {
+                    B2Bodies.b2Body_Enable(b2BodyId);
+                }
+                else
+                {
+                    B2Bodies.b2Body_Disable(b2BodyId);
+                }
+            }
 
-            B2Bodies.b2Body_SetType(b2BodyId, FletchB2Converter.ConvertToB2(writeState.Mode));
+            if ((flags & RigidBodyDirtyFlags.Pose) != 0)
+            {
+                B2Vec2 position = new B2Vec2(writeState.Position.X, writeState.Position.Y);
+                B2Rot rotation = new B2Rot(MathF.Cos(writeState.Rotation), MathF.Sin(writeState.Rotation));
+                B2Bodies.b2Body_SetTransform(b2BodyId, position, rotation);
+            }
 
-            B2Bodies.b2Body_SetTransform(b2BodyId, position, rotation);
+            if ((flags & RigidBodyDirtyFlags.GravityScale) != 0)
+            {
+                B2Bodies.b2Body_SetGravityScale(b2BodyId, writeState.GravityScale);
+            }
 
-            B2Bodies.b2Body_SetLinearVelocity(b2BodyId,
+            if ((flags & RigidBodyDirtyFlags.LinearDrag) != 0)
+            {
+                B2Bodies.b2Body_SetLinearDamping(b2BodyId, writeState.LinearDamping);
+            }
+
+            if ((flags & RigidBodyDirtyFlags.AngularDrag) != 0)
+            {
+                B2Bodies.b2Body_SetAngularDamping(b2BodyId, writeState.AngularDamping);
+            }
+
+            if ((flags & RigidBodyDirtyFlags.LinearVelocity) != 0)
+            {
+                B2Bodies.b2Body_SetLinearVelocity(b2BodyId,
                 new B2Vec2(
                     writeState.LinearVelocity.X,
                     writeState.LinearVelocity.Y
                     ));
-
-            B2Bodies.b2Body_SetAngularVelocity(b2BodyId, writeState.AngularVelocity);
-
-            B2Bodies.b2Body_SetGravityScale(b2BodyId, writeState.GravityScale);
-
-            B2Bodies.b2Body_SetLinearDamping(b2BodyId, writeState.LinearDamping);
-
-            B2Bodies.b2Body_SetAngularDamping(b2BodyId, writeState.AngularDamping);
-
-            B2Bodies.b2Body_SetMotionLocks(b2BodyId,
-                new B2MotionLocks(
-                    writeState.LockX,
-                    writeState.LockY,
-                    writeState.FixedRotation
-                    ));
-
-            if (writeState.Enabled)
-            {
-                B2Bodies.b2Body_Enable(b2BodyId);
             }
-            else
+
+            if ((flags & RigidBodyDirtyFlags.AngularVelocity) != 0)
             {
-                B2Bodies.b2Body_Disable(b2BodyId);
+                B2Bodies.b2Body_SetAngularVelocity(b2BodyId, writeState.AngularVelocity);
+            }
+
+            if ((flags & RigidBodyDirtyFlags.MotionLocks) != 0)
+            {
+                B2Bodies.b2Body_SetMotionLocks(b2BodyId,
+                    new B2MotionLocks(
+                        writeState.LockX,
+                        writeState.LockY,
+                        writeState.FixedRotation
+                        ));
+            }
+
+            if ((flags & RigidBodyDirtyFlags.PhysicsMode) != 0)
+            {
+                B2Bodies.b2Body_SetType(b2BodyId, FletchB2Converter.ConvertToB2(writeState.Mode));
+            }
+
+            if ((flags & RigidBodyDirtyFlags.Interpolation) != 0)
+            {
+                B2Bodies.b2Body_SetBullet(b2BodyId, writeState.UseInterpolation);
             }
         }
 

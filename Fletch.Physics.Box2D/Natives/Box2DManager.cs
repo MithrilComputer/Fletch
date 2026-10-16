@@ -4,6 +4,7 @@ using Fletch.Physics.Box2D.Factories;
 using Fletch.Physics.Box2D.Helpers;
 using Fletch.Physics.Box2D.Model.ResourceHandles;
 using Fletch.Physics.Box2D.Registries;
+using Fletch.Physics.Helpers;
 using Fletch.Physics.Model.Info.Collisions;
 using Fletch.Physics.Model.Info.IO;
 using Fletch.Physics.Model.ResourceHandles;
@@ -58,9 +59,42 @@ namespace Fletch.Physics.Box2D.Natives
 
             B2BodyDef newBodyDef = B2Types.b2DefaultBodyDef();
 
-            B2BodyId newBodyId = B2Bodies.b2CreateBody(b2dWorldHandle.Id, in newBodyDef);
+            newBodyDef.type = FletchB2Converter.ConvertToB2(writeState.Mode);
 
-            objectStateManager.WriteStateToBody(newBodyId, writeState);
+            newBodyDef.position = new B2Vec2(
+                writeState.Position.X,
+                writeState.Position.Y
+            );
+
+            newBodyDef.rotation = new B2Rot(
+                MathF.Cos(writeState.Rotation),
+                MathF.Sin(writeState.Rotation)
+            );
+
+            newBodyDef.linearVelocity = new B2Vec2(
+                writeState.LinearVelocity.X,
+                writeState.LinearVelocity.Y
+            );
+
+            newBodyDef.angularVelocity = writeState.AngularVelocity;
+
+            newBodyDef.gravityScale = writeState.GravityScale;
+
+            newBodyDef.linearDamping = writeState.LinearDamping;
+
+            newBodyDef.angularDamping = writeState.AngularDamping;
+
+            newBodyDef.motionLocks = new B2MotionLocks(
+                writeState.LockX,
+                writeState.LockY,
+                writeState.FixedRotation
+            );
+
+            newBodyDef.isEnabled = writeState.Enabled;
+
+            newBodyDef.isBullet = writeState.UseInterpolation;
+
+            B2BodyId newBodyId = B2Bodies.b2CreateBody(b2dWorldHandle.Id, in newBodyDef);
 
             return new Box2DBodyHandle(newBodyId);
         }

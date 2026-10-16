@@ -3,7 +3,6 @@ using Box2D.NET;
 using Fletch.Physics.Box2D.Model.ResourceHandles;
 using Fletch.Physics.Box2D.Registries;
 using Fletch.Physics.Model.Info.Collisions;
-using System.Diagnostics;
 
 namespace Fletch.Physics.Box2D.Natives
 {

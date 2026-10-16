@@ -4,6 +4,8 @@ namespace Fletch.Physics.Model.Info.IO
 {
     internal class BodyWriteState
     {
+        public RigidBodyDirtyFlags DirtyFlags { get; }
+
         public Vector2 Position { get; }
         public float Rotation { get; }
 
@@ -23,6 +25,7 @@ namespace Fletch.Physics.Model.Info.IO
         public bool UseInterpolation { get; }
 
         public BodyWriteState(
+            RigidBodyDirtyFlags dirtyFlags,
             Vector2 position,
             float rotation,
             PhysicsMode mode,
@@ -37,6 +40,7 @@ namespace Fletch.Physics.Model.Info.IO
             bool enabled,
             bool useInterpolation)
         {
+            DirtyFlags = dirtyFlags;
             Position = position;
             Rotation = rotation;
             Mode = mode;

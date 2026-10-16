@@ -13,6 +13,7 @@ namespace Fletch.Physics.Helpers
         internal static BodyWriteState CreateBodyWriteState(RigidBody rigidBody)
         {
             return new BodyWriteState(
+                rigidBody.DirtyFlags,
                 rigidBody.CurrentPose.Position,
                 rigidBody.CurrentPose.Rotation,
                 rigidBody.PhysicsMode,

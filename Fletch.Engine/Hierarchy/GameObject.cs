@@ -173,7 +173,7 @@ namespace Fletch.Engine.Hierarchy
             if (component.IsEnabled)
                 return;
 
-            component.IsEnabled = true;
+            component.ChangeEnableState(true);
 
             ComponentChanged?.Invoke(component, ComponentChangeType.Enabled);
         }
@@ -201,7 +201,7 @@ namespace Fletch.Engine.Hierarchy
             if (!component.IsEnabled)
                 return;
 
-            component.IsEnabled = false;
+            component.ChangeEnableState(false);
 
             ComponentChanged?.Invoke(component, ComponentChangeType.Disabled);
         }

@@ -5,7 +5,9 @@ namespace Fletch.Engine.Components
 {
     public abstract class GameObjectComponent
     {
-        public bool IsEnabled { get; set; } = true;
+        public bool IsEnabled { get; private set; } = true;
+
+        public event Action<bool>? EnableStateChanged;
 
         public GameObject GameObject { get; private set; }
 
@@ -14,6 +16,16 @@ namespace Fletch.Engine.Components
         public GameObjectComponent(GameObject gameObject)
         {
             GameObject = gameObject;
+        }
+
+        public void ChangeEnableState(bool enabled)
+        {
+            if (IsEnabled == enabled)
+                return;
+
+            IsEnabled = enabled;
+
+            EnableStateChanged?.Invoke(enabled);
         }
 
         protected void NotifyComponentChanged()

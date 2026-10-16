@@ -1,5 +1,6 @@
 ﻿using Fletch.Audio.Components;
 using Fletch.Core.Colors;
+using Fletch.Core.Time;
 using Fletch.Engine.Hierarchy;
 using Fletch.Hosting.Abstractions.Contexts;
 using Fletch.Physics.Components;
@@ -17,12 +18,29 @@ namespace Fletch.Sandbox
     {
         private Vector2 playerStartPosition = new Vector2(-5f, 0f);
 
+        private readonly WorldScrollingSystem scrollingSystem;
+
         public LevelOne(IGameContext gameContext) : base(gameContext)
         {
             AddCamera();
             AddBackgroundObjects();
             AddGroundObject();
             AddPlayer();
+
+            scrollingSystem = new WorldScrollingSystem(levelScene, textureFactory);
+
+            levelScene.OnUpdate += Update;
+            levelScene.OnFixedUpdate += FixedUpdate;
+        }
+
+        private void Update(FrameTime frameTime)
+        {
+            scrollingSystem.UpdateWorld(frameTime.Delta);
+        }
+
+        private void FixedUpdate(FixedTimeStep fixedTime)
+        {
+
         }
 
         private void AddBackgroundObjects()
@@ -76,7 +94,13 @@ namespace Fletch.Sandbox
 
             player.AddComponent<AudioSource>();
 
-            BoxCollider box = player.AddComponent<RigidBody>().AddCollider<BoxCollider>();
+            RigidBody playerRb = player.AddComponent<RigidBody>();
+
+            playerRb.UseInterpolation = true;
+
+            playerRb.FixedRotation = true;
+
+            BoxCollider box = playerRb.AddCollider<BoxCollider>();
 
             box.Width = 0.5f;
             box.Height = 0.5f;

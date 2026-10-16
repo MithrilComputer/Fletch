@@ -24,6 +24,9 @@ namespace Fletch.Physics.Components
         private readonly List<Collider> colliders = new List<Collider>();
 
 
+        internal RigidBodyDirtyFlags DirtyFlags { get; set; } = RigidBodyDirtyFlags.All;
+
+
         /// <summary>
         /// Occurs when this collider begins making contact with another collider.
         /// </summary>
@@ -34,13 +37,14 @@ namespace Fletch.Physics.Components
         /// </summary>
         public event Action<Collider, Collider>? OnCollisionExit;
 
-        internal bool IsDirty { get; private set; }
+        internal bool IsDirty => DirtyFlags != RigidBodyDirtyFlags.None;
 
         internal IBodyHandle? BodyHandle { get; private set; }
 
         internal RigidBodyManager RigidBodyManager { get; private set; }
 
         internal bool Initialized { get; private set; }
+
 
         internal PhysicsPose CurrentPose { get; set; } = new PhysicsPose(Vector2.Zero, 0f);
 
@@ -74,7 +78,15 @@ namespace Fletch.Physics.Components
 
         private PhysicsMode physicsMode = PhysicsMode.Dynamic;
 
-        public RigidBody(GameObject gameObject) : base(gameObject) { }
+        public RigidBody(GameObject gameObject) : base(gameObject) 
+        {
+            base.EnableStateChanged += OnEnableStateChange;
+        }
+
+        private void OnEnableStateChange(bool enabled)
+        {
+            DirtyFlags |= RigidBodyDirtyFlags.EnabledState;
+        }
 
         /// <summary>
         /// Initalizes the RigidBody's states.
@@ -84,7 +96,6 @@ namespace Fletch.Physics.Components
             BodyHandle = bodyHandle;
             RigidBodyManager = rigidBodyManager;
 
-            IsDirty = true;
             Initialized = true;
 
             this.colliderManager = colliderManager;
@@ -135,78 +146,106 @@ namespace Fletch.Physics.Components
             colliderManager.Remove(collider);
         }
 
+        public Vector2 Position
+        {
+            get => CurrentPose.Position;
+            set
+            {
+                if (CurrentPose.Position == value)
+                    return;
+
+                CurrentPose.Position = value;
+
+                DirtyFlags |= RigidBodyDirtyFlags.Pose;
+            }
+        }
+
+        public float Rotation
+        {
+            get => CurrentPose.Rotation;
+            set
+            {
+                if (CurrentPose.Rotation == value)
+                    return;
+
+                CurrentPose.Rotation = value;
+
+                DirtyFlags |= RigidBodyDirtyFlags.Pose;
+            }
+        }
+
         public float GravityScale
         {
             get => gravityScale;
-            set => SetFieldAndDirty(ref gravityScale, value);
+            set => SetFieldAndDirty(ref gravityScale, value, RigidBodyDirtyFlags.GravityScale);
         }
 
         public float LinearDrag
         {
             get => linearDrag;
-            set => SetFieldAndDirty(ref linearDrag, value);
+            set => SetFieldAndDirty(ref linearDrag, value, RigidBodyDirtyFlags.LinearDrag);
         }
 
         public float AngularDrag
         {
             get => angularDrag;
-            set => SetFieldAndDirty(ref angularDrag, value);
+            set => SetFieldAndDirty(ref angularDrag, value, RigidBodyDirtyFlags.AngularDrag);
         }
 
         public Vector2 LinearVelocity
         {
             get => linearVelocity;
-            set => SetFieldAndDirty(ref linearVelocity, value);
+            set => SetFieldAndDirty(ref linearVelocity, value, RigidBodyDirtyFlags.LinearVelocity);
         }
 
         public float AngularVelocity
         {
             get => angularVelocity;
-            set => SetFieldAndDirty(ref angularVelocity, value);
+            set => SetFieldAndDirty(ref angularVelocity, value, RigidBodyDirtyFlags.AngularVelocity);
         }
 
         public bool UseInterpolation
         {
             get => useInterpolation;
-            set => SetFieldAndDirty(ref useInterpolation, value);
+            set => SetFieldAndDirty(ref useInterpolation, value, RigidBodyDirtyFlags.Interpolation);
         }
 
         public bool FixedRotation
         {
             get => fixedRotation;
-            set => SetFieldAndDirty(ref fixedRotation, value);
+            set => SetFieldAndDirty(ref fixedRotation, value, RigidBodyDirtyFlags.MotionLocks);
         }
 
         public bool LockX
         {
             get => lockX;
-            set => SetFieldAndDirty(ref lockX, value);
+            set => SetFieldAndDirty(ref lockX, value, RigidBodyDirtyFlags.MotionLocks);
         }
 
         public bool LockY
         {
             get => lockY;
-            set => SetFieldAndDirty(ref lockY, value);
+            set => SetFieldAndDirty(ref lockY, value, RigidBodyDirtyFlags.MotionLocks);
         }
 
         public PhysicsMode PhysicsMode
         {
             get => physicsMode;
-            set => SetFieldAndDirty(ref physicsMode, value);
+            set => SetFieldAndDirty(ref physicsMode, value, RigidBodyDirtyFlags.PhysicsMode);
         }
 
         internal void ClearDirty()
         {
-            IsDirty = false;
+            DirtyFlags = RigidBodyDirtyFlags.None;
         }
 
-        private void SetFieldAndDirty<T>(ref T field, T value)
+        private void SetFieldAndDirty<T>(ref T field, T value, RigidBodyDirtyFlags flag)
         {
             if (EqualityComparer<T>.Default.Equals(field, value))
                 return;
 
             field = value;
-            IsDirty = true;
+            DirtyFlags |= flag;
         }
 
         public void AddForce(Vector2 force)
