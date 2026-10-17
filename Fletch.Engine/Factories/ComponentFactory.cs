@@ -5,7 +5,7 @@ using System.Reflection;
 
 namespace Fletch.Engine.Factories
 {
-    internal class ComponentFactory : IComponentFactory // TODO Vibe coded, refine later, needed time
+    internal class ComponentFactory : IComponentFactory
     {
         private readonly IServiceProvider serviceProvider;
 

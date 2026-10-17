@@ -55,9 +55,6 @@ namespace Fletch.Rendering.Systems
 
         public void Render(FrameTime frameTime)
         {
-            //TODO, reduce complexity
-            //TODO, Add Time Alpha stuff
-
             cameraManager.FlushSafePoint();
             spriteRenderers.Refresh();
 

@@ -31,7 +31,6 @@ namespace Fletch.Engine.Hierarchy
 
         private readonly IComponentFactory componentFactory;
 
-        // TODO At some point convert this into a Dictionary<typeof(Component), list<Component>> for faster lookups
         private readonly List<GameObjectComponent> components = new List<GameObjectComponent>();
 
         private readonly IFletchContextLogger<GameObject> logger;

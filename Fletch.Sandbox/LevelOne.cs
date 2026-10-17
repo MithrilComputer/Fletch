@@ -6,13 +6,10 @@ using Fletch.Hosting.Abstractions.Contexts;
 using Fletch.Physics.Components;
 using Fletch.Physics.Components.CollisionShapes;
 using Fletch.Physics.Model;
-using Fletch.Rendering.Abstractions.Resources;
 using Fletch.Rendering.Components;
 using Fletch.Sandbox.Abstractions;
 using Fletch.Sandbox.Scripts;
-using MonoGame.Extended.Timers;
 using System;
-using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.Numerics;
@@ -25,19 +22,18 @@ namespace Fletch.Sandbox
 
         private readonly WorldScrollingSystem scrollingSystem;
 
+        
         private float timeKeep = 0f;
 
         private int frames = 0;
 
+        
         private readonly Stopwatch frameTimer = Stopwatch.StartNew();
 
-        double lastFrameTime = 0d;
 
         double lowestFrameTime = 1000000d;
 
         double highestFrameTime = 0d;
-        
-        float timeToMesurte = 3f;
 
 
         public LevelOne(IGameContext gameContext) : base(gameContext)
@@ -47,7 +43,7 @@ namespace Fletch.Sandbox
             AddGroundObject();
             AddPlayer();
 
-            scrollingSystem = new WorldScrollingSystem(levelScene, textureFactory);
+            scrollingSystem = new WorldScrollingSystem(levelScene, textureFactory, gameContext.PathProvider);
 
             levelScene.OnUpdate += Update;
             levelScene.OnFixedUpdate += FixedUpdate;
@@ -55,7 +51,6 @@ namespace Fletch.Sandbox
 
         private void Update(FrameTime frameTime)
         {
-            
             scrollingSystem.UpdateWorld(frameTime.Delta);
 
             timeKeep += frameTime.Delta;
@@ -64,7 +59,7 @@ namespace Fletch.Sandbox
             {
                 Debug.WriteLine($"FPS: {frames}, Average Frame Time: {timeKeep * 1000d / frames}ms, Lowest Frame Time: {lowestFrameTime}ms, Highest Frame Time: {highestFrameTime}ms");
 
-                highestFrameTime = 0f;
+                highestFrameTime = 0d;
                 lowestFrameTime = 1000d;
 
                 timeKeep = 0f;

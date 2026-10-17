@@ -68,7 +68,7 @@ namespace Fletch.Sandbox.Scripts
 
             soundPlayer.IsSpatial = false;
 
-            soundPlayer.Volume = 0.6f;
+            soundPlayer.Volume = 0.2f;
 
             jumpSoundPlayer = soundPlayer;
         }

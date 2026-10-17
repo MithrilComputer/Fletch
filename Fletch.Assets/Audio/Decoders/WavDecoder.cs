@@ -4,7 +4,7 @@ using Fletch.Audio.Model.AudioData;
 
 namespace Fletch.Assets.Audio.Decoders
 {
-    internal class WavDecoder : IAudioDecoder // TODO This was made with a tutorial, very new to decoding so make sure to re-read later
+    internal class WavDecoder : IAudioDecoder // TODO This was made with a tutorial, very new to decoding so make sure to re read later
     {
         public bool CanDecode(string path)
         {

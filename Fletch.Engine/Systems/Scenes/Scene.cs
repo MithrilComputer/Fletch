@@ -44,7 +44,6 @@ namespace Fletch.Engine.Systems.Scenes
         /// </summary>
         public event Action<FixedTimeStep>? OnFixedUpdate;
 
-
         internal void Update(FrameTime frameTime)
         {
             OnUpdate?.Invoke(frameTime);

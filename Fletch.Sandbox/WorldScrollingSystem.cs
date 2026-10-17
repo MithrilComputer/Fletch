@@ -4,11 +4,14 @@ using Fletch.Engine.Systems.Scenes;
 using Fletch.Physics.Components;
 using Fletch.Physics.Components.CollisionShapes;
 using Fletch.Physics.Model;
+using Fletch.Platform.Abstractions.Paths;
 using Fletch.Rendering.Abstractions.Factories;
 using Fletch.Rendering.Abstractions.Resources;
 using Fletch.Rendering.Components;
+using Fletch.Rendering.Model;
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Numerics;
 
 namespace Fletch.Sandbox
@@ -17,17 +20,29 @@ namespace Fletch.Sandbox
     {
         private readonly List<GameObject> scrollingObjects = new List<GameObject>();
 
-        public float PlaySpeed { get; set; } = 1f;
+        public float PlaySpeed { get; set; } = 1.75f;
 
-        public float BarHeightVariance { get; set; } = 4f;
 
-        public float BarStartPos { get; set; } = 3f;
+        private float BarGap { get; set; } = 4f;
 
-        
+        private float BarGapHeight { get; set; } = 2f;
+
+
+        const float barWidth = 1.125f;
+        const float barHeight = 12.5f;
+
+        const float minY = -3.5f;
+        const float maxY = 5.5f;
+
+        const float padding = 0.5f;
+
+
+        const float barStartPos = 3f;
+
+        const float barGenEnd = 10;
+
+
         private float distanceSinceLastBar = 0f;
-
-        private float barGap = 2f;
-
 
         private readonly Scene level;
 
@@ -36,15 +51,27 @@ namespace Fletch.Sandbox
 
         private readonly ITexture barTexture;
 
-        public WorldScrollingSystem(Scene level, ITextureFactory textureFactory)
+        public WorldScrollingSystem(Scene level, ITextureFactory textureFactory, IPathProvider pathProvider)
         {
             this.level = level;
 
             random = new Random();
 
-            barTexture = textureFactory.CreateSolidColor(1, 1, Color.Green);
+            barTexture = textureFactory.Load(Path.Combine(pathProvider.AssetFolderDirectory, "Pipe.png"));
 
+            GenerateStartingBars();
+        }
 
+        private void GenerateStartingBars()
+        {
+            int barCount = (int)MathF.Ceiling((barStartPos - barGenEnd) / (barWidth - BarGap));
+
+            for(int i = 0; i < barCount; i++)
+            {
+                float distance = (BarGap * i) + barStartPos;
+
+                SpawnBar(distance);
+            }
         }
 
         private void MoveWorld(float deltaTime)
@@ -68,33 +95,48 @@ namespace Fletch.Sandbox
             }
         }
 
-        private void SpawnBar()
+        private void SpawnBar(float posx)
         {
-            float height = random.NextSingle() * BarHeightVariance + 1f;
+            float minGapY = minY + padding + BarGapHeight / 2f;
+            float maxGapY = maxY - padding - BarGapHeight / 2f;
 
-            GameObject bar = level.CreateGameObject();
+            float gapY = minGapY +
+                random.NextSingle() * (maxGapY - minGapY);
 
-            RigidBody body = bar.AddComponent<RigidBody>();
+            float bottomY = gapY - BarGapHeight / 2f - barHeight / 2f;
+            float topY = gapY + BarGapHeight / 2f + barHeight / 2f;
 
-            bar.Transform.LocalScale = new Vector2(0.5f, height);
+            for (int i = 0; i < 2; i++)
+            {
+                GameObject bar = level.CreateGameObject();
 
-            SpriteRenderer renderer = bar.AddComponent<SpriteRenderer>();
+                RigidBody body = bar.AddComponent<RigidBody>();
 
-            renderer.VisualResource.Texture = barTexture;
+                body.UseInterpolation = true;
 
-            renderer.VisualResource.PixelPerWorldUnit = 1;
+                SpriteRenderer renderer = bar.AddComponent<SpriteRenderer>();
 
-            body.PhysicsMode = PhysicsMode.Kinematic;
+                if(i == 1)
+                {
+                    renderer.Effect = SpriteEffect.FlipVertically;
+                }
 
-            body.Position = new Vector2(BarStartPos, -3.5f + height / 2f);
+                renderer.VisualResource.Texture = barTexture;
+                renderer.VisualResource.PixelPerWorldUnit = 16;
 
-            BoxCollider collider = body.AddCollider<BoxCollider>();
-            collider.Width = 0.5f;
-            collider.Height = height;
+                body.PhysicsMode = PhysicsMode.Kinematic;
 
-            body.LinearVelocity = new Vector2(-PlaySpeed, 0f);
+                body.Position = new Vector2(
+                    posx,
+                    i == 0 ? bottomY : topY
+                );
 
-            scrollingObjects.Add(bar);
+                BoxCollider collider = body.AddCollider<BoxCollider>();
+                collider.Width = barWidth;
+                collider.Height = barHeight;
+
+                scrollingObjects.Add(bar);
+            }
         }
 
         public void UpdateWorld(float deltaTime)
@@ -103,10 +145,10 @@ namespace Fletch.Sandbox
 
             distanceSinceLastBar += PlaySpeed * deltaTime;
 
-            if (distanceSinceLastBar >= barGap)
+            if (distanceSinceLastBar >= BarGap)
             {
-                SpawnBar();
-                distanceSinceLastBar -= barGap;
+                SpawnBar(barGenEnd);
+                distanceSinceLastBar -= BarGap;
             }
         }
 

@@ -38,13 +38,10 @@ namespace Fletch.Rendering.Components
         /// </summary>
         public VisualResource VisualResource { get; set; } = new VisualResource();
 
-        //TODO MAKE IT REPORT DIRTY with Component.NotifyComponentChanged() when modified
         /// <summary>
         /// Optional source rectangle within the sprite texture.
         /// </summary>
-        public RectangleFloat? SourceRectangle { get; set; } = null;
-
-        public float PixelsPerUnit { get; set; } = 32f;
+        public RectangleFloat? SourceRectangle { get; set; }
 
         /// <summary>
         /// Tint color applied to the sprite.

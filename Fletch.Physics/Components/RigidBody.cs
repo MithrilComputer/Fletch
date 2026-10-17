@@ -156,6 +156,10 @@ namespace Fletch.Physics.Components
 
                 CurrentPose.Position = value;
 
+                PreviousPose.Position = value;
+
+                Transform.LocalPosition = value;
+
                 DirtyFlags |= RigidBodyDirtyFlags.Pose;
             }
         }
@@ -169,6 +173,10 @@ namespace Fletch.Physics.Components
                     return;
 
                 CurrentPose.Rotation = value;
+
+                PreviousPose.Rotation = value;
+
+                Transform.LocalRotation.SetDegrees(value);
 
                 DirtyFlags |= RigidBodyDirtyFlags.Pose;
             }
