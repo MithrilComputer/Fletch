@@ -19,7 +19,11 @@ namespace Fletch.Engine.Systems.Scenes
         private readonly Dictionary<Type, List<Action<GameObjectComponent, ComponentChangeType>>> componentCallBacks
             = new Dictionary<Type, List<Action<GameObjectComponent, ComponentChangeType>>>();
 
+        private bool disposed = false;
+
         private readonly List<GameObject> gameObjects = new List<GameObject>();
+
+        private readonly HashSet<GameObject> pendingDestruction = new HashSet<GameObject>();
 
         private readonly IGameObjectFactory gameObjectFactory;
 
@@ -46,13 +50,21 @@ namespace Fletch.Engine.Systems.Scenes
 
         internal void Update(FrameTime frameTime)
         {
+            if (disposed)
+                return;
+
             OnUpdate?.Invoke(frameTime);
 
             SystemManager.UpdateSystems(frameTime);
+
+            DestroyGameObjects();
         }
 
         internal void FixedUpdate(FixedTimeStep fixedTime)
         {
+            if (disposed)
+                return;
+
             SystemManager.UpdateFixedSystems(fixedTime);
 
             OnFixedUpdate?.Invoke(fixedTime);
@@ -60,6 +72,9 @@ namespace Fletch.Engine.Systems.Scenes
 
         internal void Render(FrameTime frameTime)
         {
+            if (disposed)
+                return;
+
             SystemManager.UpdateRenderables(frameTime);
         }
 
@@ -72,6 +87,9 @@ namespace Fletch.Engine.Systems.Scenes
             Type componentType,
             Action<GameObjectComponent, ComponentChangeType> callback)
         {
+            if (disposed)
+                return;
+
             if (componentType == null)
                 throw new ArgumentNullException(nameof(componentType));
 
@@ -92,6 +110,9 @@ namespace Fletch.Engine.Systems.Scenes
             Type componentType,
             Action<GameObjectComponent, ComponentChangeType> callback)
         {
+            if (disposed)
+                return;
+
             if (componentType == null) throw new ArgumentNullException(nameof(componentType));
 
             if (callback == null) throw new ArgumentNullException(nameof(callback));
@@ -111,6 +132,9 @@ namespace Fletch.Engine.Systems.Scenes
 
         internal void OnComponentChange(GameObjectComponent component, ComponentChangeType changeType)
         {
+            if (disposed)
+                return;
+
             if (component == null || component.GameObject == null)
                 return;
 
@@ -130,6 +154,9 @@ namespace Fletch.Engine.Systems.Scenes
 
         public GameObject CreateGameObject()
         {
+            if (disposed)
+                return null;
+
             uint id;
 
             if (freedIds.Count > 0)
@@ -141,7 +168,7 @@ namespace Fletch.Engine.Systems.Scenes
                 id = nextId++;
             }
 
-            GameObject gameObject = gameObjectFactory.BuildGameObject(id);
+            GameObject gameObject = gameObjectFactory.BuildGameObject(id, this);
 
             gameObjects.Add(gameObject);
 
@@ -150,40 +177,62 @@ namespace Fletch.Engine.Systems.Scenes
             return gameObject;
         }
 
-        public void DestroyGameObject(GameObject gameObject)
+        internal void DestroyGameObjects()
         {
-            if (gameObject == null)
-            {
-                logger.LogWarning("Cant Destroy A Null GameObject.");
+            if (disposed)
                 return;
+
+            while (pendingDestruction.Count > 0)
+            {
+                GameObject[] objectsToDestroy = pendingDestruction.ToArray();
+
+                pendingDestruction.Clear();
+
+                foreach (GameObject gameObject in objectsToDestroy)
+                {
+                    if (!gameObjects.Contains(gameObject))
+                        continue;
+
+                    gameObject.Dispose();
+
+                    gameObject.ComponentChanged -= OnComponentChange;
+
+                    gameObjects.Remove(gameObject);
+
+                    freedIds.Enqueue(gameObject.ID);
+                }
             }
+        }
+
+        internal void MarkGameObjectForDistruction(GameObject gameObject)
+        {
+            if (disposed)
+                return;
 
             if (!gameObjects.Contains(gameObject))
-            {
-                logger.LogWarning("Cant Destroy A Non-Registered GameObject.");
                 return;
-            }
 
-            gameObjects.Remove(gameObject);
-
-            freedIds.Enqueue(gameObject.ID);
-
-            gameObject.ComponentChanged -= OnComponentChange;
-
-            gameObject.Dispose();
+            pendingDestruction.Add(gameObject);
         }
 
         public void Dispose()
         {
+            if (disposed)
+                return;
+
             for (int i = gameObjects.Count - 1; i >= 0; i--)
             {
-                DestroyGameObject(gameObjects[i]);
+                MarkGameObjectForDistruction(gameObjects[i]);
             }
+
+            DestroyGameObjects();
 
             componentCallBacks.Clear();
             freedIds.Clear();
 
             SystemManager.Dispose();
+
+            disposed = true;
         }
     }
 }

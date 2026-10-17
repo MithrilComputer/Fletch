@@ -15,7 +15,7 @@ using System.Numerics;
 
 namespace Fletch.Physics.Managers
 {
-    internal class ColliderManager(PhysicsSystem physicsSystem)
+    internal class ColliderManager(PhysicsSystem physicsSystem, IPhysicsBackend physicsBackend)
     {
         private TrackedSet<Collider> colliders = new TrackedSet<Collider>();
 
@@ -115,6 +115,7 @@ namespace Fletch.Physics.Managers
             foreach (Collider collider in colliders.PendingRemoves)
             {
                 colliderRegistry.Remove(collider.ColliderHandle);
+                physicsBackend.DestroyCollider(collider.ColliderHandle);
             }
 
             colliders.Refresh();
@@ -129,6 +130,12 @@ namespace Fletch.Physics.Managers
             }
         }
 
+        public void DestroyColliderImediate(Collider collider)
+        {
+            colliders.RemoveFromSet(collider);
+            colliderRegistry.Remove(collider.ColliderHandle);
+            physicsBackend.DestroyCollider(collider.ColliderHandle);
+        }
 
         /// <summary>
         /// Processes a backend collision event and invokes the corresponding collision callbacks on the primary

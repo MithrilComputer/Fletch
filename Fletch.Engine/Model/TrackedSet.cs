@@ -4,8 +4,8 @@
     {
         private readonly List<T> items = new List<T>();
         private readonly HashSet<T> set = new HashSet<T>();
-        private readonly Queue<T> pendingAdds = new Queue<T>();
-        private readonly Queue<T> pendingRemoves = new Queue<T>();
+        private readonly HashSet<T> pendingAdds = new HashSet<T>();
+        private readonly HashSet<T> pendingRemoves = new HashSet<T>();
 
         /// <summary>
         /// The current items in the tracked set. Do not modify this list directly; use MarkToAdd and MarkToRemove instead.
@@ -29,7 +29,7 @@
         {
             if (item == null) return;
             if (!set.Add(item)) return;
-            pendingAdds.Enqueue(item);
+            pendingAdds.Add(item);
         }
 
         /// <summary>
@@ -39,7 +39,7 @@
         {
             if (item == null) return;
             if (!set.Remove(item)) return;
-            pendingRemoves.Enqueue(item);
+            pendingRemoves.Add(item);
         }
 
         /// <summary>
@@ -47,11 +47,14 @@
         /// </summary>
         public void Refresh()
         {
-            while (pendingAdds.Count > 0)
-                items.Add(pendingAdds.Dequeue());
+            foreach (T item in pendingAdds)
+                items.Add(item);
 
-            while (pendingRemoves.Count > 0)
-                items.Remove(pendingRemoves.Dequeue());
+            foreach (T item in pendingRemoves)
+                items.Remove(item);
+
+            pendingAdds.Clear();
+            pendingRemoves.Clear();
         }
 
         /// <summary>
@@ -62,6 +65,18 @@
         {
             if (comparison == null) throw new ArgumentNullException(nameof(comparison));
             items.Sort(comparison);
+        }
+
+        public void RemoveFromSet(T item)
+        {
+            if (items.Remove(item))
+                return;
+
+            if (pendingAdds.Remove(item))
+                return;
+
+            if (pendingRemoves.Remove(item))
+                return;
         }
 
         // Clears the collections

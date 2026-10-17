@@ -1,6 +1,7 @@
 ﻿using Fletch.Core.Diagnostics;
 using Fletch.Engine.Abstractions.Factories;
 using Fletch.Engine.Hierarchy;
+using Fletch.Engine.Systems.Scenes;
 
 namespace Fletch.Engine.Factories
 {
@@ -16,9 +17,9 @@ namespace Fletch.Engine.Factories
             this.componentFactory = componentFactory;
         }
 
-        public GameObject BuildGameObject(uint gameObjectID)
+        public GameObject BuildGameObject(uint gameObjectID, Scene host)
         {
-            return new GameObject(gameObjectID, gameObjectLogger, componentFactory);
+            return new GameObject(gameObjectID, gameObjectLogger, componentFactory, host);
         }
     }
 }

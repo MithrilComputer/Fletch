@@ -52,6 +52,9 @@ namespace Fletch.Runtime.Systems
                             frameTime.Alpha);
 
                         renderingComponent.SetRenderPose(new RenderPose(renderPostion, rotation));
+
+                        gameObject.Transform.LocalPosition = renderPostion;
+                        gameObject.Transform.LocalRotation.SetRadians(rotation);
                     }
                 }
                 else if (poseBind.RenderingComponents.Count > 0)

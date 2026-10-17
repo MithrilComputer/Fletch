@@ -1,5 +1,4 @@
-﻿using Fletch.Core.Colors;
-using Fletch.Engine.Hierarchy;
+﻿using Fletch.Engine.Hierarchy;
 using Fletch.Engine.Systems.Scenes;
 using Fletch.Physics.Components;
 using Fletch.Physics.Components.CollisionShapes;
@@ -42,6 +41,9 @@ namespace Fletch.Sandbox
         const float barGenEnd = 10;
 
 
+        private Transform lastBarPos;
+
+
         private float distanceSinceLastBar = 0f;
 
         private readonly Scene level;
@@ -82,18 +84,45 @@ namespace Fletch.Sandbox
 
                 if(body == null)
                 {
+                    if(GameState.Running == false)
+                    {
+                        continue;
+                    }
+
                     Vector2 position = obj.Transform.LocalPosition;
 
                     position.X -= PlaySpeed * deltaTime;
 
                     obj.Transform.LocalPosition = position;
 
-                    return;
+                    continue;
+                }
+
+                if (GameState.Running == false)
+                {
+                    body.LinearVelocity = new Vector2(0f, 0f);
+                    continue;
                 }
 
                 body.LinearVelocity = new Vector2(-PlaySpeed, 0f);
             }
         }
+
+        public void ResetWorld()
+        {
+            foreach (GameObject obj in scrollingObjects)
+            {
+                RigidBody body = obj.GetComponent<RigidBody>();
+
+                if (body == null)
+                    continue;
+
+                obj.Destroy();
+            }
+
+            GenerateStartingBars();
+        }
+
 
         private void SpawnBar(float posx)
         {
@@ -119,6 +148,7 @@ namespace Fletch.Sandbox
                 if(i == 1)
                 {
                     renderer.Effect = SpriteEffect.FlipVertically;
+                    lastBarPos = bar.Transform;
                 }
 
                 renderer.VisualResource.Texture = barTexture;
@@ -143,14 +173,16 @@ namespace Fletch.Sandbox
         {
             MoveWorld(deltaTime);
 
-            distanceSinceLastBar += PlaySpeed * deltaTime;
+            distanceSinceLastBar = barGenEnd - lastBarPos.WorldPosition.X;
 
-            if (distanceSinceLastBar >= BarGap)
+            while (distanceSinceLastBar >= BarGap)
             {
-                SpawnBar(barGenEnd);
+                float error = distanceSinceLastBar - BarGap;
+
+                SpawnBar(barGenEnd - error);
+
                 distanceSinceLastBar -= BarGap;
             }
         }
-
     }
 }

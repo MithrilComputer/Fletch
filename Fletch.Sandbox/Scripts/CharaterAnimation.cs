@@ -2,20 +2,25 @@
 using Fletch.Engine.Components;
 using Fletch.Engine.Hierarchy;
 using Fletch.Hosting.Abstractions.Contexts;
+using Fletch.Physics.Components;
 using Fletch.Platform.Abstractions.Paths;
 using Fletch.Rendering.Abstractions.Resources;
 using Fletch.Rendering.API;
 using Fletch.Rendering.Components;
+using System;
+using System.Diagnostics;
 using System.IO;
+using System.Numerics;
 
 namespace Fletch.Sandbox.Scripts
 {
     internal class CharaterAnimation : Script
     {
-        float flapTime = 0.09f;
+        private float flapTime = 0.09f;
 
-        float timeKeep = 0f;
+        private float timeKeep = 0f;
 
+        private const float pointPower = 8f;
 
         private ITexture preFlapTexture;
 
@@ -30,6 +35,8 @@ namespace Fletch.Sandbox.Scripts
 
         private readonly RenderingResources render;
 
+        private RigidBody playerRigidBody;
+
         private readonly IPathProvider pathProvider;
 
 
@@ -43,6 +50,8 @@ namespace Fletch.Sandbox.Scripts
         {
             renderer = GameObject.GetComponent<SpriteRenderer>();
 
+            playerRigidBody = GameObject.GetComponent<RigidBody>();
+
             preFlapTexture = render.TextureFactory.Load(Path.Combine(pathProvider.AssetFolderDirectory, "PlayerTwo.png"));
 
             postFlapTexture = render.TextureFactory.Load(Path.Combine(pathProvider.AssetFolderDirectory, "PlayerOne.png"));
@@ -52,7 +61,9 @@ namespace Fletch.Sandbox.Scripts
 
         public override void Update(FrameTime deltaTime)
         {
-            if(hasFlapped)
+            playerRigidBody.Rotation = PointAngle();
+
+            if (hasFlapped)
             {
                 timeKeep += deltaTime.Delta;
 
@@ -63,6 +74,13 @@ namespace Fletch.Sandbox.Scripts
                     timeKeep = 0f;
                 }
             }
+        }
+
+        private float PointAngle()
+        {
+            float verticalVelocity = playerRigidBody.LinearVelocity.Y;
+
+            return MathF.Atan2(verticalVelocity, pointPower);
         }
 
         public void OnJump()

@@ -8,12 +8,11 @@ using Fletch.Physics.Model.Forces;
 using Fletch.Physics.Model.Info.IO;
 using Fletch.Physics.Model.ResourceHandles;
 using Fletch.Physics.Systems;
-using System.Diagnostics;
 using System.Numerics;
 
 namespace Fletch.Physics.Managers
 {
-    internal class RigidBodyManager
+    internal class RigidBodyManager : IDisposable
     {
         private readonly TrackedSet<RigidBody> rigidbodies = new TrackedSet<RigidBody>();
 
@@ -27,6 +26,8 @@ namespace Fletch.Physics.Managers
 
         private readonly ColliderManager colliderManager;
 
+        private bool isDisposed = false;
+
         public RigidBodyManager(IPhysicsBackend physicsBackend, IWorldHandle worldHandle, PhysicsSystem physicsSystem, ColliderManager colliderManager)
         {
             this.physicsBackend = physicsBackend;
@@ -39,6 +40,11 @@ namespace Fletch.Physics.Managers
 
         public void UpdateComponents()
         {
+            foreach (RigidBody rigidboy in rigidbodies.PendingRemoves)
+            {
+                DestroyRigidBody(rigidboy);
+            }
+
             rigidbodies.Refresh();
         }
 
@@ -98,12 +104,20 @@ namespace Fletch.Physics.Managers
         /// Removes a rigid body from the manager and marks it for removal from the physics backend.
         /// </summary>
         /// <param name="rigidbody">The rigid body to remove.</param>
-        public void RemoveRigidBody(RigidBody rigidbody)
+        public void MarkRemoveRigidBody(RigidBody rigidbody)
         {
             rigidbodies.MarkToRemove(rigidbody);
+        }
 
-            if(rigidbody.BodyHandle != null)
+        private void DestroyRigidBody(RigidBody rigidbody)
+        {
+            foreach (Collider collider in rigidbody.Colliders.ToArray())
+                colliderManager.DestroyColliderImediate(collider);
+
+            if (rigidbody.BodyHandle != null)
                 physicsBackend.DestroyBody(rigidbody.BodyHandle);
+
+            rigidbody.ClearBodyHandle();
         }
 
         /// <summary>
@@ -184,6 +198,16 @@ namespace Fletch.Physics.Managers
         public void ApplyAngularImpulseToBody(RigidBody rigidBody, float angularImpulse)
         {
             forceQueue.AddCommand(rigidBody, ForceType.AngularImpulse, null, angularImpulse);
+        }
+
+        public void Dispose()
+        {
+            foreach(RigidBody rigidBody in rigidbodies.Items)
+            {
+                DestroyRigidBody(rigidBody);
+            }
+
+            isDisposed = true;
         }
     }
 }

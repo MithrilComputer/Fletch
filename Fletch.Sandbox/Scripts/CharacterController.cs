@@ -9,7 +9,6 @@ using Fletch.Input.Model;
 using Fletch.Physics.Abstractions.CollisionShapes;
 using Fletch.Physics.Components;
 using System;
-using System.Diagnostics;
 using System.IO;
 using System.Numerics;
 
@@ -32,6 +31,8 @@ namespace Fletch.Sandbox.Scripts
 
         public event Action? OnJump;
 
+        public event Action? OnDeath;
+
 
         private RigidBody rb;
 
@@ -39,12 +40,16 @@ namespace Fletch.Sandbox.Scripts
 
         private Random random;
 
+        private Vector2 playerStartPosition = new Vector2(-5f, 0f);
 
-        private bool jumpPressed = false;
+
+        public bool JumpPressed { get; private set; } = false;
+
 
         private bool jumpCoolingOff = false;
 
         private float timeKeep = 0f;
+
 
         public CharacterController(GameObject gameObject, IGameContext context) : base(gameObject)
         {
@@ -59,7 +64,7 @@ namespace Fletch.Sandbox.Scripts
 
             rb.OnCollisionEnter += OnCollisionEnter;
 
-            rb.OnCollisionExit += OnCollisionExit;
+            rb.Position = playerStartPosition;
 
             GameObject.GetComponent<AudioSource>()
                 .TryCreateSoundPlayer(
@@ -77,11 +82,6 @@ namespace Fletch.Sandbox.Scripts
         {
             HandleInput();
 
-            if (jumpPressed && !GameState.Started)
-            {
-                GameState.Started = true;
-            }
-
             if (jumpCoolingOff)
             {
                 timeKeep += deltaTime.Delta;
@@ -96,12 +96,20 @@ namespace Fletch.Sandbox.Scripts
 
         public override void FixedUpdate(FixedTimeStep deltaTime)
         {
-            if (!GameState.Started)
+            if (!GameState.Running)
                 return;
 
             rb.AddForce(Vector2.UnitY * -fallForce);
 
             MoveCharater();
+        }
+
+        public void ResetState()
+        {
+            rb.Position = playerStartPosition;
+
+            jumpCoolingOff = false;
+            timeKeep = 0f;
         }
 
         private void HandleInput()
@@ -114,13 +122,13 @@ namespace Fletch.Sandbox.Scripts
                 input.Keyboard.GetKeyDown(KeyCode.W)
                 )
             {
-                jumpPressed = true;
+                JumpPressed = true;
             }
         }
 
         private void MoveCharater()
         {
-            if (jumpPressed && !jumpCoolingOff)
+            if (JumpPressed && !jumpCoolingOff && GameState.Running)
             {
                 jumpSoundPlayer.Pitch = 1 + ((2 * (float)random.NextDouble()) - 1) * pitchRange;
 
@@ -135,17 +143,12 @@ namespace Fletch.Sandbox.Scripts
                 jumpCoolingOff = true;
             }
 
-            jumpPressed = false;
+            JumpPressed = false;
         }
 
         private void OnCollisionEnter(Collider self, Collider other)
         {
-            Debug.WriteLine("Touched!");
-        }
-
-        private void OnCollisionExit(Collider self, Collider other)
-        {
-            Debug.WriteLine("Stoped Touching!");
+            OnDeath?.Invoke();
         }
     }
 }

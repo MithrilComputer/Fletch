@@ -9,8 +9,6 @@ using System.Numerics;
 
 namespace Fletch.Physics.Components
 {
-    // TODO At some point I should prob make a way of setting specfic stuff as dirty, I feel like making the whole thing sync is a bit wastefull, not terrible, but not amazing.
-
     /// <summary>
     /// A RigidBody is a component that allows a GameObject to be affected by physics. It can have colliders attached to it, and can be affected by forces and impulses. 
     /// </summary>
@@ -81,6 +79,12 @@ namespace Fletch.Physics.Components
         public RigidBody(GameObject gameObject) : base(gameObject) 
         {
             base.EnableStateChanged += OnEnableStateChange;
+        }
+
+        internal void ClearBodyHandle()
+        {
+            BodyHandle = null;
+            Initialized = false;
         }
 
         private void OnEnableStateChange(bool enabled)

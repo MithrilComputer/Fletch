@@ -11,12 +11,11 @@ using Fletch.Physics.Factories;
 using Fletch.Physics.Managers;
 using Fletch.Physics.Maps;
 using Fletch.Physics.Model.Info.Collisions;
-using Fletch.Physics.Model.Info.Masking.Collisions;
 using Fletch.Physics.Model.ResourceHandles;
 
 namespace Fletch.Physics.Systems
 {
-    internal class PhysicsSystem : SceneSubsystem, IFixedUpdateable
+    internal class PhysicsSystem : SceneSubsystem, IFixedUpdateable, IDisposable
     {
         public IPhysicsBackend PhysicsBackend { get; }
 
@@ -30,6 +29,8 @@ namespace Fletch.Physics.Systems
 
         private readonly ColliderManager colliderManager;
 
+        private bool isDisposed = false;
+
         public PhysicsSystem(IPhysicsBackend backend)
         {
             PhysicsBackend = backend;
@@ -40,7 +41,7 @@ namespace Fletch.Physics.Systems
 
             colliderFactory = new ColliderFactory(backend, colliderRigidbodyMap);
 
-            colliderManager = new ColliderManager(this);
+            colliderManager = new ColliderManager(this, backend);
 
             rigidBodyManager = new RigidBodyManager(backend, worldHandle, this, colliderManager);
         }
@@ -95,12 +96,19 @@ namespace Fletch.Physics.Systems
 
                 case ComponentChangeType.Removed:
 
-                    rigidBodyManager.RemoveRigidBody(rigidBody);
+                    rigidBodyManager.MarkRemoveRigidBody(rigidBody);
                     break;
 
                 default: // We can ignore other change types, as the rigidbodies track their modifed changes internaly.
                     break;
             }
+        }
+
+
+
+        public void Dispose()
+        {
+            rigidBodyManager.Dispose();
         }
     }
 }

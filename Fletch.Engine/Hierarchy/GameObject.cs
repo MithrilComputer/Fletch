@@ -3,14 +3,14 @@ using Fletch.Engine.Abstractions.Factories;
 using Fletch.Engine.Attributes;
 using Fletch.Engine.Components;
 using Fletch.Engine.Model;
-using System.Diagnostics;
+using Fletch.Engine.Systems.Scenes;
 
 namespace Fletch.Engine.Hierarchy
 {
     /// <summary>
     /// Represents an entity in a scene, containing a transform and a collection of components.
     /// </summary>
-    public sealed class GameObject : IDisposable
+    public sealed class GameObject
     {
         /// <summary>
         /// Gets or sets the name of the GameObject.
@@ -29,6 +29,8 @@ namespace Fletch.Engine.Hierarchy
 
         private bool disposed = false;
 
+        private readonly Scene hostScene;
+
         private readonly IComponentFactory componentFactory;
 
         private readonly List<GameObjectComponent> components = new List<GameObjectComponent>();
@@ -42,11 +44,13 @@ namespace Fletch.Engine.Hierarchy
 
         public event ComponentChangedHandler? ComponentChanged;
 
-        internal GameObject(uint id, IFletchContextLogger<GameObject> logger, IComponentFactory componentFactory)
+        internal GameObject(uint id, IFletchContextLogger<GameObject> logger, IComponentFactory componentFactory, Scene hostScene)
         {
             this.logger = logger;
 
             this.componentFactory = componentFactory;
+
+            this.hostScene = hostScene;
 
             ID = id;
 
@@ -138,14 +142,12 @@ namespace Fletch.Engine.Hierarchy
             if (component == null)
                 return false;
 
-            if (!components.Contains(component))
+            if (!components.Remove(component))
                 return false;
 
-            component.OnRemoved();
-
-            components.Remove(component);
-
             ComponentChanged?.Invoke(component, ComponentChangeType.Removed);
+
+            component.OnRemoved();
 
             return true;
         }
@@ -236,11 +238,15 @@ namespace Fletch.Engine.Hierarchy
             }
         }
 
-
         /// <summary>
-        /// Removes all components and releases their resources.
+        /// Notifies the scene to destroy the GameObject.
         /// </summary>
-        public void Dispose()
+        public void Destroy()
+        {
+            hostScene.MarkGameObjectForDistruction(this);
+        }
+
+        internal void Dispose()
         {
             if (disposed)
                 return;
@@ -250,8 +256,6 @@ namespace Fletch.Engine.Hierarchy
             RequestComponentsDestroy();
 
             components.Clear();
-
-            ComponentChanged = null;
 
             GC.SuppressFinalize(this);
         }
