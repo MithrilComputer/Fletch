@@ -153,6 +153,22 @@ namespace Fletch.Physics.Managers
             if (!colliderRegistry.TryGetValue(backendCollision.B, out Collider colliderB))
                 return;
 
+            if(backendCollision.IsTrigger)
+            {
+                if (backendCollision.EventType == CollisionEventType.Enter)
+                {
+                    colliderA.RigidBody.InvokeOnTriggerEnter(colliderA, colliderB);
+                    colliderB.RigidBody.InvokeOnTriggerEnter(colliderA, colliderB);
+                }
+                else if (backendCollision.EventType == CollisionEventType.Exit)
+                {
+                    colliderA.RigidBody.InvokeOnTriggerExit(colliderA, colliderB);
+                    colliderB.RigidBody.InvokeOnTriggerExit(colliderA, colliderB);
+                }
+
+                return;
+            }
+
             if (backendCollision.EventType == CollisionEventType.Enter)
             {
                 colliderA.RigidBody.InvokeOnCollisionEnter(colliderA, colliderB);

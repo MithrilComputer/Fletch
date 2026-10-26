@@ -68,6 +68,8 @@ namespace Fletch.Sandbox.Scripts
 
             rb.OnCollisionEnter += OnCollisionEnter;
 
+            rb.OnTriggerEnter += OnTriggerEnter;
+
             rb.Position = playerStartPosition;
 
             AudioSource audioSource = GameObject.GetComponent<AudioSource>();
@@ -206,6 +208,14 @@ namespace Fletch.Sandbox.Scripts
             rb.AddImpulse(new Vector2((float)random.NextDouble(), (float)random.NextDouble()) * 3f);
 
             OnDeath?.Invoke();
+        }
+
+        private void OnTriggerEnter(Collider trigger, Collider visitor)
+        {
+            if (!GameState.Running)
+                return;
+
+            deathSoundPlayer.PlaySound();
         }
     }
 }

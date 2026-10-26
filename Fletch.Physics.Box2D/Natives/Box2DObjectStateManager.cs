@@ -6,6 +6,7 @@ using Fletch.Physics.Box2D.Registries;
 using Fletch.Physics.Model;
 using Fletch.Physics.Model.Info.IO;
 using Fletch.Physics.Model.Info.Shapes;
+using System.Diagnostics;
 using System.Numerics;
 
 namespace Fletch.Physics.Box2D.Natives
@@ -149,6 +150,10 @@ namespace Fletch.Physics.Box2D.Natives
             B2ShapeDef shapeDef = ShapeDefinitionFactory.CreateShapeDef(writeState.Material, writeState.IsSensor, writeState.Filter, writeState.Mass);
 
             B2ShapeId newShapeId = B2Shapes.b2CreatePolygonShape(bodyId, shapeDef, B2Geometries.b2MakeBox(1f, 1f)); //B2Geometries.b2MakeBox(1f, 1f) is a shape that will be replaced, it is a place holder.
+
+            Debug.WriteLine($"Requested sensor: {writeState.IsSensor}");
+            Debug.WriteLine($"ShapeDef sensor: {shapeDef.isSensor}");
+            Debug.WriteLine($"Actual sensor: {B2Shapes.b2Shape_IsSensor(newShapeId)}");
 
             colliderRegistry.RemoveRegistration(oldShapeId);
 

@@ -28,7 +28,7 @@ namespace Fletch.Physics.Box2D.Natives
 
             return eventInfos;
         }
-
+        
         private void CollectSensorEvents(B2WorldId worldId)
         {
             B2SensorEvents sensorEvents =

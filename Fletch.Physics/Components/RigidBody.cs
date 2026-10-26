@@ -31,9 +31,21 @@ namespace Fletch.Physics.Components
         public event Action<Collider, Collider>? OnCollisionEnter;
 
         /// <summary>
+        /// Occurs when a trigger begins making contact with another collider.
+        /// </summary>
+        /// <remarks>Collider A is always the trigger body, Collider B is always the Visitor.</remarks>
+        public event Action<Collider, Collider>? OnTriggerEnter;
+
+        /// <summary>
         /// Occurs when this collider stops making contact with another collider.
         /// </summary>
         public event Action<Collider, Collider>? OnCollisionExit;
+
+        /// <summary>
+        /// Occurs when a trigger stops making contact with another collider.
+        /// </summary>
+        /// <remarks>Collider A is always the trigger body, Collider B is always the Visitor.</remarks>
+        public event Action<Collider, Collider>? OnTriggerExit;
 
         internal bool IsDirty => DirtyFlags != RigidBodyDirtyFlags.None;
 
@@ -110,9 +122,19 @@ namespace Fletch.Physics.Components
             OnCollisionEnter?.Invoke(self, other);
         }
 
+        internal void InvokeOnTriggerEnter(Collider trigger, Collider visiter)
+        {
+            OnTriggerEnter?.Invoke(trigger, visiter);
+        }
+
         internal void InvokeOnCollisionExit(Collider self, Collider other)
         {
             OnCollisionExit?.Invoke(self, other);
+        }
+
+        internal void InvokeOnTriggerExit(Collider trigger, Collider visiter)
+        {
+            OnTriggerExit?.Invoke(trigger, visiter);
         }
 
         /// <summary>

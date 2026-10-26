@@ -24,6 +24,7 @@ namespace Fletch.Physics.Model.Info.Collisions
             A = a;
             B = b;
             EventType = eventType;
+            IsTrigger = isTrigger;
         }
     }
 }

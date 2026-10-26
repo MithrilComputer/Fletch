@@ -177,6 +177,24 @@ namespace Fletch.Sandbox
 
                 scrollingObjects.Add(bar);
             }
+
+            GameObject trigger = level.CreateGameObject();
+
+            trigger.AddComponent<SelfDeleteAfterTime>();
+
+            RigidBody triggerBody = trigger.AddComponent<RigidBody>();
+
+            triggerBody.UseInterpolation = false;
+            triggerBody.PhysicsMode = PhysicsMode.Kinematic;
+            triggerBody.Position = new Vector2(posx, gapY);
+
+            BoxCollider triggerCollider = triggerBody.AddCollider<BoxCollider>();
+
+            triggerCollider.Width = 0.2f;
+            triggerCollider.Height = BarGapHeight;
+            triggerCollider.IsSensor = true;
+
+            scrollingObjects.Add(trigger);
         }
 
         public void UpdateWorld(float deltaTime)

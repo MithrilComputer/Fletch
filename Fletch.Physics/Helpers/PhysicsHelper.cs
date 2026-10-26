@@ -56,7 +56,7 @@ namespace Fletch.Physics.Helpers
                         colliderType.Offset,
                         colliderType.Mass,
                         0f,
-                        false);
+                        colliderType.IsSensor);
 
                 case CircleCollider circleCollider:
                     return new ColliderWriteState(
@@ -70,7 +70,7 @@ namespace Fletch.Physics.Helpers
                         colliderType.Offset,
                         colliderType.Mass,
                         0f,
-                        false);
+                        colliderType.IsSensor);
 
                 case CapsuleCollider capsuleCollider:
                     return new ColliderWriteState(
@@ -85,7 +85,7 @@ namespace Fletch.Physics.Helpers
                         colliderType.Offset,
                         colliderType.Mass,
                         0f,
-                        false);
+                        colliderType.IsSensor);
 
                 default:
                     throw new ArgumentException($"Unsupported collider type: {colliderType.GetType().Name}");
