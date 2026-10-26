@@ -14,6 +14,7 @@
         public bool StartFullscreen { get; set; } = false;
 
         public int FixedUpdatesPerSecond { get; set; } = 60;
+
         public int MaxFixedUpdatesPerFrame { get; set; } = 5;
     }
 }

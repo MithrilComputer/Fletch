@@ -1,14 +1,15 @@
 ﻿using Fletch.Audio.Components;
+using Fletch.Audio.Model;
 using Fletch.Core.Time;
 using Fletch.Engine.Hierarchy;
 using Fletch.Hosting.Abstractions.Contexts;
 using Fletch.Physics.Components;
 using Fletch.Physics.Components.CollisionShapes;
 using Fletch.Physics.Model;
-using Fletch.Rendering.Abstractions.Factories;
 using Fletch.Rendering.Components;
 using Fletch.Sandbox.Abstractions;
 using Fletch.Sandbox.Scripts;
+using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
@@ -20,12 +21,12 @@ namespace Fletch.Sandbox
     {
         private readonly WorldScrollingSystem scrollingSystem;
 
-        
+
         private float timeKeep = 0f;
 
         private int frames = 0;
 
-        
+
         private readonly Stopwatch frameTimer = Stopwatch.StartNew();
 
 
@@ -38,17 +39,25 @@ namespace Fletch.Sandbox
 
         private WorldScrollingSystem worldScroller;
 
+
+        private Camera2D camera2D;
+
+        private IGameContext gameContext;
+
+
         public LevelOne(IGameContext gameContext) : base(gameContext)
         {
+            this.gameContext = gameContext;
+
             AddCamera();
             AddBackgroundObjects();
-            AddGroundObject();
+            AddBoundaryObjects();
             AddPlayer();
+            AddMusic();
 
             scrollingSystem = new WorldScrollingSystem(levelScene, textureFactory, gameContext.PathProvider);
 
             levelScene.OnUpdate += Update;
-            levelScene.OnFixedUpdate += FixedUpdate;
 
             GameObject gameManager = levelScene.CreateGameObject();
 
@@ -57,10 +66,41 @@ namespace Fletch.Sandbox
 
         private void Update(FrameTime frameTime)
         {
+            UpdateZoom(input.Mouse.WheelDeltaNormalized);
 
             scrollingSystem.UpdateWorld(frameTime.Delta);
 
             MonitorPreformance(frameTime.Delta);
+        }
+
+        private void UpdateZoom(float scrollInput)
+        {
+            const float zoomSpeed = 0.1f;
+            const float minZoom = 0.02f;
+            const float maxZoom = 5f;
+
+            camera2D.Zoom = Math.Clamp(
+                camera2D.Zoom * (1f + scrollInput * zoomSpeed),
+                minZoom,
+                maxZoom
+            );
+        }
+
+        private void AddMusic()
+        {
+            GameObject musicPlayerObject = levelScene.CreateGameObject();
+
+            AudioSource audioSource = musicPlayerObject.AddComponent<AudioSource>();
+
+            audioSource.TryCreateSoundPlayer(
+                Path.Combine(gameContext.PathProvider.AssetFolderDirectory, "ChiptuneA.wav"),
+                out SoundPlayer? musicPlayer);
+
+            musicPlayer.Volume = 0.3f;
+
+            musicPlayer.IsLooping = true;
+
+            musicPlayer.PlaySound();
         }
 
         private void MonitorPreformance(float delta)
@@ -95,11 +135,6 @@ namespace Fletch.Sandbox
             frames++;
         }
 
-        private void FixedUpdate(FixedTimeStep fixedTime)
-        {
-
-        }
-
         private void AddBackgroundObjects()
         {
             GameObject background = levelScene.CreateGameObject();
@@ -107,6 +142,8 @@ namespace Fletch.Sandbox
             SpriteRenderer backgroundSprite = background.AddComponent<SpriteRenderer>();
 
             backgroundSprite.VisualResource.PixelPerWorldUnit = 16;
+
+            backgroundSprite.ZHeight = 0;
 
             backgroundSprite.VisualResource.Texture = textureFactory.Load(Path.Combine(pathProvider.AssetFolderDirectory, "Background.png"));
         }
@@ -125,31 +162,49 @@ namespace Fletch.Sandbox
 
             renderer.VisualResource.Texture = textureFactory.Load(Path.Combine(pathProvider.AssetFolderDirectory, "Start Screen.png"));
 
-            renderer.ZHeight = 1;
+            renderer.ZHeight = 3;
 
             uiComps.Add(ui);
 
             return uiComps;
         }
 
-        private void AddGroundObject()
+        private void AddBoundaryObjects()
         {
-            Vector2 size = new Vector2(20f, 1f);
+            Vector2 groundSize = new Vector2(20f, 1f);
 
-            Vector2 startLocation = new Vector2(0f, -4.1f);
+            Vector2 groundStartLocation = new Vector2(0f, -4.1f);
 
             GameObject ground = levelScene.CreateGameObject();
 
-            ground.Transform.LocalPosition = startLocation;
+            ground.Transform.LocalPosition = groundStartLocation;
 
-            RigidBody body = ground.AddComponent<RigidBody>();
+            RigidBody groundBody = ground.AddComponent<RigidBody>();
 
-            body.PhysicsMode = PhysicsMode.Static;
+            groundBody.PhysicsMode = PhysicsMode.Static;
 
-            BoxCollider box = body.AddCollider<BoxCollider>();
+            BoxCollider groundBox = groundBody.AddCollider<BoxCollider>();
 
-            box.Width = size.X;
-            box.Height = size.Y;
+            groundBox.Width = groundSize.X;
+            groundBox.Height = groundSize.Y;
+
+
+            Vector2 ceillingSize = new Vector2(20f, 1f);
+
+            Vector2 ceillingStartLocation = new Vector2(0f, 6.125f);
+
+            GameObject ceilling = levelScene.CreateGameObject();
+
+            ceilling.Transform.LocalPosition = ceillingStartLocation;
+
+            RigidBody ceillingBody = ceilling.AddComponent<RigidBody>();
+
+            ceillingBody.PhysicsMode = PhysicsMode.Static;
+
+            BoxCollider ceillingBox = ceillingBody.AddCollider<BoxCollider>();
+
+            ceillingBox.Width = ceillingSize.X;
+            ceillingBox.Height = ceillingSize.Y;
         }
 
         private void AddPlayer()
@@ -159,6 +214,8 @@ namespace Fletch.Sandbox
             SpriteRenderer sprite = player.AddComponent<SpriteRenderer>();
 
             sprite.VisualResource.PixelPerWorldUnit = 16;
+
+            sprite.ZHeight = 2;
 
             CharacterController charaterControler = player.AddComponent<CharacterController>();
 
@@ -176,9 +233,11 @@ namespace Fletch.Sandbox
 
             playerRb.FixedRotation = true;
 
-            playerRb.LockX = true;
+            playerRb.LockX = false;
 
             CircleCollider circle = playerRb.AddCollider<CircleCollider>();
+
+            circle.Material = new PhysicsMaterial(0.1f, 0.2f);
 
             circle.Radius = 0.25f;
 
@@ -189,11 +248,11 @@ namespace Fletch.Sandbox
         {
             GameObject camera = levelScene.CreateGameObject();
 
-            Camera2D cameraComponent = camera.AddComponent<Camera2D>();
+            camera2D = camera.AddComponent<Camera2D>();
 
             camera.AddComponent<AudioListener>();
 
-            cameraComponent.SamplerMode = Rendering.Model.SamplerMode.Point;
+            camera2D.SamplerMode = Rendering.Model.SamplerMode.Point;
         }
     }
 }

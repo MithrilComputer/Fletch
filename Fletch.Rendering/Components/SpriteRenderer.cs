@@ -52,7 +52,7 @@ namespace Fletch.Rendering.Components
         /// Draw order relative to other sprites.
         /// Lower renders first.
         /// </summary>
-        public int ZHeight { get; set; } = 0;
+        public byte ZHeight { get; set; } = 0;
 
         /// <summary>
         /// Internal use ZIndex for index sorting.

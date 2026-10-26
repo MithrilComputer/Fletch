@@ -9,6 +9,7 @@ using Fletch.Input.Model;
 using Fletch.Physics.Abstractions.CollisionShapes;
 using Fletch.Physics.Components;
 using System;
+using System.Diagnostics;
 using System.IO;
 using System.Numerics;
 
@@ -18,7 +19,7 @@ namespace Fletch.Sandbox.Scripts
     {
         private readonly float fallForce = 3f;
 
-        private readonly float jumpForce = 1.2f;
+        private readonly float jumpForce = 1.3f;
 
         private readonly float jumpCooloffTime = 0.1f;
 
@@ -38,12 +39,16 @@ namespace Fletch.Sandbox.Scripts
 
         private SoundPlayer jumpSoundPlayer;
 
+        private SoundPlayer deathSoundPlayer;
+
         private Random random;
 
         private Vector2 playerStartPosition = new Vector2(-5f, 0f);
 
 
         public bool JumpPressed { get; private set; } = false;
+
+        public bool DownDashPressed { get; private set; } = false;
 
 
         private bool jumpCoolingOff = false;
@@ -66,16 +71,27 @@ namespace Fletch.Sandbox.Scripts
 
             rb.Position = playerStartPosition;
 
-            GameObject.GetComponent<AudioSource>()
-                .TryCreateSoundPlayer(
+            AudioSource audioSource = GameObject.GetComponent<AudioSource>();
+                
+            audioSource.TryCreateSoundPlayer(
                 Path.Combine(context.PathProvider.AssetFolderDirectory, "jump.wav"),
-                out SoundPlayer soundPlayer);
+                out SoundPlayer JSoundPlayer);
 
-            soundPlayer.IsSpatial = false;
+            JSoundPlayer.IsSpatial = false;
 
-            soundPlayer.Volume = 0.2f;
+            JSoundPlayer.Volume = 2f;
 
-            jumpSoundPlayer = soundPlayer;
+            jumpSoundPlayer = JSoundPlayer;
+
+            audioSource.TryCreateSoundPlayer(
+                Path.Combine(context.PathProvider.AssetFolderDirectory, "hurt.wav"),
+                out SoundPlayer DSoundPlayer);
+
+            DSoundPlayer.IsSpatial = false;
+
+            DSoundPlayer.Volume = 2f;
+
+            deathSoundPlayer = DSoundPlayer;
         }
 
         public override void Update(FrameTime deltaTime)
@@ -92,21 +108,26 @@ namespace Fletch.Sandbox.Scripts
                     timeKeep = 0f;
                 }
             }
+
+            if(!GameState.Ended)
+            {
+                MoveCharater();
+            }
         }
 
         public override void FixedUpdate(FixedTimeStep deltaTime)
         {
-            if (!GameState.Running)
+            if (!GameState.Started)
                 return;
 
             rb.AddForce(Vector2.UnitY * -fallForce);
-
-            MoveCharater();
         }
 
         public void ResetState()
         {
             rb.Position = playerStartPosition;
+            rb.LinearVelocity = Vector2.Zero;
+            rb.Rotation = 0f;
 
             jumpCoolingOff = false;
             timeKeep = 0f;
@@ -123,12 +144,28 @@ namespace Fletch.Sandbox.Scripts
                 )
             {
                 JumpPressed = true;
+            } else
+            {
+                JumpPressed = false;
+            }
+
+            if (
+                input.Keyboard.GetKeyDown(KeyCode.S) ||
+                input.Mouse.GetButtonDown(MouseButtonCode.Right) ||
+                input.Keyboard.GetKeyDown(KeyCode.LeftControl)
+                )
+            {
+                DownDashPressed = true;
+            }
+            else
+            {
+                DownDashPressed = false;
             }
         }
 
         private void MoveCharater()
         {
-            if (JumpPressed && !jumpCoolingOff && GameState.Running)
+            if (JumpPressed && !jumpCoolingOff)
             {
                 jumpSoundPlayer.Pitch = 1 + ((2 * (float)random.NextDouble()) - 1) * pitchRange;
 
@@ -143,11 +180,31 @@ namespace Fletch.Sandbox.Scripts
                 jumpCoolingOff = true;
             }
 
-            JumpPressed = false;
+            if (DownDashPressed && !jumpCoolingOff)
+            {
+                jumpSoundPlayer.Pitch = 1 + ((2 * (float)random.NextDouble()) - 1) * pitchRange;
+
+                jumpSoundPlayer.PlaySound();
+
+                OnJump?.Invoke();
+
+                rb.LinearVelocity = new Vector2(0f, 0f);
+
+                rb.AddImpulse(Vector2.UnitY * -jumpForce);
+
+                jumpCoolingOff = true;
+            }
         }
 
         private void OnCollisionEnter(Collider self, Collider other)
         {
+            if (!GameState.Running)
+                return;
+
+            deathSoundPlayer.PlaySound();
+
+            rb.AddImpulse(new Vector2((float)random.NextDouble(), (float)random.NextDouble()) * 3f);
+
             OnDeath?.Invoke();
         }
     }

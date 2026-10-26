@@ -47,9 +47,10 @@ namespace Fletch.Sandbox.Scripts
 
         public override void Update(FrameTime deltaTime)
         {
-            if (playerControler.JumpPressed && readyToStart)
+            if ((playerControler.DownDashPressed || playerControler.JumpPressed) && readyToStart)
             {
                 GameState.Running = true;
+                GameState.Started = true;
             }
 
             if(isPlayerDead)
@@ -71,6 +72,7 @@ namespace Fletch.Sandbox.Scripts
 
             GameState.Running = false;
             GameState.Ended = false;
+            GameState.Started = false;
 
             readyToStart = true;
 

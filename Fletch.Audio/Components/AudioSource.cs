@@ -46,15 +46,18 @@ namespace Fletch.Audio.Components
         {
             ReadyCheck();
 
-            soundPlayer = audioManagementSystem!.RequestNewSoundPlayer(soundKey);
+            SoundPlayer player = audioManagementSystem.RequestNewSoundPlayer(soundKey);
 
-            if (soundPlayer == null)
+            if (player == null)
             {
+                soundPlayer = null;
                 return false;
             }
 
-            soundPlayers.Add(soundPlayer);
-            soundPlayer.Initialize(this);
+            soundPlayers.Add(player);
+            player.Initialize(this);
+
+            soundPlayer = player;
 
             return true;
         }

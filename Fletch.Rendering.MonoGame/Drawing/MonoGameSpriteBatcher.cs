@@ -384,8 +384,6 @@ namespace Fletch.Rendering.MonoGame.Drawing
                 ConvertFromFletchType(color));
         }
 
-#pragma warning restore S107
-
         private static BlendState ConvertFromFletchType(BlendMode blendMode)
         {
             return blendMode switch

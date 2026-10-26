@@ -8,6 +8,7 @@ using Fletch.Rendering.Abstractions.Factories;
 using Fletch.Rendering.Abstractions.Resources;
 using Fletch.Rendering.Components;
 using Fletch.Rendering.Model;
+using Fletch.Sandbox.Scripts;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -19,10 +20,10 @@ namespace Fletch.Sandbox
     {
         private readonly List<GameObject> scrollingObjects = new List<GameObject>();
 
-        public float PlaySpeed { get; set; } = 1.75f;
+        public float PlaySpeed { get; set; } = 9f;
 
 
-        private float BarGap { get; set; } = 4f;
+        private float BarGap { get; set; } = 10f;
 
         private float BarGapHeight { get; set; } = 2f;
 
@@ -38,10 +39,10 @@ namespace Fletch.Sandbox
 
         const float barStartPos = 3f;
 
-        const float barGenEnd = 10;
+        const float barGenEnd = 14f;
 
 
-        private Transform lastBarPos;
+        private Transform lastBarTansform;
 
 
         private float distanceSinceLastBar = 0f;
@@ -82,9 +83,16 @@ namespace Fletch.Sandbox
             {
                 RigidBody body = obj.GetComponent<RigidBody>();
 
-                if(body == null)
+                SelfDeleteAfterTime deleter = obj.GetComponent<SelfDeleteAfterTime>();
+
+                if (GameState.Running)
                 {
-                    if(GameState.Running == false)
+                    deleter?.Start(10f);
+                }
+
+                if (body == null)
+                {
+                    if(!GameState.Running)
                     {
                         continue;
                     }
@@ -98,7 +106,7 @@ namespace Fletch.Sandbox
                     continue;
                 }
 
-                if (GameState.Running == false)
+                if (!GameState.Running)
                 {
                     body.LinearVelocity = new Vector2(0f, 0f);
                     continue;
@@ -139,16 +147,18 @@ namespace Fletch.Sandbox
             {
                 GameObject bar = level.CreateGameObject();
 
+                bar.AddComponent<SelfDeleteAfterTime>();
+
                 RigidBody body = bar.AddComponent<RigidBody>();
 
-                body.UseInterpolation = true;
+                body.UseInterpolation = false;
 
                 SpriteRenderer renderer = bar.AddComponent<SpriteRenderer>();
 
                 if(i == 1)
                 {
                     renderer.Effect = SpriteEffect.FlipVertically;
-                    lastBarPos = bar.Transform;
+                    lastBarTansform = bar.Transform;
                 }
 
                 renderer.VisualResource.Texture = barTexture;
@@ -173,7 +183,7 @@ namespace Fletch.Sandbox
         {
             MoveWorld(deltaTime);
 
-            distanceSinceLastBar = barGenEnd - lastBarPos.WorldPosition.X;
+            distanceSinceLastBar = barGenEnd - lastBarTansform.WorldPosition.X;
 
             while (distanceSinceLastBar >= BarGap)
             {

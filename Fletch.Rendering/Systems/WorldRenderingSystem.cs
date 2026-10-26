@@ -133,7 +133,7 @@ namespace Fletch.Rendering.Systems
                         scale: drawScale,
                         color: sprite.Color,
                         origin: sprite.Origin,
-                        layerDepth: sprite.ZHeight,
+                        layerDepth: (float)sprite.ZHeight / byte.MaxValue,
                         spriteEffect: sprite.Effect
                     );
                 }

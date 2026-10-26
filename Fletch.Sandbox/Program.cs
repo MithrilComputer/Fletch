@@ -9,7 +9,7 @@ FletchOptions options = new FletchOptions
     Title = "Fletch Sandbox",
     VSync = false,
     StartFullscreen = false,
-    FixedUpdatesPerSecond = 30,
+    FixedUpdatesPerSecond = 60,
     MaxFixedUpdatesPerFrame = 5
 };
 

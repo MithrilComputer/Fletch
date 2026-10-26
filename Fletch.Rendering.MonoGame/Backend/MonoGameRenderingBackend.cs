@@ -15,8 +15,6 @@ using MonoGame.Extended.ViewportAdapters;
 using FletchColor = Fletch.Core.Colors.Color;
 using XnaColor = Microsoft.Xna.Framework.Color;
 using XnaViewport = Microsoft.Xna.Framework.Graphics.Viewport;
-using NumericsMatrix = System.Numerics.Matrix3x2;
-using System.Diagnostics;
 
 namespace Fletch.Rendering.MonoGame.Backend
 {
@@ -47,8 +45,6 @@ namespace Fletch.Rendering.MonoGame.Backend
         private GraphicsDevice graphicsDevice;
 
         private ICamera? currentCamera;
-
-        private RectangleInt fullViewport;
 
         private BoxingViewportAdapter viewportAdapter;
 
@@ -91,12 +87,6 @@ namespace Fletch.Rendering.MonoGame.Backend
 
             gameWindow = game.Window;
 
-            fullViewport = new RectangleInt(
-                0,
-                0,
-                graphicsDevice.PresentationParameters.BackBufferWidth,
-                graphicsDevice.PresentationParameters.BackBufferHeight);
-
             viewportAdapter = new BoxingViewportAdapter(
                 gameWindow,
                 graphicsDevice,
@@ -118,7 +108,7 @@ namespace Fletch.Rendering.MonoGame.Backend
 
             debugRenderer = new MonoGameDebugRenderer(spriteBatcher, textureFactory.SinglePixelTexture);
 
-            gameWindow.ClientSizeChanged += OnResize;
+            //gameWindow.ClientSizeChanged += OnResize;
 
             isInitialized = true;
         }
@@ -149,21 +139,11 @@ namespace Fletch.Rendering.MonoGame.Backend
             XnaViewport realViewport = VirtualViewportToRealViewport(virtualViewport);
 
             graphicsDevice.Viewport = new XnaViewport(realViewport.X, realViewport.Y, realViewport.Width, realViewport.Height);
-            
-            var pp = graphicsDevice.PresentationParameters;
-            /*
-            graphicsDevice.Viewport = new XnaViewport(
-                0, 0,
-                pp.BackBufferWidth,
-                pp.BackBufferHeight);
-            */
+
             spriteBatcher.Begin(
                 currentCamera.GetViewMatrix(),
                 blendMode,
                 samplerMode);
-
-            var window = gameWindow.ClientBounds;
-            var boxed = viewportAdapter.Viewport;
         }
 
         /// <summary>
@@ -319,18 +299,9 @@ namespace Fletch.Rendering.MonoGame.Backend
             return new Viewport(realX, realY, realW, realH);
         }
 
-        private void OnResize(object? sender, EventArgs e)
-        {
-            fullViewport = new RectangleInt(
-                0,
-                0,
-                graphicsDevice.PresentationParameters.BackBufferWidth,
-                graphicsDevice.PresentationParameters.BackBufferHeight);
-        }
-
         public void Dispose()
         {
-            gameWindow.ClientSizeChanged -= OnResize;
+            //gameWindow.ClientSizeChanged ;
 
             spriteBatcher.Dispose();
             textureFactory.Dispose();
