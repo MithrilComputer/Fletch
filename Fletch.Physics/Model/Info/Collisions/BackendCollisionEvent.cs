@@ -10,10 +10,16 @@ namespace Fletch.Physics.Model.Info.Collisions
 
         public CollisionEventType EventType { get; }
 
+        /// <summary>
+        /// If true, then collider A is always the trigger, B is always the non-trigger.
+        /// </summary>
+        public bool IsTrigger { get; }
+
         internal BackendCollisionEvent(
             IColliderHandle a,
             IColliderHandle b,
-            CollisionEventType eventType)
+            CollisionEventType eventType,
+            bool isTrigger)
         {
             A = a;
             B = b;
