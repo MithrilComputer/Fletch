@@ -74,7 +74,7 @@ namespace Fletch.Physics.Systems
 
         private void HandleBackendCollisionEvents()
         {
-            foreach(BackendCollisionEvent backendCollisionEvent in PhysicsBackend.GetCollisionEvents(worldHandle))
+            foreach (BackendCollisionEvent backendCollisionEvent in PhysicsBackend.GetCollisionEvents(worldHandle))
             {
                 colliderManager.HandleCollisionEvent(backendCollisionEvent);
             }

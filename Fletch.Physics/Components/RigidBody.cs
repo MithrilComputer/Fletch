@@ -76,7 +76,7 @@ namespace Fletch.Physics.Components
 
         private PhysicsMode physicsMode = PhysicsMode.Dynamic;
 
-        public RigidBody(GameObject gameObject) : base(gameObject) 
+        public RigidBody(GameObject gameObject) : base(gameObject)
         {
             base.EnableStateChanged += OnEnableStateChange;
         }

@@ -13,7 +13,7 @@ namespace Fletch.Rendering.Components
         public Vector2 Position => GameObject.Transform.WorldPosition;
 
         public float Zoom { get; set; } = 1f;
-        
+
         public int RenderOrder { get; set; } = 0;
 
         internal int RenderIndex { get; set; } = 0;

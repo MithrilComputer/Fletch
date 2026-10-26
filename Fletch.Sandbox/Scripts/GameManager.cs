@@ -53,11 +53,11 @@ namespace Fletch.Sandbox.Scripts
                 GameState.Started = true;
             }
 
-            if(isPlayerDead)
+            if (isPlayerDead)
             {
                 timeKeep += deltaTime.Delta;
 
-                if(timeKeep >= minTimeBeforeReset)
+                if (timeKeep >= minTimeBeforeReset)
                 {
                     timeKeep = 0f;
 
@@ -80,7 +80,7 @@ namespace Fletch.Sandbox.Scripts
 
             isPlayerDead = false;
         }
-        
+
         private void OnDeath()
         {
             isPlayerDead = true;

@@ -1,5 +1,4 @@
-﻿using Fletch.Engine.Model;
-using Fletch.Physics.Abstractions.Backends;
+﻿using Fletch.Physics.Abstractions.Backends;
 using Fletch.Physics.Components;
 using Fletch.Physics.Model.Forces;
 using System.Numerics;

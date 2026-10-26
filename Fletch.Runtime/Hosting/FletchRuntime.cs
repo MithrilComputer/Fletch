@@ -5,12 +5,8 @@ using Fletch.Hosting.Abstractions.Contexts;
 using Fletch.Hosting.Abstractions.Game;
 using Fletch.Input.Abstractions.Backends;
 using Fletch.Platform.Abstractions.Contexts;
-using Fletch.Platform.Abstractions.Lifecycle;
-using Fletch.Platform.Abstractions.Paths;
-using Fletch.Platform.Abstractions.Window;
 using Fletch.Rendering.Abstractions.Backends;
 using Fletch.Runtime.Abstractions.Hosting;
-using System.Diagnostics;
 
 namespace Fletch.Runtime.Hosting
 {

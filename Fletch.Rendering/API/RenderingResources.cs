@@ -7,7 +7,7 @@ namespace Fletch.Rendering.API
     public class RenderingResources
     {
         public IDebugRenderer DebugRenderer { get; }
-        
+
         public ITextureFactory TextureFactory { get; }
 
         public IFontFactory FontFactory { get; }

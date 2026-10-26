@@ -9,7 +9,6 @@ using Fletch.Input.Model;
 using Fletch.Physics.Abstractions.CollisionShapes;
 using Fletch.Physics.Components;
 using System;
-using System.Diagnostics;
 using System.IO;
 using System.Numerics;
 
@@ -72,7 +71,7 @@ namespace Fletch.Sandbox.Scripts
             rb.Position = playerStartPosition;
 
             AudioSource audioSource = GameObject.GetComponent<AudioSource>();
-                
+
             audioSource.TryCreateSoundPlayer(
                 Path.Combine(context.PathProvider.AssetFolderDirectory, "jump.wav"),
                 out SoundPlayer JSoundPlayer);
@@ -109,7 +108,7 @@ namespace Fletch.Sandbox.Scripts
                 }
             }
 
-            if(!GameState.Ended)
+            if (!GameState.Ended)
             {
                 MoveCharater();
             }
@@ -144,7 +143,8 @@ namespace Fletch.Sandbox.Scripts
                 )
             {
                 JumpPressed = true;
-            } else
+            }
+            else
             {
                 JumpPressed = false;
             }

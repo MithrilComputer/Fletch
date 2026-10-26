@@ -91,7 +91,7 @@ namespace Fletch.Platform.MonoGame
             // Runtime
             services.AddSingleton<IRuntime, FletchRuntime>();
             services.AddSingleton<Func<IRuntime>>(sp => () => sp.GetRequiredService<IRuntime>());
-            
+
             services.AddSingleton<PhysicsInterpolator>();
 
             // Engine Factories

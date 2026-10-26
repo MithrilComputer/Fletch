@@ -19,7 +19,7 @@ namespace Fletch.Application
                     launcher = new MonoGameLauncher();
                     break;
 
-                default:        
+                default:
                     throw new NotSupportedException($"The selected backend '{EngineConfig.BackendSelection}' is not supported.");
             }
 

@@ -69,7 +69,7 @@ namespace Fletch.Sandbox
         {
             int barCount = (int)MathF.Ceiling((barStartPos - barGenEnd) / (barWidth - BarGap));
 
-            for(int i = 0; i < barCount; i++)
+            for (int i = 0; i < barCount; i++)
             {
                 float distance = (BarGap * i) + barStartPos;
 
@@ -92,7 +92,7 @@ namespace Fletch.Sandbox
 
                 if (body == null)
                 {
-                    if(!GameState.Running)
+                    if (!GameState.Running)
                     {
                         continue;
                     }
@@ -155,7 +155,7 @@ namespace Fletch.Sandbox
 
                 SpriteRenderer renderer = bar.AddComponent<SpriteRenderer>();
 
-                if(i == 1)
+                if (i == 1)
                 {
                     renderer.Effect = SpriteEffect.FlipVertically;
                     lastBarTansform = bar.Transform;

@@ -1,5 +1,4 @@
 ﻿using Fletch.Physics.Abstractions.CollisionShapes;
-using Fletch.Physics.Components;
 
 namespace Fletch.Physics.Model.Info.Collisions
 {

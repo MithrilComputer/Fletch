@@ -202,7 +202,7 @@ namespace Fletch.Physics.Managers
 
         public void Dispose()
         {
-            foreach(RigidBody rigidBody in rigidbodies.Items)
+            foreach (RigidBody rigidBody in rigidbodies.Items)
             {
                 DestroyRigidBody(rigidBody);
             }

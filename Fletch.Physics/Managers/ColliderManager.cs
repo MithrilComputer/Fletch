@@ -97,7 +97,7 @@ namespace Fletch.Physics.Managers
         {
             colliders.MarkToRemove(collider);
         }
-        
+
         /// <summary>
         /// Refreshes the collider collection and applies updated state for colliders marked as dirty to the physics
         /// backend.
@@ -107,7 +107,7 @@ namespace Fletch.Physics.Managers
         /// the collider's dirty flag.</remarks>
         public void UpdateColliders()
         {
-            foreach(Collider collider in colliders.PendingAdds)
+            foreach (Collider collider in colliders.PendingAdds)
             {
                 colliderRegistry.Add(collider.ColliderHandle, collider);
             }
@@ -153,12 +153,12 @@ namespace Fletch.Physics.Managers
             if (!colliderRegistry.TryGetValue(backendCollision.B, out Collider colliderB))
                 return;
 
-            if(backendCollision.EventType == CollisionEventType.Enter)
+            if (backendCollision.EventType == CollisionEventType.Enter)
             {
                 colliderA.RigidBody.InvokeOnCollisionEnter(colliderA, colliderB);
                 colliderB.RigidBody.InvokeOnCollisionEnter(colliderB, colliderA);
             }
-            else if(backendCollision.EventType == CollisionEventType.Exit)
+            else if (backendCollision.EventType == CollisionEventType.Exit)
             {
                 colliderA.RigidBody.InvokeOnCollisionExit(colliderA, colliderB);
                 colliderB.RigidBody.InvokeOnCollisionExit(colliderB, colliderA);

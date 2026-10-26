@@ -20,10 +20,11 @@ namespace Fletch.Sandbox.Scripts
 
         public override void Update(FrameTime deltaTime)
         {
-            if(!GameState.Started && !GameState.Running && !GameState.Ended)
+            if (!GameState.Started && !GameState.Running && !GameState.Ended)
             {
                 renderer.ChangeEnableState(true);
-            } else
+            }
+            else
             {
                 renderer.ChangeEnableState(false);
             }

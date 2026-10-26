@@ -65,7 +65,7 @@ namespace Fletch.Engine.Hierarchy
         public T? AddComponent<T>() where T : GameObjectComponent
         {
             Type type = typeof(T);
-            
+
             bool disallowMultiple = Attribute.IsDefined(type, typeof(DisallowMultipleComponentAttribute));
 
             if (disallowMultiple && components.Any(c => c.GetType() == type))
@@ -73,7 +73,7 @@ namespace Fletch.Engine.Hierarchy
                 logger.LogWarning($"{type.Name} does not allow multiple instances.");
                 return GetComponent<T>();
             }
-            
+
             GameObjectComponent component = componentFactory.CreateNewComponent<T>(this);
 
             components.Add(component);

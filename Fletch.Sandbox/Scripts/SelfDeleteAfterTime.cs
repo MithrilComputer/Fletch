@@ -9,19 +9,19 @@ namespace Fletch.Sandbox.Scripts
         private float timeKeep = 0f;
 
         private float timeToDestruction = 0f;
-        
+
         private bool started = false;
 
 
-        public SelfDeleteAfterTime(GameObject gameObject) : base(gameObject) {}
+        public SelfDeleteAfterTime(GameObject gameObject) : base(gameObject) { }
 
         public override void Update(FrameTime deltaTime)
         {
-            if(started)
+            if (started)
             {
                 timeKeep += deltaTime.Delta;
 
-                if(timeKeep >= timeToDestruction)
+                if (timeKeep >= timeToDestruction)
                 {
                     GameObject.Destroy();
                 }

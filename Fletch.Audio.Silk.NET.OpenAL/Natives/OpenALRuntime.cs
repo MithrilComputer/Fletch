@@ -213,7 +213,7 @@ namespace Fletch.Audio.Silk.NET.OpenAL.Natives
                         throw new InvalidCastException();
 
                     al.SetSourceProperty(positionALSoundSoruce.Id, SourceVector3.Position, position.X, position.Y, 0f);
-                    
+
                     break;
 
                 case ReleaseSourceCommand releaseSourceCommand:
@@ -236,7 +236,7 @@ namespace Fletch.Audio.Silk.NET.OpenAL.Natives
                     if (isSpatialHandle is not OpenALSourceHandle isSpatilALHandle)
                         throw new InvalidCastException();
 
-                    if(isSpatial)
+                    if (isSpatial)
                     {
                         al.SetSourceProperty(isSpatilALHandle.Id, (SourceInteger)AL_SOURCE_SPATIALIZE_SOFT, 1);
 
@@ -244,7 +244,7 @@ namespace Fletch.Audio.Silk.NET.OpenAL.Natives
                     }
 
                     al.SetSourceProperty(isSpatilALHandle.Id, (SourceInteger)AL_SOURCE_SPATIALIZE_SOFT, 0);
-                    
+
                     break;
             }
         }

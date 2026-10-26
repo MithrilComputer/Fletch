@@ -4,7 +4,6 @@ using Fletch.Engine.Abstractions.Factories;
 using Fletch.Engine.Components;
 using Fletch.Engine.Hierarchy;
 using Fletch.Engine.Model;
-using System.Runtime.CompilerServices;
 
 namespace Fletch.Engine.Systems.Scenes
 {
