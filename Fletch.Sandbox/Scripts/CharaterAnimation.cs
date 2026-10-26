@@ -8,9 +8,7 @@ using Fletch.Rendering.Abstractions.Resources;
 using Fletch.Rendering.API;
 using Fletch.Rendering.Components;
 using System;
-using System.Diagnostics;
 using System.IO;
-using System.Numerics;
 
 namespace Fletch.Sandbox.Scripts
 {

@@ -70,6 +70,8 @@ namespace Fletch.Sandbox.Scripts
         {
             worldScroller.ResetWorld();
 
+            GameState.CurrentScore = 0;
+
             GameState.Running = false;
             GameState.Ended = false;
             GameState.Started = false;
@@ -89,6 +91,11 @@ namespace Fletch.Sandbox.Scripts
 
             GameState.Running = false;
             GameState.Ended = true;
+
+            if(GameState.CurrentScore > GameState.BestScore)
+            {
+                GameState.BestScore = GameState.CurrentScore;
+            }
         }
     }
 }
