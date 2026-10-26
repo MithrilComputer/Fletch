@@ -93,7 +93,7 @@ namespace Fletch.Sandbox
             AudioSource audioSource = musicPlayerObject.AddComponent<AudioSource>();
 
             audioSource.TryCreateSoundPlayer(
-                Path.Combine(gameContext.PathProvider.AssetFolderDirectory, "ChiptuneA.wav"),
+                Path.Combine(gameContext.PathProvider.AssetFolderDirectory, "ChiptuneB.wav"),
                 out SoundPlayer? musicPlayer);
 
             musicPlayer.Volume = 0.3f;
