@@ -50,12 +50,10 @@ namespace Fletch.Rendering.Systems
             scene.SystemManager.RegisterSystem(this, SystemExecutionOrder.Rendering, 0);
 
             scene.AddSystemComponentRegistration(typeof(SpriteRenderer), (b, c) => OnSpriteRendererChange(b, c));
-            scene.AddSystemComponentRegistration(typeof(Camera2D), (b, c) => OnCamera2DChange(b, c));
         }
 
         public void Render(FrameTime frameTime)
         {
-            cameraManager.FlushSafePoint();
             spriteRenderers.Refresh();
 
             if (!screenSurface.IsValid)
@@ -82,6 +80,9 @@ namespace Fletch.Rendering.Systems
                         $"IsMain={frontendCamera.IsMainCamera}.");
                 }
 
+                backendCamera.SetZoom(frontendCamera.Zoom); // Replace later
+                backendCamera.SetPosition(frontendCamera.Position);
+
                 RectangleFloat visibleArea = backendCamera.GetVisibleArea();
 
                 if (frontendCamera.IsMainCamera || frontendCamera.Viewport.Equals(RectangleInt.Zero))
@@ -102,9 +103,6 @@ namespace Fletch.Rendering.Systems
                         frontendCamera.SamplerMode
                     );
                 }
-
-                backendCamera.SetZoom(frontendCamera.Zoom); // Replace later
-                backendCamera.SetPosition(frontendCamera.Position);
 
                 foreach (SpriteRenderer sprite in spriteRenderers.Items)
                 {
@@ -237,31 +235,6 @@ namespace Fletch.Rendering.Systems
 
                 case ComponentChangeType.Modified:
                     spriteOrderDirty = true;
-                    break;
-
-                default: break;
-            }
-        }
-
-        private void OnCamera2DChange(GameObjectComponent component, ComponentChangeType changeType)
-        {
-            if (component is not Camera2D cameraComponent)
-            {
-                throw new InvalidOperationException($"Expected component of type {typeof(Camera2D)}, but got {component.GetType()}.");
-            }
-
-            switch (changeType)
-            {
-                case ComponentChangeType.Added:
-                    cameraManager.QueueCreate(cameraComponent);
-
-                    break;
-                case ComponentChangeType.Removed:
-                    cameraManager.QueueRemove(cameraComponent);
-                    break;
-
-                case ComponentChangeType.Modified:
-                    cameraManager.MarkDirty();
                     break;
 
                 default: break;

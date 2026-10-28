@@ -18,6 +18,8 @@
 
         Rendering = 700,
 
+        UIRenderingPass = 710,
+
         EndOfFrame = 800
     }
 }

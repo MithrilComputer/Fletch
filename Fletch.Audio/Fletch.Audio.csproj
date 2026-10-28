@@ -7,13 +7,18 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <Compile Remove="Model\Bindings\**" />
+    <EmbeddedResource Remove="Model\Bindings\**" />
+    <None Remove="Model\Bindings\**" />
+  </ItemGroup>
+
+  <ItemGroup>
     <ProjectReference Include="..\Fletch.Core\Fletch.Core.csproj" />
     <ProjectReference Include="..\Fletch.Engine\Fletch.Engine.csproj" />
   </ItemGroup>
 
   <ItemGroup>
     <Folder Include="Abstractions\Factories\" />
-    <Folder Include="Model\Bindings\" />
   </ItemGroup>
 
 </Project>

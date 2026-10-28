@@ -40,6 +40,8 @@ namespace Fletch.Sandbox.Scripts
 
         private SoundPlayer deathSoundPlayer;
 
+        private SoundPlayer scoreSound;
+
         private Random random;
 
         private Vector2 playerStartPosition = new Vector2(-5f, 0f);
@@ -93,6 +95,13 @@ namespace Fletch.Sandbox.Scripts
             DSoundPlayer.Volume = 2f;
 
             deathSoundPlayer = DSoundPlayer;
+
+            audioSource.TryCreateSoundPlayer(Path.Combine(context.PathProvider.AssetFolderDirectory, "scoreIncrease.wav"),
+                out SoundPlayer SSoundPlayer);
+
+            scoreSound = SSoundPlayer;
+
+            scoreSound.IsSpatial = false;
         }
 
         public override void Update(FrameTime deltaTime)
@@ -215,7 +224,9 @@ namespace Fletch.Sandbox.Scripts
             if (!GameState.Running)
                 return;
 
-            deathSoundPlayer.PlaySound();
+            scoreSound.PlaySound();
+
+            GameState.CurrentScore += 10;
         }
     }
 }

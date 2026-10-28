@@ -5,7 +5,7 @@ namespace Fletch.Audio.Model
     /// <summary>
     /// Represents a controllable sound instance.
     /// </summary>
-    public sealed class SoundPlayer : IDisposable
+    public sealed class SoundPlayer
     {
         // TODO: Use dirty detection.
 
@@ -236,7 +236,7 @@ namespace Fletch.Audio.Model
         }
 
         /// <summary>
-        /// Releases this sound player.
+        /// Switch to destroy later, like how I did rigidbody distruction.
         /// </summary>
         public void Dispose()
         {
