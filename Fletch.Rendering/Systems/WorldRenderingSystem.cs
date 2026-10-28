@@ -131,7 +131,7 @@ namespace Fletch.Rendering.Systems
                         scale: drawScale,
                         color: sprite.Color,
                         origin: sprite.Origin,
-                        layerDepth: (float)sprite.ZHeight / byte.MaxValue,
+                        layerDepth: 0,
                         spriteEffect: sprite.Effect
                     );
                 }
@@ -154,7 +154,7 @@ namespace Fletch.Rendering.Systems
             float pixelWidth = sprite.SourceRectangle?.Width ?? sprite.VisualResource.Texture!.Width;
             float pixelHeight = sprite.SourceRectangle?.Height ?? sprite.VisualResource.Texture!.Height;
 
-            float importPixelsPerUnit = sprite.VisualResource.PixelPerWorldUnit; //TODO change this to use a dynamic thingy
+            float importPixelsPerUnit = sprite.VisualResource.PixelPerWorldUnit;
             float widthUnits = pixelWidth / importPixelsPerUnit;
             float heightUnits = pixelHeight / importPixelsPerUnit;
 

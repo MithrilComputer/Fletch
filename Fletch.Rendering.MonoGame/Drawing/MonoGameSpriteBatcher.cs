@@ -65,7 +65,7 @@ namespace Fletch.Rendering.MonoGame.Drawing
                 transformMatrix.M31, transformMatrix.M32, 0, 1);
 
             spriteBatch.Begin(
-                sortMode: SpriteSortMode.FrontToBack,
+                sortMode: SpriteSortMode.Deferred,
                 blendState: blendState,
                 samplerState: samplerState,
                 depthStencilState: DepthStencilState.Default,

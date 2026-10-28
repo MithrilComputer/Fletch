@@ -31,6 +31,7 @@ namespace Fletch.Runtime.Factories
             scene.SystemManager.AddSubSystem<ScriptRunnerSystem>();
 
             scene.SystemManager.AddSubSystem<AudioManagementSystem>();
+            scene.SystemManager.AddSubSystem<CameraSystem>();
             scene.SystemManager.AddSubSystem<WorldRenderingSystem>();
             scene.SystemManager.AddSubSystem<PhysicsSystem>();
 
