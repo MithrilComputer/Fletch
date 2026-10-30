@@ -184,8 +184,6 @@ namespace Fletch.Physics.Box2D.Natives
             if (colliderHandle is not Box2DColiderHandle b2colliderHandle)
                 throw new Exception();
 
-            Debug.WriteLine("Updated collider state");
-
             objectStateManager.WriteStateToCollider(b2colliderHandle, writeState);
         }
 
