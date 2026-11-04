@@ -1,6 +1,6 @@
 ﻿namespace Fletch.Engine.Components
 {
-    public sealed class UIComponent
+    public sealed class UIComponent : Component
     {
     }
 }

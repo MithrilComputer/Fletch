@@ -1,10 +1,9 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-
-namespace Fletch.Engine.Hierarchy
+﻿namespace Fletch.Engine.Hierarchy
 {
-    internal class UIObject
+    internal class UIObject : Transform
     {
+        public RectTransform Transform { get; } = new RectTransform();
+
+
     }
 }

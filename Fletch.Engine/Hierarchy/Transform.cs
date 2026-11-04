@@ -5,8 +5,6 @@ namespace Fletch.Engine.Hierarchy
 {
     public class Transform
     {
-        //TODO Add a dirt bool for others to use for updating.
-
         public Transform? Parent { get; private set; }
         public List<Transform> Children { get; } = new();
 
@@ -42,12 +40,15 @@ namespace Fletch.Engine.Hierarchy
 
         public void SetParent(Transform? newParent)
         {
+            if (Parent == newParent)
+                return;
+
             if (newParent == this)
                 throw new InvalidOperationException("A Transform cannot be parented to itself.");
 
-            for (var p = newParent; p != null; p = p.Parent)
+            for (Transform? transform = newParent; transform != null; transform = transform.Parent)
             {
-                if (p == this)
+                if (transform == this)
                     throw new InvalidOperationException("Cannot parent a Transform to its own descendant.");
             }
 
