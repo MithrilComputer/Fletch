@@ -4,24 +4,15 @@ using Fletch.Engine.Attributes;
 using Fletch.Engine.Components;
 using Fletch.Engine.Model;
 using Fletch.Engine.Systems.Scenes;
+using System.Runtime.CompilerServices;
 
 namespace Fletch.Engine.Hierarchy
 {
     /// <summary>
     /// Represents an entity in a scene, containing a transform and a collection of components.
     /// </summary>
-    public sealed class GameObject
+    public sealed class GameObject : SceneObject
     {
-        /// <summary>
-        /// Gets or sets the name of the GameObject.
-        /// </summary>
-        public string Name { get; set; } = "GameObject";
-
-        /// <summary>
-        /// Gets the unique identifier of the GameObject.
-        /// </summary>
-        public uint ID { get; internal set; }
-
         /// <summary>
         /// Gets the GameObject's transform.
         /// </summary>
@@ -44,15 +35,13 @@ namespace Fletch.Engine.Hierarchy
 
         public event ComponentChangedHandler? ComponentChanged;
 
-        internal GameObject(uint id, IFletchContextLogger<GameObject> logger, IComponentFactory componentFactory, Scene hostScene)
+        internal GameObject(uint id, IFletchContextLogger<GameObject> logger, IComponentFactory componentFactory, Scene hostScene) : base(id, "GameObject", hostScene)
         {
             this.logger = logger;
 
             this.componentFactory = componentFactory;
 
             this.hostScene = hostScene;
-
-            ID = id;
 
             Transform = new Transform();
         }
@@ -241,23 +230,19 @@ namespace Fletch.Engine.Hierarchy
         /// <summary>
         /// Notifies the scene to destroy the GameObject.
         /// </summary>
-        public void Destroy()
+        public override void Destroy()
         {
             hostScene.MarkGameObjectForDistruction(this);
         }
 
-        internal void Dispose()
+        protected override void OnDispose()
         {
             if (disposed)
                 return;
-
+            
             disposed = true;
 
             RequestComponentsDestroy();
-
-            components.Clear();
-
-            GC.SuppressFinalize(this);
         }
     }
 }
