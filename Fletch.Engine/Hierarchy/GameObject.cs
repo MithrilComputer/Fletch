@@ -4,7 +4,6 @@ using Fletch.Engine.Attributes;
 using Fletch.Engine.Components;
 using Fletch.Engine.Model;
 using Fletch.Engine.Systems.Scenes;
-using System.Runtime.CompilerServices;
 
 namespace Fletch.Engine.Hierarchy
 {
