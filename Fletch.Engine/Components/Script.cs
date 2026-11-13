@@ -1,6 +1,6 @@
 ﻿using Fletch.Core.LifeCycle;
 using Fletch.Core.Time;
-using Fletch.Engine.Hierarchy;
+using Fletch.Engine.Hierarchy.Objects;
 
 namespace Fletch.Engine.Components
 {

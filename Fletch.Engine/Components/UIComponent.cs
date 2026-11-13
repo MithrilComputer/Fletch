@@ -1,25 +1,26 @@
-﻿using Fletch.Engine.Hierarchy;
+﻿using Fletch.Engine.Hierarchy.Objects;
+using Fletch.Engine.Hierarchy.Transforms;
 using Fletch.Engine.Model;
 
 namespace Fletch.Engine.Components
 {
-    public sealed class UIComponent : Component
+    public abstract class UIComponent : Component
     {
-        public UIComponent GameObject { get; private set; }
+        public UIObject UIObject { get; private set; }
 
-        protected Transform Transform => GameObject.Transform;
+        protected RectTransform Transform => UIObject.RectTransform;
 
-        public GameObjectComponent(GameObject gameObject)
+        public UIComponent(UIObject uiObject)
         {
-            GameObject = gameObject;
+            UIObject = uiObject;
         }
 
         protected override void NotifyComponentChanged()
         {
-            if (GameObject == null)
+            if (UIObject == null)
                 return;
 
-            GameObject.NotifyComponentChanged(this, ComponentChangeType.Modified);
+            UIObject.NotifyComponentChanged(this, ComponentChangeType.Modified);
         }
 
         internal virtual void OnRemoved()

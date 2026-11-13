@@ -1,11 +1,11 @@
 ﻿using Fletch.Core.Diagnostics;
 using Fletch.Engine.Abstractions.Factories;
-using Fletch.Engine.Hierarchy;
+using Fletch.Engine.Hierarchy.Objects;
 using Fletch.Engine.Systems.Scenes;
 
 namespace Fletch.Engine.Factories
 {
-    internal class GameObjectFactory : IGameObjectFactory
+    internal class GameObjectFactory : ISceneObjectFactory
     {
         private readonly IFletchContextLogger<GameObject> gameObjectLogger;
 

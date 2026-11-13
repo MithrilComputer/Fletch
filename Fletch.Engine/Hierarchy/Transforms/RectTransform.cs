@@ -1,7 +1,7 @@
 ﻿using Fletch.Core.Math.Geometry;
 using System.Numerics;
 
-namespace Fletch.Engine.Hierarchy
+namespace Fletch.Engine.Hierarchy.Transforms
 {
     public class RectTransform
     {

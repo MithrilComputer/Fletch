@@ -2,7 +2,7 @@
 using Fletch.Core.Math.Geometry;
 using Fletch.Core.Time;
 using Fletch.Engine.Components;
-using Fletch.Engine.Hierarchy;
+using Fletch.Engine.Hierarchy.Objects;
 using Fletch.Engine.Model;
 using Fletch.Engine.Systems;
 using Fletch.Engine.Systems.Scenes;

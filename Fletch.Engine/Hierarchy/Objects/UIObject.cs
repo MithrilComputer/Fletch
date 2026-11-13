@@ -2,20 +2,15 @@
 using Fletch.Engine.Abstractions.Factories;
 using Fletch.Engine.Attributes;
 using Fletch.Engine.Components;
+using Fletch.Engine.Hierarchy.Transforms;
 using Fletch.Engine.Model;
 using Fletch.Engine.Systems.Scenes;
 
-namespace Fletch.Engine.Hierarchy
+namespace Fletch.Engine.Hierarchy.Objects
 {
-    /// <summary>
-    /// Represents an entity in a scene, containing a transform and a collection of components.
-    /// </summary>
-    public sealed class GameObject : SceneObject
+    public sealed class UIObject : SceneObject
     {
-        /// <summary>
-        /// Gets the GameObject's transform.
-        /// </summary>
-        public Transform Transform { get; } = new Transform();
+        public RectTransform RectTransform { get; } = new RectTransform();
 
         private bool disposed = false;
 
@@ -23,18 +18,18 @@ namespace Fletch.Engine.Hierarchy
 
         private readonly IComponentFactory componentFactory;
 
-        private readonly List<GameObjectComponent> components = new List<GameObjectComponent>();
+        private readonly List<UIComponent> components = new List<UIComponent>();
 
-        private readonly IFletchContextLogger<GameObject> logger;
+        private readonly IFletchContextLogger<UIObject> logger;
 
         public delegate void ComponentChangedHandler(
-            GameObjectComponent component,
+            UIComponent component,
             ComponentChangeType changeType
         );
 
         public event ComponentChangedHandler? ComponentChanged;
 
-        internal GameObject(uint id, IFletchContextLogger<GameObject> logger, IComponentFactory componentFactory, Scene hostScene) : base(id, "GameObject", hostScene)
+        internal UIObject(uint id, IFletchContextLogger<UIObject> logger, IComponentFactory componentFactory, Scene hostScene) : base(id, "UIObject", hostScene)
         {
             this.logger = logger;
 
@@ -42,7 +37,7 @@ namespace Fletch.Engine.Hierarchy
 
             this.hostScene = hostScene;
 
-            Transform = new Transform();
+            RectTransform = new RectTransform();
         }
 
         /// <summary>
@@ -50,7 +45,7 @@ namespace Fletch.Engine.Hierarchy
         /// </summary>
         /// <typeparam name="T">The component type.</typeparam>
         /// <returns>The added or existing component.</returns>
-        public T? AddComponent<T>() where T : GameObjectComponent
+        public T? AddComponent<T>() where T : UIComponent
         {
             Type type = typeof(T);
 
@@ -62,7 +57,7 @@ namespace Fletch.Engine.Hierarchy
                 return GetComponent<T>();
             }
 
-            GameObjectComponent component = componentFactory.CreateNewComponent<T>(this);
+            UIComponent component = componentFactory.CreateNewUIComponent<T>(this);
 
             components.Add(component);
 
@@ -76,14 +71,14 @@ namespace Fletch.Engine.Hierarchy
         /// </summary>
         /// <typeparam name="T">The component type.</typeparam>
         /// <returns>The component, or null if none exists.</returns>
-        public T? GetComponent<T>() where T : GameObjectComponent
+        public T? GetComponent<T>() where T : UIComponent
         {
             if (components.Count == 0)
             {
                 return null;
             }
 
-            foreach (GameObjectComponent component in components)
+            foreach (UIComponent component in components)
             {
                 if (component is T typedComponent)
                 {
@@ -99,7 +94,7 @@ namespace Fletch.Engine.Hierarchy
         /// </summary>
         /// <typeparam name="T">The component type.</typeparam>
         /// <returns>A list of matching components.</returns>
-        public List<T> GetComponents<T>() where T : GameObjectComponent
+        public List<T> GetComponents<T>() where T : UIComponent
         {
             if (components.Count == 0)
             {
@@ -108,7 +103,7 @@ namespace Fletch.Engine.Hierarchy
 
             List<T> typedComponents = new List<T>();
 
-            foreach (GameObjectComponent component in components)
+            foreach (UIComponent component in components)
             {
                 if (component is T typedComponent)
                 {
@@ -125,7 +120,7 @@ namespace Fletch.Engine.Hierarchy
         /// </summary>
         /// <param name="component">The component to remove.</param>
         /// <returns>True if removed; otherwise, false.</returns>
-        public bool TryRemoveComponent(GameObjectComponent component)
+        public bool TryRemoveComponent(UIComponent component)
         {
             if (component == null)
                 return false;
@@ -144,7 +139,7 @@ namespace Fletch.Engine.Hierarchy
         /// Enables a component owned by this GameObject.
         /// </summary>
         /// <param name="component">The component to enable.</param>
-        public void EnableComponent(GameObjectComponent component)
+        public void EnableComponent(UIComponent component)
         {
             if (component == null)
             {
@@ -172,7 +167,7 @@ namespace Fletch.Engine.Hierarchy
         /// Disables a component owned by this GameObject.
         /// </summary>
         /// <param name="component">The component to disable.</param>
-        public void DisableComponent(GameObjectComponent component)
+        public void DisableComponent(UIComponent component)
         {
             if (component == null)
             {
@@ -196,7 +191,7 @@ namespace Fletch.Engine.Hierarchy
             ComponentChanged?.Invoke(component, ComponentChangeType.Disabled);
         }
 
-        internal void NotifyComponentChanged(GameObjectComponent component, ComponentChangeType changeType)
+        internal void NotifyComponentChanged(UIComponent component, ComponentChangeType changeType)
         {
             if (component == null)
             {
@@ -217,7 +212,7 @@ namespace Fletch.Engine.Hierarchy
 
         private void RequestComponentsDestroy()
         {
-            foreach (GameObjectComponent component in components.ToArray())
+            foreach (UIComponent component in components.ToArray())
             {
                 if (!TryRemoveComponent(component))
                 {
@@ -231,14 +226,14 @@ namespace Fletch.Engine.Hierarchy
         /// </summary>
         public override void Destroy()
         {
-            hostScene.MarkGameObjectForDistruction(this);
+            hostScene.MarkObjectForDistruction(this);
         }
 
         protected override void OnDispose()
         {
             if (disposed)
                 return;
-            
+
             disposed = true;
 
             RequestComponentsDestroy();

@@ -13,11 +13,11 @@ namespace Fletch.Runtime.Factories
     {
         private readonly IFletchContextLogger<Scene> sceneLogger;
 
-        private readonly IGameObjectFactory gameObjectFactory;
+        private readonly ISceneObjectFactory gameObjectFactory;
 
         private readonly ISubSystemFactory subSystemFactory;
 
-        public SceneFactory(IGameObjectFactory gameObjectFactory, IFletchContextLogger<Scene> sceneLogger, ISubSystemFactory subSystemFactory)
+        public SceneFactory(ISceneObjectFactory gameObjectFactory, IFletchContextLogger<Scene> sceneLogger, ISubSystemFactory subSystemFactory)
         {
             this.sceneLogger = sceneLogger ?? throw new ArgumentNullException(nameof(sceneLogger));
             this.gameObjectFactory = gameObjectFactory ?? throw new ArgumentNullException(nameof(gameObjectFactory));

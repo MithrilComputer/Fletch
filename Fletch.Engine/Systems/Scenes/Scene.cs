@@ -2,7 +2,7 @@
 using Fletch.Core.Time;
 using Fletch.Engine.Abstractions.Factories;
 using Fletch.Engine.Components;
-using Fletch.Engine.Hierarchy;
+using Fletch.Engine.Hierarchy.Objects;
 using Fletch.Engine.Model;
 
 namespace Fletch.Engine.Systems.Scenes
@@ -20,19 +20,19 @@ namespace Fletch.Engine.Systems.Scenes
 
         private bool disposed = false;
 
-        private readonly List<GameObject> gameObjects = new List<GameObject>();
+        private readonly List<SceneObject> sceneObjects = new List<SceneObject>();
 
-        private readonly HashSet<GameObject> pendingDestruction = new HashSet<GameObject>();
+        private readonly HashSet<SceneObject> pendingDestruction = new HashSet<SceneObject>();
 
-        private readonly IGameObjectFactory gameObjectFactory;
+        private readonly ISceneObjectFactory sceneObjectFactory;
 
         private readonly IFletchContextLogger<Scene> logger;
 
-        internal Scene(IFletchContextLogger<Scene> logger, IGameObjectFactory gameObjectFactory, ISubSystemFactory subSystemFactory)
+        internal Scene(IFletchContextLogger<Scene> logger, ISceneObjectFactory sceneObjectFactory, ISubSystemFactory subSystemFactory)
         {
             this.logger = logger;
 
-            this.gameObjectFactory = gameObjectFactory;
+            this.sceneObjectFactory = sceneObjectFactory;
 
             SystemManager = new SubSystemManager(subSystemFactory, this);
         }
@@ -167,13 +167,38 @@ namespace Fletch.Engine.Systems.Scenes
                 id = nextId++;
             }
 
-            GameObject gameObject = gameObjectFactory.BuildGameObject(id, this);
+            GameObject gameObject = sceneObjectFactory.BuildGameObject(id, this);
 
-            gameObjects.Add(gameObject);
+            sceneObjects.Add(gameObject);
 
             gameObject.ComponentChanged += OnComponentChange;
 
             return gameObject;
+        }
+
+        public UIObject CreateUIObject()
+        {
+            if (disposed)
+                return null;
+
+            uint id;
+
+            if (freedIds.Count > 0)
+            {
+                id = freedIds.Dequeue();
+            }
+            else
+            {
+                id = nextId++;
+            }
+
+            UIObject uiObject = sceneObjectFactory.BuildUIObject(id, this);
+
+            sceneObjects.Add(uiObject);
+
+            uiObject.ComponentChanged += OnComponentChange;
+
+            return uiObject;
         }
 
         internal void DestroyObjects()
@@ -187,31 +212,31 @@ namespace Fletch.Engine.Systems.Scenes
 
                 pendingDestruction.Clear();
 
-                foreach (SceneObject gameObject in objectsToDestroy)
+                foreach (SceneObject SceneObject in objectsToDestroy)
                 {
-                    if (!gameObjects.Contains(gameObject))
+                    if (!sceneObjects.Contains(SceneObject))
                         continue;
 
-                    gameObject.Dispose();
+                    SceneObject.Dispose();
 
-                    gameObject.ComponentChanged -= OnComponentChange;
+                    SceneObject.ComponentChanged -= OnComponentChange; //TODO SceneObjects need to unsubscribe and subscribe themselves
 
-                    gameObjects.Remove(gameObject);
+                    sceneObjects.Remove(SceneObject);
 
-                    freedIds.Enqueue(gameObject.ID);
+                    freedIds.Enqueue(SceneObject.ID);
                 }
             }
         }
 
-        internal void MarkObjectForDistruction(GameObject gameObject)
+        internal void MarkObjectForDistruction(SceneObject sceneObject)
         {
             if (disposed)
                 return;
 
-            if (!gameObjects.Contains(gameObject))
+            if (!sceneObjects.Contains(sceneObject))
                 return;
 
-            pendingDestruction.Add(gameObject);
+            pendingDestruction.Add(sceneObject);
         }
 
         public void Dispose()
@@ -219,9 +244,9 @@ namespace Fletch.Engine.Systems.Scenes
             if (disposed)
                 return;
 
-            for (int i = gameObjects.Count - 1; i >= 0; i--)
+            for (int i = sceneObjects.Count - 1; i >= 0; i--)
             {
-                MarkGameObjectForDistruction(gameObjects[i]);
+                MarkObjectForDistruction(sceneObjects[i]);
             }
 
             DestroyObjects();

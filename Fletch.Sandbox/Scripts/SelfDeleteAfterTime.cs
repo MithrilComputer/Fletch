@@ -1,6 +1,6 @@
 ﻿using Fletch.Core.Time;
 using Fletch.Engine.Components;
-using Fletch.Engine.Hierarchy;
+using Fletch.Engine.Hierarchy.Objects;
 
 namespace Fletch.Sandbox.Scripts
 {

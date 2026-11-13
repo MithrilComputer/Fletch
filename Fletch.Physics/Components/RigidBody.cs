@@ -1,5 +1,5 @@
 ﻿using Fletch.Engine.Components;
-using Fletch.Engine.Hierarchy;
+using Fletch.Engine.Hierarchy.Objects;
 using Fletch.Physics.Abstractions.CollisionShapes;
 using Fletch.Physics.Managers;
 using Fletch.Physics.Model;

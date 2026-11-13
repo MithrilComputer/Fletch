@@ -1,6 +1,6 @@
 ﻿using Fletch.Engine.Abstractions.Factories;
 using Fletch.Engine.Components;
-using Fletch.Engine.Hierarchy;
+using Fletch.Engine.Hierarchy.Objects;
 using System.Reflection;
 
 namespace Fletch.Engine.Factories

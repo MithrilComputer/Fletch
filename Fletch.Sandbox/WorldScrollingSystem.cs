@@ -1,4 +1,5 @@
-﻿using Fletch.Engine.Hierarchy;
+﻿using Fletch.Engine.Hierarchy.Objects;
+using Fletch.Engine.Hierarchy.Transforms;
 using Fletch.Engine.Systems.Scenes;
 using Fletch.Physics.Components;
 using Fletch.Physics.Components.CollisionShapes;

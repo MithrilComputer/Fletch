@@ -1,7 +1,6 @@
-﻿using Fletch.Engine.Components;
-using Fletch.Engine.Systems.Scenes;
+﻿using Fletch.Engine.Systems.Scenes;
 
-namespace Fletch.Engine.Hierarchy
+namespace Fletch.Engine.Hierarchy.Objects
 {
     public abstract class SceneObject
     {
