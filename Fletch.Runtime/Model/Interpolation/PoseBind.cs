@@ -9,6 +9,6 @@ namespace Fletch.Runtime.Model.Interpolation
 
         public RigidBody? RigidBody { get; set; }
 
-        public HashSet<IInternalRenderingComponent> RenderingComponents { get; set; } = new HashSet<IInternalRenderingComponent>();
+        public HashSet<IInternalWorldRenderingComponent> RenderingComponents { get; set; } = new HashSet<IInternalWorldRenderingComponent>();
     }
 }

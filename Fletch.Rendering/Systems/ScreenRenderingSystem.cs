@@ -24,7 +24,7 @@ namespace Fletch.Rendering.Systems
             
         }
 
-        private void OnScreenSpriteRenderer(GameObjectComponent component, ComponentChangeType changeType)
+        private void OnScreenSpriteRenderer(Component component, ComponentChangeType changeType)
         {
             if (component is not ScreenSpriteRenderer sprite)
             {

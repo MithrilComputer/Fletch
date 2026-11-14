@@ -171,8 +171,6 @@ namespace Fletch.Engine.Systems.Scenes
 
             sceneObjects.Add(gameObject);
 
-            gameObject.ComponentChanged += OnComponentChange;
-
             return gameObject;
         }
 
@@ -196,8 +194,6 @@ namespace Fletch.Engine.Systems.Scenes
 
             sceneObjects.Add(uiObject);
 
-            uiObject.ComponentChanged += OnComponentChange;
-
             return uiObject;
         }
 
@@ -218,8 +214,6 @@ namespace Fletch.Engine.Systems.Scenes
                         continue;
 
                     SceneObject.Dispose();
-
-                    SceneObject.ComponentChanged -= OnComponentChange; //TODO SceneObjects need to unsubscribe and subscribe themselves
 
                     sceneObjects.Remove(SceneObject);
 

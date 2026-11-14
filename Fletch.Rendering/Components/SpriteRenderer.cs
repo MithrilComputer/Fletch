@@ -13,7 +13,7 @@ namespace Fletch.Rendering.Components
     /// Renders a 2D sprite for an GameObject
     /// </summary>
     [DisallowMultipleComponentAttribute]
-    public sealed class SpriteRenderer : GameObjectComponent, IInternalRenderingComponent
+    public sealed class SpriteRenderer : GameObjectComponent, IInternalWorldRenderingComponent
     {
         /// <summary>
         /// The current render pose of the sprite renderer.

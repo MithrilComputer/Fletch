@@ -105,7 +105,7 @@ namespace Fletch.Engine.Systems
             return this;
         }
 
-        private void OnScriptChange(GameObjectComponent script, ComponentChangeType changeType)
+        private void OnScriptChange(Component script, ComponentChangeType changeType)
         {
             switch (changeType)
             {

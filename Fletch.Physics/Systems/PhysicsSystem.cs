@@ -80,7 +80,7 @@ namespace Fletch.Physics.Systems
             }
         }
 
-        private void OnRigidBodyChange(GameObjectComponent component, ComponentChangeType changeType)
+        private void OnRigidBodyChange(Component component, ComponentChangeType changeType)
         {
             if (component is not RigidBody rigidBody)
             {
