@@ -211,7 +211,7 @@ namespace Fletch.Rendering.Systems
             return a.ZIndex.CompareTo(b.ZIndex);
         }
 
-        private void OnSpriteRendererChange(GameObjectComponent component, ComponentChangeType changeType)
+        private void OnSpriteRendererChange(Component component, ComponentChangeType changeType)
         {
             if (component is not SpriteRenderer sprite)
             {

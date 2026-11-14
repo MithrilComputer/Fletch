@@ -2,7 +2,7 @@
 using Fletch.Audio.Model;
 using Fletch.Core.Time;
 using Fletch.Engine.Components;
-using Fletch.Engine.Hierarchy;
+using Fletch.Engine.Hierarchy.Objects;
 using Fletch.Hosting.Abstractions.Contexts;
 using Fletch.Input.API;
 using Fletch.Input.Model;

@@ -70,7 +70,7 @@ namespace Fletch.Audio.Systems
         /// </summary>
         /// <param name="component">Changed component.</param>
         /// <param name="changeType">Component change type.</param>
-        private void OnAudioSourceChange(GameObjectComponent component, ComponentChangeType changeType)
+        private void OnAudioSourceChange(Component component, ComponentChangeType changeType)
         {
             if (component == null)
                 throw new ArgumentNullException(nameof(component));
@@ -99,7 +99,7 @@ namespace Fletch.Audio.Systems
         /// </summary>
         /// <param name="component">Changed component.</param>
         /// <param name="changeType">Component change type.</param>
-        private void OnAudioListenerChange(GameObjectComponent component, ComponentChangeType changeType)
+        private void OnAudioListenerChange(Component component, ComponentChangeType changeType)
         {
             if (component == null)
                 throw new ArgumentNullException(nameof(component));

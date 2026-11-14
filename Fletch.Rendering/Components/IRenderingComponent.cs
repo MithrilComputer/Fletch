@@ -7,7 +7,7 @@ namespace Fletch.Rendering.Components
         RenderPose RenderPose { get; }
     }
 
-    internal interface IInternalRenderingComponent : IRenderingComponent
+    internal interface IInternalWorldRenderingComponent : IRenderingComponent
     {
         void SetRenderPose(RenderPose pose);
     }

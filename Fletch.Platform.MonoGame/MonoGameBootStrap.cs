@@ -95,7 +95,7 @@ namespace Fletch.Platform.MonoGame
             services.AddSingleton<PhysicsInterpolator>();
 
             // Engine Factories
-            services.AddSingleton<IGameObjectFactory, GameObjectFactory>();
+            services.AddSingleton<ISceneObjectFactory, GameObjectFactory>();
             services.AddSingleton<ISceneFactory, SceneFactory>();
             services.AddSingleton<ISubSystemFactory, SubSystemFactory>();
             services.AddSingleton<IComponentFactory, ComponentFactory>();

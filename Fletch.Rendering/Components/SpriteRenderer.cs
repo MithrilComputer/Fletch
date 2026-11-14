@@ -2,7 +2,7 @@
 using Fletch.Core.Math.Geometry;
 using Fletch.Engine.Attributes;
 using Fletch.Engine.Components;
-using Fletch.Engine.Hierarchy;
+using Fletch.Engine.Hierarchy.Objects;
 using Fletch.Rendering.Abstractions.Resources;
 using Fletch.Rendering.Model;
 using System.Numerics;
@@ -13,7 +13,7 @@ namespace Fletch.Rendering.Components
     /// Renders a 2D sprite for an GameObject
     /// </summary>
     [DisallowMultipleComponentAttribute]
-    public sealed class SpriteRenderer : GameObjectComponent, IInternalRenderingComponent
+    public sealed class SpriteRenderer : GameObjectComponent, IInternalWorldRenderingComponent
     {
         /// <summary>
         /// The current render pose of the sprite renderer.

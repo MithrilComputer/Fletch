@@ -2,7 +2,7 @@
 using Fletch.Core.Time;
 using Fletch.Engine.Abstractions.Factories;
 using Fletch.Engine.Components;
-using Fletch.Engine.Hierarchy;
+using Fletch.Engine.Hierarchy.Objects;
 using Fletch.Engine.Model;
 
 namespace Fletch.Engine.Systems.Scenes
@@ -15,24 +15,24 @@ namespace Fletch.Engine.Systems.Scenes
 
         private readonly Queue<uint> freedIds = new Queue<uint>();
 
-        private readonly Dictionary<Type, List<Action<GameObjectComponent, ComponentChangeType>>> componentCallBacks
-            = new Dictionary<Type, List<Action<GameObjectComponent, ComponentChangeType>>>();
+        private readonly Dictionary<Type, List<Action<Component, ComponentChangeType>>> componentCallBacks
+            = new Dictionary<Type, List<Action<Component, ComponentChangeType>>>();
 
         private bool disposed = false;
 
-        private readonly List<GameObject> gameObjects = new List<GameObject>();
+        private readonly List<SceneObject> sceneObjects = new List<SceneObject>();
 
-        private readonly HashSet<GameObject> pendingDestruction = new HashSet<GameObject>();
+        private readonly HashSet<SceneObject> pendingDestruction = new HashSet<SceneObject>();
 
-        private readonly IGameObjectFactory gameObjectFactory;
+        private readonly ISceneObjectFactory sceneObjectFactory;
 
         private readonly IFletchContextLogger<Scene> logger;
 
-        internal Scene(IFletchContextLogger<Scene> logger, IGameObjectFactory gameObjectFactory, ISubSystemFactory subSystemFactory)
+        internal Scene(IFletchContextLogger<Scene> logger, ISceneObjectFactory sceneObjectFactory, ISubSystemFactory subSystemFactory)
         {
             this.logger = logger;
 
-            this.gameObjectFactory = gameObjectFactory;
+            this.sceneObjectFactory = sceneObjectFactory;
 
             SystemManager = new SubSystemManager(subSystemFactory, this);
         }
@@ -56,7 +56,7 @@ namespace Fletch.Engine.Systems.Scenes
 
             SystemManager.UpdateSystems(frameTime);
 
-            DestroyGameObjects();
+            DestroyObjects();
         }
 
         internal void FixedUpdate(FixedTimeStep fixedTime)
@@ -84,7 +84,7 @@ namespace Fletch.Engine.Systems.Scenes
         /// <exception cref="InvalidOperationException"></exception>
         internal void AddSystemComponentRegistration(
             Type componentType,
-            Action<GameObjectComponent, ComponentChangeType> callback)
+            Action<Component, ComponentChangeType> callback)
         {
             if (disposed)
                 return;
@@ -95,9 +95,9 @@ namespace Fletch.Engine.Systems.Scenes
             if (callback == null)
                 throw new ArgumentNullException(nameof(callback));
 
-            if (!componentCallBacks.TryGetValue(componentType, out List<Action<GameObjectComponent, ComponentChangeType>> list))
+            if (!componentCallBacks.TryGetValue(componentType, out List<Action<Component, ComponentChangeType>> list))
             {
-                list = new List<Action<GameObjectComponent, ComponentChangeType>>();
+                list = new List<Action<Component, ComponentChangeType>>();
 
                 componentCallBacks.Add(componentType, list);
             }
@@ -107,7 +107,7 @@ namespace Fletch.Engine.Systems.Scenes
 
         internal void RemoveSystemComponentRegistration(
             Type componentType,
-            Action<GameObjectComponent, ComponentChangeType> callback)
+            Action<Component, ComponentChangeType> callback)
         {
             if (disposed)
                 return;
@@ -116,7 +116,7 @@ namespace Fletch.Engine.Systems.Scenes
 
             if (callback == null) throw new ArgumentNullException(nameof(callback));
 
-            if (!componentCallBacks.TryGetValue(componentType, out List<Action<GameObjectComponent, ComponentChangeType>> list))
+            if (!componentCallBacks.TryGetValue(componentType, out List<Action<Component, ComponentChangeType>> list))
             {
                 logger.LogWarning("Cant Remove A System Component Registration That has not been registered. Did you forget to register the system component?");
 
@@ -129,22 +129,22 @@ namespace Fletch.Engine.Systems.Scenes
                 componentCallBacks.Remove(componentType);
         }
 
-        internal void OnComponentChange(GameObjectComponent component, ComponentChangeType changeType)
+        internal void OnComponentChange(Component component, ComponentChangeType changeType)
         {
             if (disposed)
                 return;
 
-            if (component == null || component.GameObject == null)
+            if (component == null)
                 return;
 
             Type concreteType = component.GetType();
 
-            foreach (KeyValuePair<Type, List<Action<GameObjectComponent, ComponentChangeType>>> registration in componentCallBacks)
+            foreach (KeyValuePair<Type, List<Action<Component, ComponentChangeType>>> registration in componentCallBacks)
             {
                 if (!registration.Key.IsAssignableFrom(concreteType))
                     continue;
 
-                foreach (Action<GameObjectComponent, ComponentChangeType> callback in registration.Value.ToArray())
+                foreach (Action<Component, ComponentChangeType> callback in registration.Value.ToArray())
                 {
                     callback(component, changeType);
                 }
@@ -167,51 +167,70 @@ namespace Fletch.Engine.Systems.Scenes
                 id = nextId++;
             }
 
-            GameObject gameObject = gameObjectFactory.BuildGameObject(id, this);
+            GameObject gameObject = sceneObjectFactory.BuildGameObject(id, this);
 
-            gameObjects.Add(gameObject);
-
-            gameObject.ComponentChanged += OnComponentChange;
+            sceneObjects.Add(gameObject);
 
             return gameObject;
         }
 
-        internal void DestroyGameObjects()
+        public UIObject CreateUIObject()
+        {
+            if (disposed)
+                return null;
+
+            uint id;
+
+            if (freedIds.Count > 0)
+            {
+                id = freedIds.Dequeue();
+            }
+            else
+            {
+                id = nextId++;
+            }
+
+            UIObject uiObject = sceneObjectFactory.BuildUIObject(id, this);
+
+            sceneObjects.Add(uiObject);
+
+            return uiObject;
+        }
+
+        internal void DestroyObjects()
         {
             if (disposed)
                 return;
 
             while (pendingDestruction.Count > 0)
             {
-                GameObject[] objectsToDestroy = pendingDestruction.ToArray();
+                SceneObject[] objectsToDestroy = pendingDestruction.ToArray();
 
                 pendingDestruction.Clear();
 
-                foreach (GameObject gameObject in objectsToDestroy)
+                foreach (SceneObject SceneObject in objectsToDestroy)
                 {
-                    if (!gameObjects.Contains(gameObject))
+                    if (!sceneObjects.Contains(SceneObject))
                         continue;
 
-                    gameObject.Dispose();
+                    SceneObject.Dispose();
 
-                    gameObject.ComponentChanged -= OnComponentChange;
+                    sceneObjects.Remove(SceneObject);
 
-                    gameObjects.Remove(gameObject);
-
-                    freedIds.Enqueue(gameObject.ID);
+                    freedIds.Enqueue(SceneObject.ID);
                 }
             }
         }
 
-        internal void MarkGameObjectForDistruction(GameObject gameObject)
+        internal void MarkObjectForDistruction(SceneObject sceneObject)
         {
             if (disposed)
                 return;
 
-            if (!gameObjects.Contains(gameObject))
+            if (!sceneObjects.Contains(sceneObject))
                 return;
 
-            pendingDestruction.Add(gameObject);
+            pendingDestruction.Add(sceneObject);
         }
 
         public void Dispose()
@@ -219,12 +238,12 @@ namespace Fletch.Engine.Systems.Scenes
             if (disposed)
                 return;
 
-            for (int i = gameObjects.Count - 1; i >= 0; i--)
+            for (int i = sceneObjects.Count - 1; i >= 0; i--)
             {
-                MarkGameObjectForDistruction(gameObjects[i]);
+                MarkObjectForDistruction(sceneObjects[i]);
             }
 
-            DestroyGameObjects();
+            DestroyObjects();
 
             componentCallBacks.Clear();
             freedIds.Clear();

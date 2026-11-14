@@ -32,7 +32,7 @@ namespace Fletch.Rendering.Systems
             cameraManager.FlushSafePoint();
         }
 
-        private void OnCamera2DChange(GameObjectComponent component, ComponentChangeType changeType)
+        private void OnCamera2DChange(Component component, ComponentChangeType changeType)
         {
             if (component is not Camera2D cameraComponent)
             {

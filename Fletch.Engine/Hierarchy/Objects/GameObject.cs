@@ -2,26 +2,17 @@
 using Fletch.Engine.Abstractions.Factories;
 using Fletch.Engine.Attributes;
 using Fletch.Engine.Components;
+using Fletch.Engine.Hierarchy.Transforms;
 using Fletch.Engine.Model;
 using Fletch.Engine.Systems.Scenes;
 
-namespace Fletch.Engine.Hierarchy
+namespace Fletch.Engine.Hierarchy.Objects
 {
     /// <summary>
     /// Represents an entity in a scene, containing a transform and a collection of components.
     /// </summary>
-    public sealed class GameObject
+    public sealed class GameObject : SceneObject
     {
-        /// <summary>
-        /// Gets or sets the name of the GameObject.
-        /// </summary>
-        public string Name { get; set; } = "GameObject";
-
-        /// <summary>
-        /// Gets the unique identifier of the GameObject.
-        /// </summary>
-        public uint ID { get; internal set; }
-
         /// <summary>
         /// Gets the GameObject's transform.
         /// </summary>
@@ -37,22 +28,13 @@ namespace Fletch.Engine.Hierarchy
 
         private readonly IFletchContextLogger<GameObject> logger;
 
-        public delegate void ComponentChangedHandler(
-            GameObjectComponent component,
-            ComponentChangeType changeType
-        );
-
-        public event ComponentChangedHandler? ComponentChanged;
-
-        internal GameObject(uint id, IFletchContextLogger<GameObject> logger, IComponentFactory componentFactory, Scene hostScene)
+        internal GameObject(uint id, IFletchContextLogger<GameObject> logger, IComponentFactory componentFactory, Scene hostScene) : base(id, "GameObject", hostScene)
         {
             this.logger = logger;
 
             this.componentFactory = componentFactory;
 
             this.hostScene = hostScene;
-
-            ID = id;
 
             Transform = new Transform();
         }
@@ -74,11 +56,11 @@ namespace Fletch.Engine.Hierarchy
                 return GetComponent<T>();
             }
 
-            GameObjectComponent component = componentFactory.CreateNewComponent<T>(this);
+            GameObjectComponent component = componentFactory.CreateNewGameObjectComponent<T>(this);
 
             components.Add(component);
 
-            ComponentChanged?.Invoke(component, ComponentChangeType.Added);
+            hostScene.OnComponentChange(component, ComponentChangeType.Added);
 
             return (T)component;
         }
@@ -145,7 +127,7 @@ namespace Fletch.Engine.Hierarchy
             if (!components.Remove(component))
                 return false;
 
-            ComponentChanged?.Invoke(component, ComponentChangeType.Removed);
+            hostScene.OnComponentChange(component, ComponentChangeType.Removed);
 
             component.OnRemoved();
 
@@ -177,7 +159,7 @@ namespace Fletch.Engine.Hierarchy
 
             component.ChangeEnableState(true);
 
-            ComponentChanged?.Invoke(component, ComponentChangeType.Enabled);
+            hostScene.OnComponentChange(component, ComponentChangeType.Enabled);
         }
 
         /// <summary>
@@ -205,7 +187,7 @@ namespace Fletch.Engine.Hierarchy
 
             component.ChangeEnableState(false);
 
-            ComponentChanged?.Invoke(component, ComponentChangeType.Disabled);
+            hostScene.OnComponentChange(component, ComponentChangeType.Disabled);
         }
 
         internal void NotifyComponentChanged(GameObjectComponent component, ComponentChangeType changeType)
@@ -224,7 +206,7 @@ namespace Fletch.Engine.Hierarchy
                 return;
             }
 
-            ComponentChanged?.Invoke(component, changeType);
+            hostScene.OnComponentChange(component, changeType);
         }
 
         private void RequestComponentsDestroy()
@@ -241,23 +223,19 @@ namespace Fletch.Engine.Hierarchy
         /// <summary>
         /// Notifies the scene to destroy the GameObject.
         /// </summary>
-        public void Destroy()
+        public override void Destroy()
         {
-            hostScene.MarkGameObjectForDistruction(this);
+            hostScene.MarkObjectForDistruction(this);
         }
 
-        internal void Dispose()
+        protected override void OnDispose()
         {
             if (disposed)
                 return;
-
+            
             disposed = true;
 
             RequestComponentsDestroy();
-
-            components.Clear();
-
-            GC.SuppressFinalize(this);
         }
     }
 }

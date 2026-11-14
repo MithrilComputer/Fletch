@@ -1,7 +1,7 @@
 ﻿using Fletch.Audio.Model;
 using Fletch.Audio.Systems;
 using Fletch.Engine.Components;
-using Fletch.Engine.Hierarchy;
+using Fletch.Engine.Hierarchy.Objects;
 
 namespace Fletch.Audio.Components
 {

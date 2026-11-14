@@ -1,14 +1,11 @@
-﻿using Fletch.Engine.Hierarchy;
+﻿using Fletch.Engine.Hierarchy.Objects;
+using Fletch.Engine.Hierarchy.Transforms;
 using Fletch.Engine.Model;
 
 namespace Fletch.Engine.Components
 {
-    public abstract class GameObjectComponent
+    public abstract class GameObjectComponent : Component
     {
-        public bool IsEnabled { get; private set; } = true;
-
-        public event Action<bool>? EnableStateChanged;
-
         public GameObject GameObject { get; private set; }
 
         protected Transform Transform => GameObject.Transform;
@@ -18,17 +15,7 @@ namespace Fletch.Engine.Components
             GameObject = gameObject;
         }
 
-        public void ChangeEnableState(bool enabled)
-        {
-            if (IsEnabled == enabled)
-                return;
-
-            IsEnabled = enabled;
-
-            EnableStateChanged?.Invoke(enabled);
-        }
-
-        protected void NotifyComponentChanged()
+        protected override void NotifyComponentChanged()
         {
             if (GameObject == null)
                 return;
@@ -38,7 +25,7 @@ namespace Fletch.Engine.Components
 
         internal virtual void OnRemoved()
         {
-            GameObject = null!;
+            
         }
     }
 }

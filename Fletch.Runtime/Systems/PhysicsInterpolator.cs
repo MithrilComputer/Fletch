@@ -2,7 +2,7 @@
 using Fletch.Core.Math.Geometry;
 using Fletch.Core.Time;
 using Fletch.Engine.Components;
-using Fletch.Engine.Hierarchy;
+using Fletch.Engine.Hierarchy.Objects;
 using Fletch.Engine.Model;
 using Fletch.Engine.Systems;
 using Fletch.Engine.Systems.Scenes;
@@ -24,7 +24,7 @@ namespace Fletch.Runtime.Systems
 
             scene.SystemManager.RegisterSystem(this, SystemExecutionOrder.RenderPrep, 0);
 
-            scene.AddSystemComponentRegistration(typeof(IInternalRenderingComponent), (b, c) => OnRendererChange(b, c));
+            scene.AddSystemComponentRegistration(typeof(IInternalWorldRenderingComponent), (b, c) => OnRendererChange(b, c));
             scene.AddSystemComponentRegistration(typeof(RigidBody), (b, c) => OnRigidbodyChange(b, c));
         }
 
@@ -37,7 +37,7 @@ namespace Fletch.Runtime.Systems
 
                 if (poseBind.IsValid)
                 {
-                    foreach (IInternalRenderingComponent renderingComponent in poseBind.RenderingComponents)
+                    foreach (IInternalWorldRenderingComponent renderingComponent in poseBind.RenderingComponents)
                     {
                         RigidBody rigidBody = poseBind.RigidBody;
 
@@ -59,7 +59,7 @@ namespace Fletch.Runtime.Systems
                 }
                 else if (poseBind.RenderingComponents.Count > 0)
                 {
-                    foreach (IInternalRenderingComponent renderingComponent in poseBind.RenderingComponents)
+                    foreach (IInternalWorldRenderingComponent renderingComponent in poseBind.RenderingComponents)
                     {
                         RenderPose renderPose = new RenderPose(gameObject.Transform.WorldPosition, gameObject.Transform.WorldRotation.Radians);
 
@@ -69,16 +69,18 @@ namespace Fletch.Runtime.Systems
             }
         }
 
-        private void OnRendererChange(GameObjectComponent component, ComponentChangeType changeType)
+        private void OnRendererChange(Component component, ComponentChangeType changeType)
         {
-            if (component is not IInternalRenderingComponent renderingComponent)
+            if (component is not IInternalWorldRenderingComponent renderingComponent)
                 throw new Exception();
 
-            if (!gameObjectPoseBinds.TryGetValue(component.GameObject, out PoseBind? bind))
+            GameObject gameObject = ((GameObjectComponent)component).GameObject;
+
+            if (!gameObjectPoseBinds.TryGetValue(gameObject, out PoseBind? bind))
             {
                 bind = new PoseBind();
 
-                gameObjectPoseBinds[component.GameObject] = bind;
+                gameObjectPoseBinds[gameObject] = bind;
             }
 
             switch (changeType)
@@ -93,16 +95,16 @@ namespace Fletch.Runtime.Systems
             }
         }
 
-        private void OnRigidbodyChange(GameObjectComponent component, ComponentChangeType changeType)
+        private void OnRigidbodyChange(Component component, ComponentChangeType changeType)
         {
             if (component is not RigidBody rigidbody)
                 throw new Exception();
 
-            if (!gameObjectPoseBinds.TryGetValue(component.GameObject, out PoseBind? bind))
+            if (!gameObjectPoseBinds.TryGetValue(rigidbody.GameObject, out PoseBind? bind))
             {
                 bind = new PoseBind();
 
-                gameObjectPoseBinds[component.GameObject] = bind;
+                gameObjectPoseBinds[rigidbody.GameObject] = bind;
             }
 
             switch (changeType)

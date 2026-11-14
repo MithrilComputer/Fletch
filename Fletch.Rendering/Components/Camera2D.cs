@@ -1,7 +1,7 @@
 ﻿using Fletch.Core.Math.Geometry;
 using Fletch.Engine.Attributes;
 using Fletch.Engine.Components;
-using Fletch.Engine.Hierarchy;
+using Fletch.Engine.Hierarchy.Objects;
 using Fletch.Rendering.Model;
 using System.Numerics;
 
