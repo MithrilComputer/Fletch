@@ -21,7 +21,6 @@ namespace Fletch.Sandbox
     {
         private readonly WorldScrollingSystem scrollingSystem;
 
-
         private float timeKeep = 0f;
 
         private int frames = 0;
@@ -30,7 +29,7 @@ namespace Fletch.Sandbox
         private readonly Stopwatch frameTimer = Stopwatch.StartNew();
 
 
-        double lowestFrameTime = 1000000d;
+        double lowestFrameTime = double.MaxValue;
 
         double highestFrameTime = 0d;
 
@@ -44,6 +43,19 @@ namespace Fletch.Sandbox
 
         private IGameContext gameContext;
 
+        private readonly Process process = Process.GetCurrentProcess();
+
+        private const int MaxFrameSamples = 16384;
+        private readonly double[] frameTimes = new double[MaxFrameSamples];
+        private double totalFrameTime;
+
+        private long previousAllocatedBytes;
+        private long previousGen0;
+        private long previousGen1;
+        private long previousGen2;
+
+        private TimeSpan previousCpuTime;
+        private bool profilerInitialized;
 
         public LevelOne(IGameContext gameContext) : base(gameContext)
         {
@@ -70,7 +82,7 @@ namespace Fletch.Sandbox
 
             scrollingSystem.UpdateWorld(frameTime.Delta);
 
-            MonitorPreformance(frameTime.Delta);
+            MonitorPerformance();
         }
 
         private void UpdateZoom(float scrollInput)
@@ -103,36 +115,154 @@ namespace Fletch.Sandbox
             musicPlayer.PlaySound();
         }
 
-        private void MonitorPreformance(float delta)
+        private void MonitorPerformance()
         {
-            timeKeep += delta;
-
-            if (timeKeep >= 1f)
-            {
-                Debug.WriteLine($"FPS: {frames}, Average Frame Time: {timeKeep * 1000d / frames}ms, Lowest Frame Time: {lowestFrameTime}ms, Highest Frame Time: {highestFrameTime}ms");
-
-                highestFrameTime = 0d;
-                lowestFrameTime = 1000d;
-
-                timeKeep = 0f;
-
-                frames = 0;
-            }
-
+            // Time since the previous frame ended.
             double frameTimeMs = frameTimer.Elapsed.TotalMilliseconds;
             frameTimer.Restart();
 
-            if (frameTimeMs > highestFrameTime)
+            // Initialize monitoring baselines.
+            if (!profilerInitialized)
             {
-                highestFrameTime = frameTimeMs;
+                previousAllocatedBytes = GC.GetAllocatedBytesForCurrentThread();
+
+                previousGen0 = GC.CollectionCount(0);
+                previousGen1 = GC.CollectionCount(1);
+                previousGen2 = GC.CollectionCount(2);
+
+                previousCpuTime = process.TotalProcessorTime;
+
+                profilerInitialized = true;
+                return;
             }
 
-            if (frameTimeMs < lowestFrameTime)
+            // Record frame statistics.
+            if (frames < MaxFrameSamples)
             {
-                lowestFrameTime = frameTimeMs;
+                frameTimes[frames] = frameTimeMs;
             }
 
             frames++;
+
+            totalFrameTime += frameTimeMs;
+
+            lowestFrameTime = Math.Min(lowestFrameTime, frameTimeMs);
+            highestFrameTime = Math.Max(highestFrameTime, frameTimeMs);
+
+            // Report approximately once per second.
+            if (totalFrameTime < 1000.0)
+                return;
+
+            double elapsedSeconds = totalFrameTime / 1000.0;
+
+            // FPS and frame times.
+            double fps = frames / elapsedSeconds;
+            double averageFrameTime = totalFrameTime / frames;
+
+            // Frame-time percentiles.
+            int sampleCount = Math.Min(frames, MaxFrameSamples);
+
+            Array.Sort(frameTimes, 0, sampleCount);
+
+            double p95 = GetPercentile(frameTimes, sampleCount, 0.95);
+            double p99 = GetPercentile(frameTimes, sampleCount, 0.99);
+            double p999 = GetPercentile(frameTimes, sampleCount, 0.999);
+
+            double onePercentLow = p99 > 0 ? 1000.0 / p99 : 0;
+            double pointOnePercentLow = p999 > 0 ? 1000.0 / p999 : 0;
+
+            // Thread allocations.
+            long allocatedBytes = GC.GetAllocatedBytesForCurrentThread();
+
+            long allocatedDelta = allocatedBytes - previousAllocatedBytes;
+
+            double allocatedPerSecond = allocatedDelta / elapsedSeconds;
+            double allocatedPerFrame = (double)allocatedDelta / frames;
+
+            // Garbage collection.
+            long gen0 = GC.CollectionCount(0);
+            long gen1 = GC.CollectionCount(1);
+            long gen2 = GC.CollectionCount(2);
+
+            long gen0Collections = gen0 - previousGen0;
+            long gen1Collections = gen1 - previousGen1;
+            long gen2Collections = gen2 - previousGen2;
+
+            // Managed memory.
+            long managedMemory = GC.GetTotalMemory(false);
+
+            // Process memory.
+            process.Refresh();
+            long workingSet = process.WorkingSet64;
+            long privateMemory = process.PrivateMemorySize64;
+
+            // CPU utilization across all logical processors.
+            TimeSpan currentCpuTime = process.TotalProcessorTime;
+            double cpuSeconds = (currentCpuTime - previousCpuTime).TotalSeconds;
+
+            double cpuUsage =
+                cpuSeconds / (elapsedSeconds * Environment.ProcessorCount) * 100.0;
+
+            // Output.
+            Debug.WriteLine(
+                $"\n========== FLETCH PERFORMANCE ==========\n" +
+                $"FPS:                  {fps:F0}\n" +
+                $"Average Frame Time:   {averageFrameTime:F4} ms\n" +
+                $"Minimum Frame Time:   {lowestFrameTime:F4} ms\n" +
+                $"Maximum Frame Time:   {highestFrameTime:F4} ms\n" +
+                $"95th Percentile:      {p95:F4} ms\n" +
+                $"99th Percentile:      {p99:F4} ms\n" +
+                $"1% Low FPS:           {onePercentLow:F0}\n" +
+                $"0.1% Low FPS:         {pointOnePercentLow:F0}\n" +
+                $"----------------------------------------\n" +
+                $"Allocated / Frame:    {allocatedPerFrame:F0} B\n" +
+                $"Allocated / Second:   {allocatedPerSecond / 1048576.0:F3} MiB\n" +
+                $"Managed Memory:       {managedMemory / 1048576.0:F2} MiB\n" +
+                $"Working Set:          {workingSet / 1048576.0:F2} MiB\n" +
+                $"Private Memory:       {privateMemory / 1048576.0:F2} MiB\n" +
+                $"----------------------------------------\n" +
+                $"Gen 0 Collections:    {gen0Collections}\n" +
+                $"Gen 1 Collections:    {gen1Collections}\n" +
+                $"Gen 2 Collections:    {gen2Collections}\n" +
+                $"CPU Usage:            {cpuUsage:F2}%\n" +
+                $"========================================"
+            );
+
+            // Reset baselines.
+            previousAllocatedBytes = GC.GetAllocatedBytesForCurrentThread();
+
+            previousGen0 = GC.CollectionCount(0);
+            previousGen1 = GC.CollectionCount(1);
+            previousGen2 = GC.CollectionCount(2);
+
+            previousCpuTime = process.TotalProcessorTime;
+
+            frames = 0;
+            totalFrameTime = 0;
+            lowestFrameTime = double.MaxValue;
+            highestFrameTime = 0;
+
+            // Exclude reporting overhead from the next frame.
+            frameTimer.Restart();
+        }
+
+        private static double GetPercentile(
+            double[] sortedSamples,
+            int count,
+            double percentile)
+        {
+            if (count == 0)
+                return 0;
+
+            double index = (count - 1) * percentile;
+
+            int lower = (int)Math.Floor(index);
+            int upper = (int)Math.Ceiling(index);
+
+            double fraction = index - lower;
+
+            return sortedSamples[lower] +
+                (sortedSamples[upper] - sortedSamples[lower]) * fraction;
         }
 
         private void AddBackgroundObjects()

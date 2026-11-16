@@ -150,7 +150,8 @@ namespace Fletch.Sandbox.Scripts
             if (
                 input.Keyboard.GetKeyDown(KeyCode.Space) ||
                 input.Mouse.GetButtonDown(MouseButtonCode.Left) ||
-                input.Keyboard.GetKeyDown(KeyCode.W)
+                input.Keyboard.GetKeyDown(KeyCode.W) ||
+                input.Keyboard.GetKeyDown(KeyCode.Up)
                 )
             {
                 JumpPressed = true;
@@ -163,7 +164,8 @@ namespace Fletch.Sandbox.Scripts
             if (
                 input.Keyboard.GetKeyDown(KeyCode.S) ||
                 input.Mouse.GetButtonDown(MouseButtonCode.Right) ||
-                input.Keyboard.GetKeyDown(KeyCode.LeftControl)
+                input.Keyboard.GetKeyDown(KeyCode.LeftControl) ||
+                input.Keyboard.GetKeyDown(KeyCode.Down)
                 )
             {
                 DownDashPressed = true;
