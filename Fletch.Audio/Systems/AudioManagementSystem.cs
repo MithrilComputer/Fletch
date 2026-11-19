@@ -24,13 +24,7 @@ namespace Fletch.Audio.Systems
 
         private readonly TrackedSet<AudioListener> audioListeners = new TrackedSet<AudioListener>();
 
-        private readonly TrackedSet<AudioSource> audioSources = new TrackedSet<AudioSource>();
-
-        private readonly TrackedSet<SoundPlayer> soundPlayers = new TrackedSet<SoundPlayer>();
-
         private Scene? scene;
-
-        private AudioListener? activeListener = null;
 
         private readonly SoundPlayerFactory soundPlayerFactory;
 
@@ -129,30 +123,7 @@ namespace Fletch.Audio.Systems
         /// <param name="deltaTime">Frame delta time.</param>
         public void Update(FrameTime deltaTime)
         {
-            if (disposed)
-            {
-                return;
-            }
 
-            audioListeners.Refresh();
-
-            audioListeners.Sort(ListenerCompare);
-
-            audioSources.Refresh();
-
-            foreach (SoundPlayer removedSoundPlayer in soundPlayers.PendingRemoves)
-            {
-                if (removedSoundPlayer.SourceHandle == null)
-                    continue;
-
-                ReleaseSourceCommand sourceRelease = new ReleaseSourceCommand(removedSoundPlayer.SourceHandle);
-
-                audioBackend.SendCommand(sourceRelease);
-            }
-
-            soundPlayers.Refresh();
-
-            UpdatePlayers();
 
             UpdateListeners();
         }
@@ -316,6 +287,8 @@ namespace Fletch.Audio.Systems
                 audioBackend.SendCommand(gainCommand); //TODO Use Dirty detection to avoid sending this every frame.
             }
         }
+
+
 
         /// <summary>
         /// Compares listeners by priority.

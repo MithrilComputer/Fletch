@@ -117,11 +117,11 @@ namespace Fletch.Sandbox
 
         private void MonitorPerformance()
         {
-            // Time since the previous frame ended.
+            //TODO Made by AI, Replace later
+
             double frameTimeMs = frameTimer.Elapsed.TotalMilliseconds;
             frameTimer.Restart();
 
-            // Initialize monitoring baselines.
             if (!profilerInitialized)
             {
                 previousAllocatedBytes = GC.GetAllocatedBytesForCurrentThread();
@@ -136,7 +136,6 @@ namespace Fletch.Sandbox
                 return;
             }
 
-            // Record frame statistics.
             if (frames < MaxFrameSamples)
             {
                 frameTimes[frames] = frameTimeMs;
@@ -149,17 +148,14 @@ namespace Fletch.Sandbox
             lowestFrameTime = Math.Min(lowestFrameTime, frameTimeMs);
             highestFrameTime = Math.Max(highestFrameTime, frameTimeMs);
 
-            // Report approximately once per second.
             if (totalFrameTime < 1000.0)
                 return;
 
             double elapsedSeconds = totalFrameTime / 1000.0;
 
-            // FPS and frame times.
             double fps = frames / elapsedSeconds;
             double averageFrameTime = totalFrameTime / frames;
 
-            // Frame-time percentiles.
             int sampleCount = Math.Min(frames, MaxFrameSamples);
 
             Array.Sort(frameTimes, 0, sampleCount);
@@ -171,7 +167,6 @@ namespace Fletch.Sandbox
             double onePercentLow = p99 > 0 ? 1000.0 / p99 : 0;
             double pointOnePercentLow = p999 > 0 ? 1000.0 / p999 : 0;
 
-            // Thread allocations.
             long allocatedBytes = GC.GetAllocatedBytesForCurrentThread();
 
             long allocatedDelta = allocatedBytes - previousAllocatedBytes;
@@ -179,7 +174,6 @@ namespace Fletch.Sandbox
             double allocatedPerSecond = allocatedDelta / elapsedSeconds;
             double allocatedPerFrame = (double)allocatedDelta / frames;
 
-            // Garbage collection.
             long gen0 = GC.CollectionCount(0);
             long gen1 = GC.CollectionCount(1);
             long gen2 = GC.CollectionCount(2);
@@ -188,22 +182,18 @@ namespace Fletch.Sandbox
             long gen1Collections = gen1 - previousGen1;
             long gen2Collections = gen2 - previousGen2;
 
-            // Managed memory.
             long managedMemory = GC.GetTotalMemory(false);
 
-            // Process memory.
             process.Refresh();
             long workingSet = process.WorkingSet64;
             long privateMemory = process.PrivateMemorySize64;
 
-            // CPU utilization across all logical processors.
             TimeSpan currentCpuTime = process.TotalProcessorTime;
             double cpuSeconds = (currentCpuTime - previousCpuTime).TotalSeconds;
 
             double cpuUsage =
                 cpuSeconds / (elapsedSeconds * Environment.ProcessorCount) * 100.0;
 
-            // Output.
             Debug.WriteLine(
                 $"\n========== FLETCH PERFORMANCE ==========\n" +
                 $"FPS:                  {fps:F0}\n" +
@@ -228,7 +218,6 @@ namespace Fletch.Sandbox
                 $"========================================"
             );
 
-            // Reset baselines.
             previousAllocatedBytes = GC.GetAllocatedBytesForCurrentThread();
 
             previousGen0 = GC.CollectionCount(0);
@@ -242,7 +231,6 @@ namespace Fletch.Sandbox
             lowestFrameTime = double.MaxValue;
             highestFrameTime = 0;
 
-            // Exclude reporting overhead from the next frame.
             frameTimer.Restart();
         }
 
