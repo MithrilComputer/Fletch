@@ -2,8 +2,10 @@
 using Fletch.Audio.Components;
 using Fletch.Audio.Factories.SoundPlayers;
 using Fletch.Audio.Model;
+using Fletch.Audio.Model.SoundPlayerCommands;
 using Fletch.Audio.Model.SoundPlayerCommands.Source;
 using Fletch.Engine.Model;
+using System.Numerics;
 
 namespace Fletch.Audio.Systems
 {
@@ -19,14 +21,50 @@ namespace Fletch.Audio.Systems
 
         private bool disposed;
 
-        public void AddComponentToPool(AudioSource component)
+        public AudioPlaybackComponentManager(IAudioBackend audioBackend)
         {
+            this.audioBackend = audioBackend;
+            soundPlayerFactory = new SoundPlayerFactory(audioBackend);
+        }
+
+        public void AddComponent(AudioSource component)
+        {
+            if (disposed)
+            {
+                return;
+            }
+
             audioSources.MarkToAdd(component);
         }
 
-        public void AddComponentToPool(SoundPlayer component)
+        public void AddComponent(SoundPlayer component)
         {
+            if (disposed)
+            {
+                return;
+            }
+
             soundPlayers.MarkToAdd(component);
+        }
+
+        public void RemoveComponent(AudioSource component)
+        {
+            if (disposed)
+            {
+                return;
+            }
+
+            audioSources.MarkToRemove(component);
+        }
+
+        public void RemoveComponent(SoundPlayer component)
+        {
+            if (disposed)
+            {
+                return;
+            }
+
+            soundPlayers.MarkToRemove(component);
         }
 
         public void Update()
@@ -36,11 +74,145 @@ namespace Fletch.Audio.Systems
                 return;
             }
 
-            audioListeners.Refresh();
+            foreach (SoundPlayer soundPlayer in soundPlayers.Items)
+            {
 
-            audioListeners.Sort(ListenerCompare);
+                if (soundPlayer.ParentAudioSource == null)
+                {
+                    continue;
+                }
+
+                if (soundPlayer.SourceHandle == null)
+                {
+                    continue;
+                }
+
+                Vector2 position = soundPlayer.ParentAudioSource.GameObject.Transform.WorldPosition;
+
+                SetPlayerPositionCommand setPositionCommand = new SetPlayerPositionCommand(soundPlayer.SourceHandle, position);
+
+                SetPlayerPitchCommand pitchCommand = new SetPlayerPitchCommand(soundPlayer.SourceHandle, soundPlayer.Pitch);
+
+                SetPlayerLoopingCommand loopingCommand = new SetPlayerLoopingCommand(soundPlayer.SourceHandle, soundPlayer.IsLooping);
+
+                SetPlayerVolumeCommand volumeCommand = new SetPlayerVolumeCommand(soundPlayer.SourceHandle, soundPlayer.Volume);
+
+                SetIsPlayerSpatialCommand spatialCommand = new SetIsPlayerSpatialCommand(soundPlayer.SourceHandle, soundPlayer.IsSpatial);
+
+                audioBackend.SendCommand(setPositionCommand); //TODO Use Dirty detection to avoid sending this every frame.
+                audioBackend.SendCommand(pitchCommand); //TODO Use Dirty detection to avoid sending this every frame.
+                audioBackend.SendCommand(loopingCommand); //TODO Use Dirty detection to avoid sending this every frame.
+                audioBackend.SendCommand(volumeCommand); //TODO Use Dirty detection to avoid sending this every frame.
+                audioBackend.SendCommand(spatialCommand);
+            }
+        }
+
+        /// <summary>
+        /// Requests a new sound player.
+        /// </summary>
+        /// <param name="soundKey">Sound asset key.</param>
+        /// <returns>New sound player.</returns>
+        public SoundPlayer RequestNewSoundPlayer(string soundKey)
+        {
+            ObjectDisposedException.ThrowIf(disposed, this);
+
+            SoundPlayer soundPlayer = soundPlayerFactory.Create(soundKey);
+
+            soundPlayers.MarkToAdd(soundPlayer);
+
+            return soundPlayer;
+        }
+
+        /// <summary>
+        /// Releases a sound player.
+        /// </summary>
+        /// <param name="soundPlayer">Sound player to release.</param>
+        public void ReleaseSoundPlayer(SoundPlayer soundPlayer)
+        {
+            ObjectDisposedException.ThrowIf(disposed, this);
+
+            if (soundPlayer == null)
+                throw new ArgumentNullException(nameof(soundPlayer));
+
+            soundPlayers.MarkToRemove(soundPlayer);
+        }
+
+        /// <summary>
+        /// Plays a sound player.
+        /// </summary>
+        /// <param name="soundPlayer">Sound player to play.</param>
+        public void PlaySoundPlayer(SoundPlayer soundPlayer)
+        {
+            ObjectDisposedException.ThrowIf(disposed, this);
+
+            if (soundPlayer == null)
+                throw new ArgumentNullException(nameof(soundPlayer));
+
+            if (soundPlayer.SourceHandle == null)
+                throw new InvalidOperationException("SoundPlayer does not have a valid player handle.");
+
+            if (soundPlayer.BufferHandle == null)
+                throw new InvalidOperationException("SoundPlayer does not have a valid sound asset assigned.");
+
+            PlayPlayerCommand playCommand = new PlayPlayerCommand(soundPlayer.SourceHandle, soundPlayer.BufferHandle);
+
+            audioBackend.SendCommand(playCommand);
+        }
+
+        /// <summary>
+        /// Stops a sound player.
+        /// </summary>
+        /// <param name="soundPlayer">Sound player to stop.</param>
+        public void StopSoundPlayer(SoundPlayer soundPlayer)
+        {
+            ObjectDisposedException.ThrowIf(disposed, this);
+
+            if (soundPlayer == null)
+                throw new ArgumentNullException(nameof(soundPlayer));
+
+            if (soundPlayer.SourceHandle == null)
+                throw new InvalidOperationException("SoundPlayer does not have a valid player handle.");
+
+            StopPlayerCommand stopCommand = new StopPlayerCommand(soundPlayer.SourceHandle);
+
+            audioBackend.SendCommand(stopCommand);
+        }
+
+        /// <summary>
+        /// Pauses a sound player.
+        /// </summary>
+        /// <param name="soundPlayer">Sound player to pause.</param>
+        public void PauseSoundPlayer(SoundPlayer soundPlayer)
+        {
+            ObjectDisposedException.ThrowIf(disposed, this);
+
+            if (soundPlayer == null)
+                throw new ArgumentNullException(nameof(soundPlayer));
+
+            if (soundPlayer.SourceHandle == null)
+                throw new InvalidOperationException("SoundPlayer does not have a valid player handle.");
+
+            PausePlayerCommand pauseCommand = new PausePlayerCommand(soundPlayer.SourceHandle);
+
+            audioBackend.SendCommand(pauseCommand);
+        }
+
+        public void RefreshSources()
+        {
+            if (disposed)
+            {
+                return;
+            }
 
             audioSources.Refresh();
+        }
+
+        public void RefreshPlayers()
+        {
+            if (disposed)
+            {
+                return;
+            }
 
             foreach (SoundPlayer removedSoundPlayer in soundPlayers.PendingRemoves)
             {
@@ -53,10 +225,21 @@ namespace Fletch.Audio.Systems
             }
 
             soundPlayers.Refresh();
+        }
 
-            UpdatePlayers();
+        private void ClearAudioSourceManagers()
+        {
+            ClearAudioSourceManagers(audioSources.Items);
+            ClearAudioSourceManagers(audioSources.PendingAdds);
+            ClearAudioSourceManagers(audioSources.PendingRemoves);
+        }
 
-            UpdateListeners();
+        private void ClearAudioSourceManagers(IEnumerable<AudioSource> audioSources)
+        {
+            foreach (AudioSource audioSource in audioSources)
+            {
+                audioSource.AssignAudioManager(null);
+            }
         }
 
         public void Dispose()
@@ -65,7 +248,31 @@ namespace Fletch.Audio.Systems
             {
                 return;
             }
+
             disposed = true;
+
+            foreach (SoundPlayer soundplayer in soundPlayers.Items)
+            {
+                soundPlayers.MarkToRemove(soundplayer);
+            }
+
+            foreach (SoundPlayer soundplayer in soundPlayers.PendingAdds)
+            {
+                soundPlayers.MarkToRemove(soundplayer);
+            }
+
+            foreach (SoundPlayer removedSoundPlayer in soundPlayers.PendingRemoves)
+            {
+                if (removedSoundPlayer.SourceHandle == null)
+                    continue;
+
+                ReleaseSourceCommand sourceRelease = new ReleaseSourceCommand(removedSoundPlayer.SourceHandle);
+
+                audioBackend.SendCommand(sourceRelease);
+            }
+
+            ClearAudioSourceManagers();
+
             audioSources.Clear();
             soundPlayers.Clear();
         }
