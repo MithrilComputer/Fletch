@@ -1,11 +1,14 @@
 ﻿using Fletch.Audio.Model;
 using Fletch.Audio.Systems;
+using Fletch.Core.LifeCycle;
+using Fletch.Core.Time;
 using Fletch.Engine.Components;
 using Fletch.Engine.Hierarchy.Objects;
+using System.Numerics;
 
 namespace Fletch.Audio.Components
 {
-    public sealed class AudioSource : GameObjectComponent, IDisposable
+    public sealed class AudioSource : GameObjectComponent, IDisposable, IUpdateable
     {
         // TODO: Add dirty bools for audio updates.
 
@@ -33,6 +36,19 @@ namespace Fletch.Audio.Components
             if (!Assigned)
             {
                 throw new InvalidOperationException("AudioSource is not assigned to an audio management system.");
+            }
+        }
+
+        public void Update(FrameTime frameTime)
+        {
+            if (disposed)
+            {
+                return;
+            }
+
+            foreach (SoundPlayer soundPlayer in soundPlayers)
+            {
+                soundPlayer.OnUpdate();
             }
         }
 

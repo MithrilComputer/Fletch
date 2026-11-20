@@ -1,44 +1,63 @@
 ﻿using SDL2;
-using SixLabors.ImageSharp;
-using SixLabors.ImageSharp.PixelFormats;
+using StbImageSharp;
 using System.Runtime.InteropServices;
 
 namespace Fletch.Platform.MonoGame.Loader
 {
     internal static class IconLoader
     {
+        // TODO AI Fix, replace later
         public static nint GetIcon(string path)
         {
-            using Image<Rgba32> image = Image.Load<Rgba32>(path);
+            using FileStream stream = File.OpenRead(path);
 
-            byte[] pixels = new byte[image.Width * image.Height * 4];
-            image.CopyPixelDataTo(pixels);
+            ImageResult image = ImageResult.FromStream(
+                stream,
+                ColorComponents.RedGreenBlueAlpha);
 
-            GCHandle handle = GCHandle.Alloc(pixels, GCHandleType.Pinned);
+            nint surface = SDL.SDL_CreateRGBSurface(
+                0,
+                image.Width,
+                image.Height,
+                32,
+                0x000000FF,
+                0x0000FF00,
+                0x00FF0000,
+                unchecked(0xFF000000)
+            );
+
+            if (surface == nint.Zero)
+                return nint.Zero;
+
+            if (SDL.SDL_LockSurface(surface) != 0)
+            {
+                SDL.SDL_FreeSurface(surface);
+                return nint.Zero;
+            }
+
             try
             {
-                IntPtr surface = SDL.SDL_CreateRGBSurfaceFrom(
-                    handle.AddrOfPinnedObject(),
-                    image.Width,
-                    image.Height,
-                    32,
-                    image.Width * 4,
-                    0x000000FF, // R
-                    0x0000FF00, // G
-                    0x00FF0000, // B
-                    unchecked(0xFF000000) // A
-                );
+                SDL.SDL_Surface surfaceData =
+                    Marshal.PtrToStructure<SDL.SDL_Surface>(surface);
 
-                if (surface == IntPtr.Zero)
-                    return nint.Zero;
+                int rowBytes = image.Width * 4;
 
-                return surface;
+                for (int y = 0; y < image.Height; y++)
+                {
+                    Marshal.Copy(
+                        image.Data,
+                        y * rowBytes,
+                        IntPtr.Add(surfaceData.pixels, y * surfaceData.pitch),
+                        rowBytes
+                    );
+                }
             }
             finally
             {
-                handle.Free();
+                SDL.SDL_UnlockSurface(surface);
             }
-        }
 
+            return surface;
+        }
     }
 }

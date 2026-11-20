@@ -27,6 +27,9 @@ namespace Fletch.Audio.Systems
             soundPlayerFactory = new SoundPlayerFactory(audioBackend);
         }
 
+        /// <summary>
+        /// Adds an audio source component to the manager.
+        /// </summary>
         public void AddComponent(AudioSource component)
         {
             if (disposed)
@@ -37,6 +40,9 @@ namespace Fletch.Audio.Systems
             audioSources.MarkToAdd(component);
         }
 
+        /// <summary>
+        /// Adds an audio source component to the manager.
+        /// </summary>
         public void AddComponent(SoundPlayer component)
         {
             if (disposed)
@@ -47,6 +53,9 @@ namespace Fletch.Audio.Systems
             soundPlayers.MarkToAdd(component);
         }
 
+        /// <summary>
+        /// Removes an audio source component from the manager.
+        /// </summary>
         public void RemoveComponent(AudioSource component)
         {
             if (disposed)
@@ -57,6 +66,9 @@ namespace Fletch.Audio.Systems
             audioSources.MarkToRemove(component);
         }
 
+        /// <summary>
+        /// Removes an audio source component from the manager.
+        /// </summary>
         public void RemoveComponent(SoundPlayer component)
         {
             if (disposed)
@@ -67,6 +79,9 @@ namespace Fletch.Audio.Systems
             soundPlayers.MarkToRemove(component);
         }
 
+        /// <summary>
+        /// The Update method is for updating the state of audio sources and sound players.
+        /// </summary>
         public void Update()
         {
             if (disposed)
@@ -76,7 +91,6 @@ namespace Fletch.Audio.Systems
 
             foreach (SoundPlayer soundPlayer in soundPlayers.Items)
             {
-
                 if (soundPlayer.ParentAudioSource == null)
                 {
                     continue;
@@ -197,6 +211,9 @@ namespace Fletch.Audio.Systems
             audioBackend.SendCommand(pauseCommand);
         }
 
+        /// <summary>
+        /// Refreshes the list of audio sources, adding new ones and removing deleted ones.
+        /// </summary>
         public void RefreshSources()
         {
             if (disposed)
@@ -207,6 +224,9 @@ namespace Fletch.Audio.Systems
             audioSources.Refresh();
         }
 
+        /// <summary>
+        /// Refreshes the list of sound players, releasing any that have been removed.
+        /// </summary>
         public void RefreshPlayers()
         {
             if (disposed)

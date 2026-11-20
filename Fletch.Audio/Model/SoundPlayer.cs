@@ -1,4 +1,6 @@
 ﻿using Fletch.Audio.Components;
+using Fletch.Audio.Model.Flags;
+using System.Numerics;
 
 namespace Fletch.Audio.Model
 {
@@ -7,37 +9,64 @@ namespace Fletch.Audio.Model
     /// </summary>
     public sealed class SoundPlayer
     {
-        // TODO: Use dirty detection.
-
         /// <summary>
         /// Parent audio source.
         /// </summary>
         public AudioSource? ParentAudioSource { get; private set; }
 
         /// <summary>
+        /// Represents the dirty flags for the sound player.
+        /// </summary>
+        internal SoundPlayerDirtyFlags DirtyFlags { get; set; } = SoundPlayerDirtyFlags.None;
+
+        /// <summary>
         /// Sound volume, must be a postive value.
         /// </summary>
-        public float Volume { get; set; } = 1f;
+        public float Volume
+        {
+            get => volume;
+            set => SetFieldAndDirty(ref volume, value, SoundPlayerDirtyFlags.Volume);
+        }
 
         /// <summary>
         /// Sound pitch, must be a postive value.
         /// </summary>
-        public float Pitch { get; set; } = 1f;
+        public float Pitch
+        {
+            get => pitch;
+            set => SetFieldAndDirty(ref pitch, value, SoundPlayerDirtyFlags.Pitch);
+        }
 
         /// <summary>
         /// If the audio plays spatialy.
         /// </summary>
-        public bool IsSpatial { get; set; } = true;
+        public bool IsSpatial
+        {
+            get => isSpatial;
+            set => SetFieldAndDirty(ref isSpatial, value, SoundPlayerDirtyFlags.Spatialization);
+        }
 
         /// <summary>
         /// Whether the sound loops.
         /// </summary>
-        public bool IsLooping { get; set; } = false;
+        public bool IsLooping
+        {
+            get => isLooping;
+            set => SetFieldAndDirty(ref isLooping, value, SoundPlayerDirtyFlags.Looping);
+        }
 
         /// <summary>
         /// Whether playback has been requested and is actively playing audio.
         /// </summary>
         public bool IsPlaying { get; private set; } = false;
+
+        private float volume = 1f;
+
+        private float pitch = 1f;
+
+        private bool isSpatial = true;
+
+        private bool isLooping = false;
 
         /// <summary>
         /// Backend source handle.
@@ -57,6 +86,8 @@ namespace Fletch.Audio.Model
         private bool preLoadPlayCommanded = false;
 
         private bool initialized = false;
+
+        private Vector2 lastReadPosition = Vector2.Zero;
 
         private bool disposed = false;
 
@@ -112,6 +143,22 @@ namespace Fletch.Audio.Model
             if (preLoadPlayCommanded)
             {
                 PlaySound();
+            }
+        }
+
+        internal void OnUpdate()
+        {
+            ObjectDisposedException.ThrowIf(disposed, this);
+
+            if (initialized)
+            {
+                Vector2 positionalOffset = lastReadPosition - ParentAudioSource!.GameObject.Transform.WorldPosition;
+
+                if (positionalOffset.Length() > 0.001f)
+                {
+                    DirtyFlags |= SoundPlayerDirtyFlags.Position;
+                    lastReadPosition = ParentAudioSource!.GameObject.Transform.WorldPosition;
+                }
             }
         }
 
@@ -233,6 +280,23 @@ namespace Fletch.Audio.Model
             {
                 throw new InvalidOperationException("SoundPlayer must be initialized with a parent before use.");
             }
+        }
+
+        private void SetFieldAndDirty<T>(ref T field, T value, SoundPlayerDirtyFlags flag)
+        {
+            if (EqualityComparer<T>.Default.Equals(field, value))
+                return;
+
+            field = value;
+            DirtyFlags |= flag;
+        }
+
+        /// <summary>
+        /// Clears the current dirty state of the player.
+        /// </summary>
+        public void ClearDirty()
+        {
+            DirtyFlags = SoundPlayerDirtyFlags.None;
         }
 
         /// <summary>

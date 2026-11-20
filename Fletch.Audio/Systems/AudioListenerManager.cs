@@ -30,6 +30,9 @@ namespace Fletch.Audio.Systems
             audioListeners.MarkToRemove(listener);
         }
 
+        /// <summary>
+        /// Refreshes the list of audio listeners, sorts them by priority, and updates the active listener in the audio backend.
+        /// </summary>
         public void Update()
         {
             if (disposed)
@@ -66,18 +69,6 @@ namespace Fletch.Audio.Systems
 
                 audioBackend.SendCommand(gainCommand); //TODO Use Dirty detection to avoid sending this every frame.
             }
-        }
-
-        public void RefreshListeners()
-        {
-            if (disposed)
-            {
-                return;
-            }
-
-            audioListeners.Refresh();
-
-            audioListeners.Sort(ListenerCompare);
         }
 
         /// <summary>

@@ -11,7 +11,7 @@ using Fletch.Engine.Systems.Scenes;
 namespace Fletch.Audio.Systems
 {
     /// <summary>
-    /// Manages scene audio sources, listeners, and sound players.
+    /// The central system for managing scene audio sources, listeners, and sound players.
     /// </summary>
     internal sealed class AudioManagementSystem : SceneSubsystem, IUpdateable, IDisposable
     {
@@ -122,8 +122,6 @@ namespace Fletch.Audio.Systems
             {
                 return;
             }
-
-            audioListenerManager.RefreshListeners();
 
             audioPlaybackComponentManager.RefreshSources();
 
