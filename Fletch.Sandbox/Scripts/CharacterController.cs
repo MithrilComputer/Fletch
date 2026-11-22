@@ -40,7 +40,7 @@ namespace Fletch.Sandbox.Scripts
 
         private SoundPlayer deathSoundPlayer;
 
-        private SoundPlayer scoreSound;
+        private SoundPlayer scoreSoundPlayer;
 
         private Random random;
 
@@ -88,20 +88,20 @@ namespace Fletch.Sandbox.Scripts
 
             audioSource.TryCreateSoundPlayer(
                 Path.Combine(context.PathProvider.AssetFolderDirectory, "hurt.wav"),
-                out SoundPlayer DSoundPlayer);
+                out SoundPlayer deathSoundPlayer);
 
-            DSoundPlayer.IsSpatial = false;
+            deathSoundPlayer.IsSpatial = false;
 
-            DSoundPlayer.Volume = 2f;
+            deathSoundPlayer.Volume = 2f;
 
-            deathSoundPlayer = DSoundPlayer;
+            this.deathSoundPlayer = deathSoundPlayer;
 
             audioSource.TryCreateSoundPlayer(Path.Combine(context.PathProvider.AssetFolderDirectory, "scoreIncrease.wav"),
-                out SoundPlayer SSoundPlayer);
+                out SoundPlayer scoreSoundPlayer);
 
-            scoreSound = SSoundPlayer;
+            this.scoreSoundPlayer = scoreSoundPlayer;
 
-            scoreSound.IsSpatial = false;
+            this.scoreSoundPlayer.IsSpatial = false;
         }
 
         public override void Update(FrameTime deltaTime)
@@ -226,7 +226,7 @@ namespace Fletch.Sandbox.Scripts
             if (!GameState.Running)
                 return;
 
-            scoreSound.PlaySound();
+            scoreSoundPlayer.PlaySound();
 
             GameState.CurrentScore += 10;
         }
