@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-
-namespace Fletch.Audio.Model.Flags
+﻿namespace Fletch.Audio.Model.Flags
 {
     [Flags]
     internal enum SoundPlayerDirtyFlags

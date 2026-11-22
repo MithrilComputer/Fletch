@@ -15,12 +15,12 @@
         /// <summary>
         /// The Items that will be removed on refresh.
         /// </summary>
-        public IReadOnlyList<T> PendingRemoves => pendingRemoves.ToList();
+        public IReadOnlySet<T> PendingRemoves => pendingRemoves;
 
         /// <summary>
         /// The items that will be added on refresh.
         /// </summary>
-        public IReadOnlyList<T> PendingAdds => pendingAdds.ToList();
+        public IReadOnlySet<T> PendingAdds => pendingAdds;
 
         /// <summary>
         /// Marks an item for addition to the tracked set.

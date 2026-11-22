@@ -23,6 +23,8 @@ namespace Fletch.Audio.Silk.NET.OpenAL.Natives
 
         private readonly IFletchContextLogger<OpenALManager> logger;
 
+        private readonly SemaphoreSlim commandSignal = new(0);
+
         /// <summary>
         /// Creates a new OpenAL manager.
         /// </summary>
@@ -67,25 +69,33 @@ namespace Fletch.Audio.Silk.NET.OpenAL.Natives
         {
             try
             {
-                using OpenALContextManager contextManager = new OpenALContextManager();
+                using OpenALContextManager contextManager = new();
                 using AL al = AL.GetApi();
                 using OpenALRuntime runtime = new OpenALRuntime(al, audioAssetProvider);
 
                 ChannelReader<AudioCommand> reader = audioCommands.Reader;
 
-                while (reader.WaitToReadAsync().AsTask().GetAwaiter().GetResult())
+                while (true)
                 {
-                    while (reader.TryRead(out AudioCommand? command))
+                    commandSignal.Wait();
+
+                    if (reader.TryRead(out AudioCommand? command))
                     {
                         runtime.HandleAudioCommand(command);
+                    }
+                    else if (reader.Completion.IsCompleted)
+                    {
+                        break;
                     }
                 }
             }
             catch (Exception exception)
             {
-                logger.LogError($"A Fatal Error Has Occured In The Audio Thread, Exception: {exception.Message}, Stack Trace: {exception.StackTrace}");
+                logger.LogError($"A Fatal Error Has Occurred In The Audio Thread: {exception}");
             }
         }
+
+
 
         /// <summary>
         /// Queues an audio command.
@@ -109,7 +119,11 @@ namespace Fletch.Audio.Silk.NET.OpenAL.Natives
                 throw new ObjectDisposedException(nameof(OpenALManager));
             }
 
-            if (!audioCommands.Writer.TryWrite(audioCommand))
+            if (audioCommands.Writer.TryWrite(audioCommand))
+            {
+                commandSignal.Release();
+            }
+            else
             {
                 logger.LogWarning($"Failed To Queue Audio Command. Type Of: {audioCommand.GetType()}");
             }
@@ -129,10 +143,14 @@ namespace Fletch.Audio.Silk.NET.OpenAL.Natives
 
             audioCommands.Writer.TryComplete();
 
+            commandSignal.Release();
+
             if (audioThread.IsAlive)
             {
                 audioThread.Join();
             }
+
+            commandSignal.Dispose();
         }
     }
 }

@@ -54,6 +54,48 @@ namespace Fletch.Sandbox
         private long previousGen1;
         private long previousGen2;
 
+        private const double HitchThresholdMs = 5.0;
+        private const int MaxHitchSamples = 128;
+
+        private readonly HitchSample[] hitches = new HitchSample[MaxHitchSamples];
+        private int hitchCount;
+        private int droppedHitches;
+
+        private int lastFrameGen0;
+        private int lastFrameGen1;
+        private int lastFrameGen2;
+
+        private readonly struct HitchSample
+        {
+            public readonly DateTime Timestamp;
+            public readonly double FrameTimeMs;
+            public readonly int Gen0;
+            public readonly int Gen1;
+            public readonly int Gen2;
+
+            public HitchSample(
+                DateTime timestamp,
+                double frameTimeMs,
+                int gen0,
+                int gen1,
+                int gen2)
+            {
+                Timestamp = timestamp;
+                FrameTimeMs = frameTimeMs;
+                Gen0 = gen0;
+                Gen1 = gen1;
+                Gen2 = gen2;
+            }
+        }
+
+        private readonly List<(
+            DateTime Time,
+            double Duration,
+            int Gen0,
+            int Gen1,
+            int Gen2
+        )> hitchLog = new(128);
+
         private TimeSpan previousCpuTime;
         private bool profilerInitialized;
 
@@ -117,8 +159,6 @@ namespace Fletch.Sandbox
 
         private void MonitorPerformance()
         {
-            //TODO Made by AI, Replace later
-
             double frameTimeMs = frameTimer.Elapsed.TotalMilliseconds;
             frameTimer.Restart();
 
@@ -137,16 +177,33 @@ namespace Fletch.Sandbox
             }
 
             if (frames < MaxFrameSamples)
-            {
                 frameTimes[frames] = frameTimeMs;
-            }
 
             frames++;
-
             totalFrameTime += frameTimeMs;
 
             lowestFrameTime = Math.Min(lowestFrameTime, frameTimeMs);
             highestFrameTime = Math.Max(highestFrameTime, frameTimeMs);
+
+            // Record hitches without logging inside the measured frame.
+            if (frameTimeMs >= 5.0)
+            {
+                int gen0 = GC.CollectionCount(0);
+                int gen1 = GC.CollectionCount(1);
+                int gen2 = GC.CollectionCount(2);
+
+                hitchLog.Add((
+                    DateTime.Now,
+                    frameTimeMs,
+                    gen0 - lastFrameGen0,
+                    gen1 - lastFrameGen1,
+                    gen2 - lastFrameGen2
+                ));
+            }
+
+            lastFrameGen0 = GC.CollectionCount(0);
+            lastFrameGen1 = GC.CollectionCount(1);
+            lastFrameGen2 = GC.CollectionCount(2);
 
             if (totalFrameTime < 1000.0)
                 return;
@@ -168,19 +225,18 @@ namespace Fletch.Sandbox
             double pointOnePercentLow = p999 > 0 ? 1000.0 / p999 : 0;
 
             long allocatedBytes = GC.GetAllocatedBytesForCurrentThread();
-
             long allocatedDelta = allocatedBytes - previousAllocatedBytes;
 
             double allocatedPerSecond = allocatedDelta / elapsedSeconds;
             double allocatedPerFrame = (double)allocatedDelta / frames;
 
-            long gen0 = GC.CollectionCount(0);
-            long gen1 = GC.CollectionCount(1);
-            long gen2 = GC.CollectionCount(2);
+            long gen0Count = GC.CollectionCount(0);
+            long gen1Count = GC.CollectionCount(1);
+            long gen2Count = GC.CollectionCount(2);
 
-            long gen0Collections = gen0 - previousGen0;
-            long gen1Collections = gen1 - previousGen1;
-            long gen2Collections = gen2 - previousGen2;
+            long gen0Collections = gen0Count - previousGen0;
+            long gen1Collections = gen1Count - previousGen1;
+            long gen2Collections = gen2Count - previousGen2;
 
             long managedMemory = GC.GetTotalMemory(false);
 
@@ -217,6 +273,18 @@ namespace Fletch.Sandbox
                 $"CPU Usage:            {cpuUsage:F2}%\n" +
                 $"========================================"
             );
+
+            foreach (var hitch in hitchLog)
+            {
+                Debug.WriteLine(
+                    $"[HITCH {hitch.Time:HH:mm:ss.fff}] " +
+                    $"{hitch.Duration:F3} ms | " +
+                    $"GC: Gen0 +{hitch.Gen0}, " +
+                    $"Gen1 +{hitch.Gen1}, Gen2 +{hitch.Gen2}"
+                );
+            }
+
+            hitchLog.Clear();
 
             previousAllocatedBytes = GC.GetAllocatedBytesForCurrentThread();
 

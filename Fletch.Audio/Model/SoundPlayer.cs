@@ -17,10 +17,10 @@ namespace Fletch.Audio.Model
         /// <summary>
         /// Represents the dirty flags for the sound player.
         /// </summary>
-        internal SoundPlayerDirtyFlags DirtyFlags { get; set; } = SoundPlayerDirtyFlags.None;
+        internal SoundPlayerDirtyFlags DirtyFlags { get; set; } = SoundPlayerDirtyFlags.All;
 
         /// <summary>
-        /// Sound volume, must be a postive value.
+        /// Sound volume, must be a positive value.
         /// </summary>
         public float Volume
         {

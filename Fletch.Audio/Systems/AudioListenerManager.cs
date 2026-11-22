@@ -1,5 +1,6 @@
 ﻿using Fletch.Audio.Abstractions.Backend;
 using Fletch.Audio.Components;
+using Fletch.Audio.Model.Flags;
 using Fletch.Audio.Model.SoundListenerCommands;
 using Fletch.Engine.Model;
 
@@ -13,11 +14,17 @@ namespace Fletch.Audio.Systems
 
         private AudioListener? activeListener = null;
 
+        private bool lastListenerEnabledState = false;
+
         private bool disposed;
 
         public AudioListenerManager(IAudioBackend audioBackend)
         {
             this.audioBackend = audioBackend;
+
+            SetListenerGainCommand gainCommand = new SetListenerGainCommand(0f);
+
+            audioBackend.SendCommand(gainCommand);
         }
 
         public void AddListener(AudioListener listener)
@@ -57,17 +64,34 @@ namespace Fletch.Audio.Systems
 
             if (activeListener != null && activeListener.IsEnabled)
             {
-                SetListenerGainCommand gainCommand = new SetListenerGainCommand(activeListener.Gain); //TODO Use Dirty detection to avoid sending this every frame.
-                SetListenerPositionCommand positionCommand = new SetListenerPositionCommand(activeListener.GameObject.Transform.WorldPosition); //TODO Use Dirty detection to avoid sending this every frame.
+                lastListenerEnabledState = true;
 
-                audioBackend.SendCommand(gainCommand); //TODO Use Dirty detection to avoid sending this every frame.
-                audioBackend.SendCommand(positionCommand); //TODO Use Dirty detection to avoid sending this every frame.
+                if (activeListener.DirtyFlags == 0)
+                    return;
+
+                if ((activeListener.DirtyFlags & AudioListenerDirtyFlags.Gain) != 0)
+                {
+                    SetListenerGainCommand gainCommand = new SetListenerGainCommand(activeListener.Gain);
+                    audioBackend.SendCommand(gainCommand);
+                }
+
+                if ((activeListener.DirtyFlags & AudioListenerDirtyFlags.Position) != 0)
+                {
+                    SetListenerPositionCommand positionCommand = new SetListenerPositionCommand(activeListener.GameObject.Transform.WorldPosition);
+                    audioBackend.SendCommand(positionCommand);
+                }
+
+                activeListener.ClearDirty();
             }
             else
             {
-                SetListenerGainCommand gainCommand = new SetListenerGainCommand(0f); //TODO Use Dirty detection to avoid sending this every frame.
+                if (!lastListenerEnabledState)
+                    return;
 
-                audioBackend.SendCommand(gainCommand); //TODO Use Dirty detection to avoid sending this every frame.
+                SetListenerGainCommand gainCommand = new SetListenerGainCommand(0f);
+                audioBackend.SendCommand(gainCommand);
+
+                lastListenerEnabledState = false;
             }
         }
 

@@ -65,8 +65,10 @@ namespace Fletch.Rendering.Systems
                 spriteOrderDirty = false;
             }
 
-            foreach (Camera2D frontendCamera in cameraManager.Cameras)
+            for (int i = 0; i < cameraManager.Cameras.Count; i++)
             {
+                Camera2D frontendCamera = cameraManager.Cameras[i];
+
                 if (!frontendCamera.IsEnabled)
                     continue;
 

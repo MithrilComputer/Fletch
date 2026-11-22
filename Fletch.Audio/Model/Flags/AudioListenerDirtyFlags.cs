@@ -1,10 +1,14 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-
-namespace Fletch.Audio.Model.Flags
+﻿namespace Fletch.Audio.Model.Flags
 {
-    internal class AudioListenerDirtyFlags
+    [Flags]
+    internal enum AudioListenerDirtyFlags
     {
+        None = 0,
+
+        Gain = 1 << 0,
+
+        Position = 1 << 1,
+
+        All = Gain
     }
 }

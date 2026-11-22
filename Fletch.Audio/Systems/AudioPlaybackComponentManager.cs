@@ -2,6 +2,7 @@
 using Fletch.Audio.Components;
 using Fletch.Audio.Factories.SoundPlayers;
 using Fletch.Audio.Model;
+using Fletch.Audio.Model.Flags;
 using Fletch.Audio.Model.SoundPlayerCommands;
 using Fletch.Audio.Model.SoundPlayerCommands.Source;
 using Fletch.Engine.Model;
@@ -101,23 +102,48 @@ namespace Fletch.Audio.Systems
                     continue;
                 }
 
-                Vector2 position = soundPlayer.ParentAudioSource.GameObject.Transform.WorldPosition;
+                if(soundPlayer.DirtyFlags == 0)
+                {
+                    continue;
+                }
 
-                SetPlayerPositionCommand setPositionCommand = new SetPlayerPositionCommand(soundPlayer.SourceHandle, position);
+                if((soundPlayer.DirtyFlags & SoundPlayerDirtyFlags.Position) != 0)
+                {
+                    Vector2 position = soundPlayer.ParentAudioSource.GameObject.Transform.WorldPosition;
+                    SetPlayerPositionCommand setPositionCommand = new SetPlayerPositionCommand(soundPlayer.SourceHandle, position);
 
-                SetPlayerPitchCommand pitchCommand = new SetPlayerPitchCommand(soundPlayer.SourceHandle, soundPlayer.Pitch);
+                    audioBackend.SendCommand(setPositionCommand);
+                }
 
-                SetPlayerLoopingCommand loopingCommand = new SetPlayerLoopingCommand(soundPlayer.SourceHandle, soundPlayer.IsLooping);
+                if ((soundPlayer.DirtyFlags & SoundPlayerDirtyFlags.Pitch) != 0)
+                {
+                    SetPlayerPitchCommand pitchCommand = new SetPlayerPitchCommand(soundPlayer.SourceHandle, soundPlayer.Pitch);
 
-                SetPlayerVolumeCommand volumeCommand = new SetPlayerVolumeCommand(soundPlayer.SourceHandle, soundPlayer.Volume);
+                    audioBackend.SendCommand(pitchCommand);
+                }
 
-                SetIsPlayerSpatialCommand spatialCommand = new SetIsPlayerSpatialCommand(soundPlayer.SourceHandle, soundPlayer.IsSpatial);
+                if ((soundPlayer.DirtyFlags & SoundPlayerDirtyFlags.Looping) != 0)
+                {
+                    SetPlayerLoopingCommand loopingCommand = new SetPlayerLoopingCommand(soundPlayer.SourceHandle, soundPlayer.IsLooping);
 
-                audioBackend.SendCommand(setPositionCommand); //TODO Use Dirty detection to avoid sending this every frame.
-                audioBackend.SendCommand(pitchCommand); //TODO Use Dirty detection to avoid sending this every frame.
-                audioBackend.SendCommand(loopingCommand); //TODO Use Dirty detection to avoid sending this every frame.
-                audioBackend.SendCommand(volumeCommand); //TODO Use Dirty detection to avoid sending this every frame.
-                audioBackend.SendCommand(spatialCommand);
+                    audioBackend.SendCommand(loopingCommand);
+                }
+
+                if ((soundPlayer.DirtyFlags & SoundPlayerDirtyFlags.Volume) != 0)
+                {
+                    SetPlayerVolumeCommand volumeCommand = new SetPlayerVolumeCommand(soundPlayer.SourceHandle, soundPlayer.Volume);
+
+                    audioBackend.SendCommand(volumeCommand);
+                }
+
+                if ((soundPlayer.DirtyFlags & SoundPlayerDirtyFlags.Spatialization) != 0)
+                {
+                    SetIsPlayerSpatialCommand spatialCommand = new SetIsPlayerSpatialCommand(soundPlayer.SourceHandle, soundPlayer.IsSpatial);
+
+                    audioBackend.SendCommand(spatialCommand);
+                }
+
+                soundPlayer.ClearDirty();
             }
         }
 
