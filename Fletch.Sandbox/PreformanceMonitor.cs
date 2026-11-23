@@ -182,8 +182,10 @@ namespace Fletch.Sandbox
                 Debug.WriteLine(
                     $"[HITCH {hitch.Timestamp:HH:mm:ss.fff}] \n" +
                     $"{hitch.FrameTimeMs:F3} ms | \n" +
-                    $"GC: Gen0 +{hitch.Gen0}, \n" +
-                    $"Gen1 +{hitch.Gen1}, Gen2 +{hitch.Gen2}\n"
+                    $"GC:\n" +
+                    $"Gen0 +{hitch.Gen0},\n" +
+                    $"Gen1 +{hitch.Gen1},\n" +
+                    $"Gen2 +{hitch.Gen2}\n"
                 );
             }
 

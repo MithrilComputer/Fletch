@@ -7,11 +7,11 @@ using Fletch.Physics.Components;
 using Fletch.Physics.Components.CollisionShapes;
 using Fletch.Physics.Model;
 using Fletch.Rendering.Components;
+using Fletch.Rendering.Model;
 using Fletch.Sandbox.Abstractions;
 using Fletch.Sandbox.Scripts;
 using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.IO;
 using System.Numerics;
 
@@ -101,6 +101,8 @@ namespace Fletch.Sandbox
 
         private List<UIComponent> AddUIElements()
         {
+            //TODO Rewrite with UIComponents Instead
+
             List<UIComponent> uiComps = new List<UIComponent>();
 
             GameObject startScreen = levelScene.CreateGameObject();
@@ -183,8 +185,6 @@ namespace Fletch.Sandbox
 
             playerRb.FixedRotation = true;
 
-            playerRb.LockX = false;
-
             CircleCollider playerCollider = playerRb.AddCollider<CircleCollider>();
 
             playerCollider.Material = new PhysicsMaterial(0.7f, 0.2f);
@@ -202,7 +202,7 @@ namespace Fletch.Sandbox
 
             camera.AddComponent<AudioListener>();
 
-            camera2D.SamplerMode = Rendering.Model.SamplerMode.Point;
+            camera2D.SamplerMode = SamplerMode.Point;
         }
     }
 }

@@ -2,7 +2,7 @@
 
 namespace Fletch.Physics.Model.Info.IO
 {
-    internal class BodyWriteState
+    internal struct BodyWriteState
     {
         public RigidBodyDirtyFlags DirtyFlags { get; }
 

@@ -1,6 +1,7 @@
 ﻿using Fletch.Core.EngineConfig;
 using Fletch.Hosting.Abstractions.Game;
 using Fletch.Platform.MonoGame;
+using System.Runtime;
 
 namespace Fletch.Application
 {
@@ -9,6 +10,8 @@ namespace Fletch.Application
         public static void Run<TGame>(FletchOptions? options = null)
             where TGame : class, IFletchGame
         {
+            GCSettings.LatencyMode = GCLatencyMode.SustainedLowLatency;
+
             options ??= new FletchOptions();
 
             IPlatformLauncher launcher;
