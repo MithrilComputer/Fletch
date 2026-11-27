@@ -24,5 +24,10 @@
         /// Gets the root directory for game assets.
         /// </summary>
         public string AssetFolderDirectory { get; }
+
+        /// <summary>
+        /// Resolves a relative asset path to an absolute path based on the platform's asset folder.
+        /// </summary>
+        string ResolveAssetPath(string path);
     }
 }

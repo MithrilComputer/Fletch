@@ -8,8 +8,6 @@ namespace Fletch.Assets.Audio.Providers
 {
     internal sealed class AudioAssetProvider : IAudioAssetProvider, IDisposable
     {
-        //TODO Make this multi threaded
-
         private readonly AudioDataLoader audioLoader;
 
         private readonly List<IAudioDecoder> audioDecoders = new List<IAudioDecoder>();

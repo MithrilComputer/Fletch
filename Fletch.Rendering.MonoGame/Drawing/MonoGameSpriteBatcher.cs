@@ -331,36 +331,52 @@ namespace Fletch.Rendering.MonoGame.Drawing
         }
 
         /// <summary>
-        /// Draws text using the specified font at the given position with a color tint.
+        /// Draws a string of text using the specified font, position, rotation, scale, color, and layer depth.
         /// </summary>
         /// <param name="font">The font resource to use when rendering the text.</param>
         /// <param name="text">The text string to render.</param>
-        /// <param name="position">
-        /// The position, in pixels, where the text should be drawn 
-        /// (typically in screen or world space, depending on the current transform).
-        /// </param>
+        /// <param name="position">The position of the text in the active coordinate space.</param>
+        /// <param name="rotation">The rotation angle, in radians.</param>
+        /// <param name="scale">The scale factor for the text.</param>
         /// <param name="color">The color tint to apply to the rendered text.</param>
-        /// <exception cref="InvalidOperationException">
-        /// Thrown if the underlying sprite batch is not currently in a valid state to draw,
-        /// or if the provided font is not compatible with the active rendering backend.
-        /// </exception>
-        public void DrawString( //TODO Upgrade to support the full feature set of the SpriteBatch.DrawString
+        /// <param name="origin">The origin point for the text.</param>
+        /// <param name="layerDepth">The layer depth for the text.</param>
+        public void DrawString(
             IFont font,
             string text,
-            SystemVector position,
-            FletchColor color)
+            Vector2 position,
+            float rotation,
+            Vector2 scale,
+            FletchColor color,
+            Vector2 origin,
+            byte layerDepth)
         {
             if (!IsBatchOpen)
                 throw new InvalidOperationException("DrawString called before Begin.");
 
             if (font is not Resources.MonoGameFont monoGameFont)
-                throw new InvalidOperationException("IFont is not a MonoGame font instance for this backend.");
+                throw new InvalidOperationException(
+                    "IFont is not a MonoGame font instance for this backend.");
+
+            float layerDepthNormalized = Math.Clamp(layerDepth / 255f, 0f, 1f);
+
+            Vector2 textSize = font.MeasureString(text);
+
+            XnaVector originPixels = new XnaVector(
+                origin.X * textSize.X,
+                origin.Y * textSize.Y
+            );
 
             spriteBatch.DrawString(
                 monoGameFont.SpriteFontBase,
                 text,
                 new XnaVector(position.X, position.Y),
-                ConvertFromFletchType(color));
+                ConvertFromFletchType(color),
+                rotation: rotation,
+                origin: originPixels,
+                scale: new XnaVector(scale.X, -scale.Y),
+                layerDepth: layerDepthNormalized
+            );
         }
 
         private static BlendState ConvertFromFletchType(BlendMode blendMode)

@@ -15,6 +15,9 @@ namespace Fletch.Sandbox.Abstractions
         protected readonly IGameContext gameContext;
 
         protected readonly ITextureFactory textureFactory;
+
+        protected readonly IFontFactory fontFactory;
+
         protected readonly IDebugRenderer debugRenderer;
         protected readonly SceneManager sceneManager;
         protected readonly InputService input;
@@ -29,6 +32,7 @@ namespace Fletch.Sandbox.Abstractions
 
             textureFactory = gameContext.Rendering.TextureFactory;
             debugRenderer = gameContext.Rendering.DebugRenderer;
+            fontFactory = gameContext.Rendering.FontFactory;
             input = gameContext.Input;
             pathProvider = gameContext.PathProvider;
             applicationLifetime = gameContext.ApplicationLifetime;

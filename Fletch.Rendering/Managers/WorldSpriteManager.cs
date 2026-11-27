@@ -2,52 +2,75 @@
 using Fletch.Engine.Model;
 using Fletch.Rendering.Abstractions.Drawing;
 using Fletch.Rendering.Components;
+using Fletch.Rendering.Systems;
 using System.Numerics;
 
 namespace Fletch.Rendering.Managers
 {
-    internal class WorldSpriteManager
+    internal class WorldSpriteManager : IDisposable
     {
         private readonly TrackedSet<WorldTextRenderer> textRenderers = new TrackedSet<WorldTextRenderer>();
         private readonly TrackedSet<SpriteRenderer> spriteRenderers = new TrackedSet<SpriteRenderer>();
+
+        private bool isDisposed = false;
 
         public WorldSpriteManager() {}  
 
         public void RegisterRenderer(WorldTextRenderer textRenderer)
         {
+            if (isDisposed)
+                throw new ObjectDisposedException(nameof(WorldSpriteManager));
+
             textRenderers.MarkToAdd(textRenderer);
         }
 
         public void RegisterRenderer(SpriteRenderer spriteRenderer)
         {
+            if (isDisposed)
+                throw new ObjectDisposedException(nameof(WorldSpriteManager));
+
             spriteRenderers.MarkToAdd(spriteRenderer);
         }
 
         public void UnregisterRenderer(WorldTextRenderer textRenderer)
         {
+            if (isDisposed)
+                throw new ObjectDisposedException(nameof(WorldSpriteManager));
+
             textRenderers.MarkToRemove(textRenderer);
         }
 
         public void UnregisterRenderer(SpriteRenderer spriteRenderer)
         {
+            if (isDisposed)
+                throw new ObjectDisposedException(nameof(WorldSpriteManager));
+
             spriteRenderers.MarkToRemove(spriteRenderer);
         }
 
         public void Refresh()
         {
+            if (isDisposed)
+                throw new ObjectDisposedException(nameof(WorldSpriteManager));
+
             textRenderers.Refresh();
             spriteRenderers.Refresh();
-            
         }
 
         public void RenderAll(ISpriteBatcher batcher, RectangleFloat visibleArea)
         {
+            if (isDisposed)
+                throw new ObjectDisposedException(nameof(WorldSpriteManager));
+
             RenderSprites(batcher, visibleArea);
-            //RenderTexts(batcher, visibleArea);
+            RenderTexts(batcher, visibleArea);
         }
 
         private void RenderSprites(ISpriteBatcher batcher, RectangleFloat visibleArea)
         {
+            if (isDisposed)
+                throw new ObjectDisposedException(nameof(WorldSpriteManager));
+
             foreach (SpriteRenderer sprite in spriteRenderers.Items)
             {
                 if (!sprite.IsEnabled || sprite.VisualResource.Texture == null || sprite.GameObject == null)
@@ -95,55 +118,66 @@ namespace Fletch.Rendering.Managers
                     scale: drawScale,
                     color: sprite.Color,
                     origin: sprite.Origin,
-                    layerDepth: 0,
+                    layerDepth: sprite.ZHeight,
                     spriteEffect: sprite.Effect
                 );
             }
         }
 
-        /*
+
         private void RenderTexts(ISpriteBatcher batcher, RectangleFloat visibleArea)
         {
+            if (isDisposed)
+                throw new ObjectDisposedException(nameof(WorldSpriteManager));
+
             foreach (WorldTextRenderer textRenderer in textRenderers.Items)
             {
-                if (!textRenderer.IsEnabled || textRenderer.VisualResource.Texture == null || textRenderer.GameObject == null)
+                if (!textRenderer.IsEnabled ||
+                    textRenderer.Font == null ||
+                    textRenderer.GameObject == null ||
+                    string.IsNullOrEmpty(textRenderer.Text))
                     continue;
+
+                Vector2 drawPosition =
+                    textRenderer.RenderPose.Position +
+                    textRenderer.PositionOffset;
+
+                float drawRotation =
+                    textRenderer.RenderPose.Rotation +
+                    textRenderer.RotationOffset.Radians;
+
+                Vector2 worldScale =
+                    textRenderer.GameObject.Transform.WorldScale *
+                    textRenderer.ScaleOffset;
+
+                float fontScale =
+                    textRenderer.FontSize / textRenderer.Font.NominalSize;
+
+                Vector2 drawScale = worldScale * fontScale;
 
                 if (!IsVisible(
-                    visibleArea, 
-                    textRenderer.VisualResource.Texture.Size,
-                    textRenderer.VisualResource.PixelPerWorldUnit,
-                    textRenderer.RenderPose.Position,
-                    textRenderer.GameObject.Transform.WorldScale,
+                    visibleArea,
+                    textRenderer.LocalSize,
+                    1f,
+                    drawPosition,
+                    worldScale,
                     textRenderer.Origin,
-                    textRenderer.RenderPose.Rotation))
+                    drawRotation))
                     continue;
 
-                float spritePPU = textRenderer.VisualResource.PixelPerWorldUnit;
-                float worldUnitsPerPixelForThisSprite = 1.0f / spritePPU;
-
-                Vector2 drawScale =
-                    textRenderer.GameObject.Transform.WorldScale *
-                    textRenderer.ScaleOffset *
-                    worldUnitsPerPixelForThisSprite;
-
-                Vector2 drawPosition = textRenderer.RenderPose.Position + textRenderer.PositionOffset;
-                float drawRotation = textRenderer.RenderPose.Rotation + textRenderer.RotationOffset.Radians;
-
-                batcher.Draw(
-                    texture: textRenderer.VisualResource.Texture,
-                    sourceRectangle: textRenderer.SourceRectangle,
+                batcher.DrawString(
+                    font: textRenderer.Font,
+                    text: textRenderer.Text,
                     position: drawPosition,
                     rotation: drawRotation,
                     scale: drawScale,
                     color: textRenderer.Color,
                     origin: textRenderer.Origin,
-                    layerDepth: 0,
-                    spriteEffect: textRenderer.Effect
+                    layerDepth: textRenderer.ZHeight
                 );
             }
         }
-        */
+
 
         private static bool IsVisible(
             RectangleFloat visibleArea,
@@ -196,6 +230,18 @@ namespace Fletch.Rendering.Managers
                 extents.X * 2f,
                 extents.Y * 2f
             );
+        }
+
+        public void Dispose()
+        {
+            if (isDisposed)
+                throw new ObjectDisposedException(nameof(WorldSpriteManager));
+
+            isDisposed = true;
+
+            spriteRenderers.Clear();
+
+            textRenderers.Clear();
         }
     }
 }

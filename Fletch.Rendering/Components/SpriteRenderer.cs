@@ -28,7 +28,7 @@ namespace Fletch.Rendering.Components
         /// <summary>
         /// Sets the render pose for the sprite renderer.
         /// </summary>
-        public void SetRenderPose(RenderPose pose)
+        void IInternalWorldRenderingComponent.SetRenderPose(RenderPose pose)
         {
             RenderPose = pose;
         }
@@ -49,8 +49,7 @@ namespace Fletch.Rendering.Components
         public Color Color { get; set; } = Color.White;
 
         /// <summary>
-        /// Draw order relative to other sprites.
-        /// Lower renders first.
+        /// Draw order relative to other world visuals, Lower renders first.
         /// </summary>
         public byte ZHeight { get; set; } = 0;
 
@@ -83,7 +82,5 @@ namespace Fletch.Rendering.Components
         /// The current sprite effect applied to the sprite.
         /// </summary>
         public SpriteEffect Effect { get; set; } = SpriteEffect.None;
-
-        public bool HasLateStarted { get => throw new NotImplementedException(); set => throw new NotImplementedException(); }
     }
 }

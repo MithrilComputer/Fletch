@@ -21,82 +21,62 @@ namespace Fletch.Rendering.MonoGame.Factories
             cache = new Dictionary<(string family, int size), IFont>();
         }
 
-        /// <summary>
-        /// Registers a font family from a TrueType Font (.ttf) file.
-        /// </summary>
-        /// <param name="name">Logical font family name used for lookup.</param>
-        /// <param name="ttfPath">File system path to the .ttf font file.</param>
-        /// <remarks>
-        /// If a font family with the same name already exists, it will be replaced.
-        /// </remarks>
-        public void RegisterFamily(string name, string ttfPath)
+        public IFont GetFont(string path, int size = 128)
         {
-            FontSystem fontSystem = new FontSystem(new FontSystemSettings { });
+            (string family, int size) key = (path, size);
 
-            fontSystem.AddFont(File.ReadAllBytes(ttfPath));
-
-            systems[name] = fontSystem;
-        }
-
-        /// <summary>
-        /// Gets a font from the specified family and size.
-        /// Creates and caches the font if it has not already been created.
-        /// </summary>
-        /// <param name="family">Registered font family name.</param>
-        /// <param name="size">Point size of the requested font.</param>
-        /// <returns>An <see cref="IFont"/> matching the specified family and size.</returns>
-        /// <exception cref="KeyNotFoundException">
-        /// Thrown when the requested font family has not been registered.
-        /// </exception>
-        public IFont GetFont(string family, int size)
-        {
-            var key = (family, size);
-
-            if (cache.TryGetValue(key, out var existing))
+            if (cache.TryGetValue(key, out IFont existing))
                 return existing;
 
-            if (!systems.TryGetValue(family, out var fontSystem))
-                throw new KeyNotFoundException($"Font family '{family}' is not registered.");
+            if (!systems.TryGetValue(path, out var fontSystem))
+            {
+                fontSystem = RegisterFamily(path);
+            }
 
             SpriteFontBase spriteFont = fontSystem.GetFont(size);
 
-            MonoGameFont wrapped = new MonoGameFont(spriteFont, $"{family}-{size}");
+            MonoGameFont wrapped = new MonoGameFont(spriteFont, $"{path}-{size}");
 
             cache[key] = wrapped;
             return wrapped;
         }
 
-        /// <summary>
-        /// Attempts to get a font from the specified family and size without throwing.
-        /// </summary>
-        /// <param name="family">Registered font family name.</param>
-        /// <param name="size">Point size of the requested font.</param>
-        /// <param name="font">
-        /// When this method returns, contains the font if it was found or created;
-        /// otherwise <c>null</c>.
-        /// </param>
-        /// <returns>
-        /// <c>true</c> if the font could be returned; otherwise <c>false</c>.
-        /// </returns>
-        public bool TryGetFont(string family, int size, out IFont? font)
+        public bool TryGetFont(string path, out IFont? font, int size = 128)
         {
-            var key = (family, size);
+            var key = (path, size);
 
             if (cache.TryGetValue(key, out font))
                 return true;
 
-            if (!systems.TryGetValue(family, out var fontSystem))
+            if (!systems.TryGetValue(path, out var fontSystem))
             {
-                font = null;
-                return false;
+                try
+                {
+                    fontSystem = RegisterFamily(path);
+                }
+                catch (Exception)
+                {
+                    font = null;
+                    return false;
+                }
             }
 
             SpriteFontBase spriteFont = fontSystem.GetFont(size);
 
-            font = new MonoGameFont(spriteFont, $"{family}-{size}");
+            font = new MonoGameFont(spriteFont, $"{path}-{size}");
             cache[key] = font;
 
             return true;
+        }
+
+        private FontSystem RegisterFamily(string ttfPath)
+        {
+            FontSystem fontSystem = new FontSystem(new FontSystemSettings { });
+
+            fontSystem.AddFont(File.ReadAllBytes(ttfPath));
+
+            systems[ttfPath] = fontSystem;
+            return fontSystem;
         }
 
         public void Dispose()

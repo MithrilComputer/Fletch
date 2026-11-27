@@ -1,11 +1,13 @@
 ﻿using Fletch.Audio.Components;
 using Fletch.Audio.Model;
+using Fletch.Core.Colors;
 using Fletch.Core.Time;
 using Fletch.Engine.Hierarchy.Objects;
 using Fletch.Hosting.Abstractions.Contexts;
 using Fletch.Physics.Components;
 using Fletch.Physics.Components.CollisionShapes;
 using Fletch.Physics.Model;
+using Fletch.Rendering.Abstractions.Resources;
 using Fletch.Rendering.Components;
 using Fletch.Rendering.Model;
 using Fletch.Sandbox.Abstractions;
@@ -23,6 +25,7 @@ namespace Fletch.Sandbox
 
         private CharacterController playerControler;
 
+        private WorldTextRenderer textRenderer;
 
         private Camera2D camera2D;
 
@@ -37,6 +40,7 @@ namespace Fletch.Sandbox
             AddBoundaryObjects();
             AddPlayer();
             AddMusic();
+            AddTestText();
 
             scrollingSystem = new WorldScrollingSystem(levelScene, textureFactory, gameContext.PathProvider);
 
@@ -52,6 +56,8 @@ namespace Fletch.Sandbox
             UpdateZoom(input.Mouse.WheelDeltaNormalized);
 
             scrollingSystem.UpdateWorld(frameTime.Delta);
+
+            textRenderer.Text = GameState.CurrentScore.ToString();
 
             PreformanceMonitor.RunFrame();
         }
@@ -86,6 +92,27 @@ namespace Fletch.Sandbox
             musicPlayer.PlaySound();
         }
 
+        private void AddTestText()
+        {
+            GameObject textObject = levelScene.CreateGameObject();
+
+            textObject.Transform.LocalPosition = new Vector2(0f, 3f);
+
+            IFont font = fontFactory.GetFont("Roboto", 128);
+
+            textRenderer = textObject.AddComponent<WorldTextRenderer>();
+
+            textRenderer.Font = font;
+
+            textRenderer.FontSize = 2f;
+
+            textRenderer.Color = Color.Red;
+
+            textRenderer.ZHeight = 40;
+
+            textRenderer.Text = GameState.CurrentScore.ToString();
+        }
+
         private void AddBackgroundObjects()
         {
             GameObject background = levelScene.CreateGameObject();
@@ -115,7 +142,7 @@ namespace Fletch.Sandbox
 
             renderer.VisualResource.Texture = textureFactory.Load(Path.Combine(pathProvider.AssetFolderDirectory, "Start Screen.png"));
 
-            renderer.ZHeight = 3;
+            renderer.ZHeight = 4;
 
             uiComps.Add(ui);
 

@@ -164,6 +164,7 @@ namespace Fletch.Sandbox
 
                 renderer.VisualResource.Texture = barTexture;
                 renderer.VisualResource.PixelPerWorldUnit = 16;
+                renderer.ZHeight = 1;
 
                 body.PhysicsMode = PhysicsMode.Kinematic;
 

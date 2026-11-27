@@ -11,7 +11,9 @@ namespace Fletch.Rendering.MonoGame.Resources
 
         public string? Name { get; }
 
-        public float LineSpacing { get; }
+        public float LineSpacing => SpriteFontBase.LineHeight;
+
+        public float NominalSize => SpriteFontBase.FontSize;
 
         public MonoGameFont(SpriteFontBase spriteFont, string? name = null)
         {

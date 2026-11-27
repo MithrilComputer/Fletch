@@ -38,7 +38,7 @@ namespace Fletch.Rendering.Abstractions.Drawing
         /// Draws a textured sprite to the active sprite batch.
         /// </summary>
         /// <param name="texture">The texture to draw.</param>
-        /// <param name="position">The world-space position of the sprite’s origin.</param>
+        /// <param name="position"> The position of the sprite in the active coordinate space.</param>
         /// <param name="sourceRectangle">The portion of the texture to draw, or null for full texture.</param>
         /// <param name="color">The color tint to apply.</param>
         /// <param name="rotation">Rotation of the sprite in radians.</param>
@@ -61,7 +61,7 @@ namespace Fletch.Rendering.Abstractions.Drawing
         /// Draws a texture at the given position with a color tint and explicit layer depth.
         /// </summary>
         /// <param name="texture">The texture to draw.</param>
-        /// <param name="position">The world-space position of the sprite.</param>
+        /// <param name="position">The position of the sprite in the active coordinate space.</param>
         /// <param name="color">The color tint to apply.</param>
         /// <param name="layerDepth">The depth sorting value within the current sprite batch.</param>
         /// <param name="spriteEffect">Optional flip effect.</param>
@@ -76,7 +76,7 @@ namespace Fletch.Rendering.Abstractions.Drawing
         /// Draws a sub-region of a texture at the given position.
         /// </summary>
         /// <param name="texture">The texture containing the region to draw.</param>
-        /// <param name="position">The world-space position of the sprite.</param>
+        /// <param name="position">The position of the sprite in the active coordinate space.</param>
         /// <param name="sourceRectangle">The region of the texture to draw.</param>
         /// <param name="color">The color tint to apply.</param>
         /// <param name="layerDepth">Optional depth sorting value within the batch.</param>
@@ -136,24 +136,26 @@ namespace Fletch.Rendering.Abstractions.Drawing
             SpriteEffect spriteEffect = SpriteEffect.None);
 
         /// <summary>
-        /// Draws text using the specified font at the given screen space position with a color tint.
+        /// Draws a string of text using the specified font, position, rotation, scale, color, and layer depth.
         /// </summary>
         /// <param name="font">The font resource to use when rendering the text.</param>
         /// <param name="text">The text string to render.</param>
-        /// <param name="position">
-        /// The position, in pixels, where the text should be drawn
-        /// </param>
+        /// <param name="position">The position of the text in the active coordinate space.</param>
+        /// <param name="rotation">The rotation angle, in radians.</param>
+        /// <param name="scale">The scale factor for the text.</param>
         /// <param name="color">The color tint to apply to the rendered text.</param>
-        /// <exception cref="InvalidOperationException">
-        /// Thrown if the underlying sprite batch is not currently in a valid state to draw,
-        /// or if the provided font is not compatible with the active rendering backend.
-        /// </exception>
+        /// <param name="origin">The origin point for the text.</param>
+        /// <param name="layerDepth">The layer depth for the text.</param>
         void DrawString(
             IFont font,
             string text,
             Vector2 position,
-            Color color);
+            float rotation,
+            Vector2 scale,
+            Color color,
+            Vector2 origin,
+            byte layerDepth);
 
-#pragma warning restore S107
+        #pragma warning restore S107
     }
 }

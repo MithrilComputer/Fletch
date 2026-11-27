@@ -20,6 +20,11 @@ namespace Fletch.Rendering.Abstractions.Resources
         float LineSpacing { get; }
 
         /// <summary>
+        /// The nominal size of the font in pixels.
+        /// </summary>
+        float NominalSize { get; }
+
+        /// <summary>
         /// The font name or identifier (optional, for debugging).
         /// </summary>
         string Name { get; }

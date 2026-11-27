@@ -17,7 +17,7 @@ using Fletch.Rendering.Managers;
 
 namespace Fletch.Rendering.Systems
 {
-    internal sealed class WorldRenderingSystem : SceneSubsystem, IRenderable
+    internal sealed class WorldRenderingSystem : SceneSubsystem, IRenderable, IDisposable
     {
         private readonly IRenderingBackend renderingBackend;
 
@@ -29,9 +29,9 @@ namespace Fletch.Rendering.Systems
 
         private readonly IRenderSurface screenSurface;
 
-        private int zSpriteIndex = 0;
+        private bool isDisposed = false;
 
-        public Color ClearColor { get; set; } = Color.Gray;
+        private int zSpriteIndex = 0;
 
         public WorldRenderingSystem(IFletchContextLogger<WorldRenderingSystem> logger, IRenderingBackend renderingBackend, ICameraManager cameraManager, IRenderSurface screenSurface)
         {
@@ -43,6 +43,9 @@ namespace Fletch.Rendering.Systems
 
         public override void AttachToScene(Scene scene)
         {
+            if (isDisposed)
+                throw new ObjectDisposedException(nameof(WorldRenderingSystem));
+
             base.AttachToScene(scene);
 
             scene.SystemManager.RegisterSystem(this, SystemExecutionOrder.Rendering, 0);
@@ -53,6 +56,9 @@ namespace Fletch.Rendering.Systems
 
         public void Render(FrameTime frameTime)
         {
+            if(isDisposed)
+                throw new ObjectDisposedException(nameof(WorldRenderingSystem));
+
             worldSpriteManager.Refresh();
 
             if (!screenSurface.IsValid)
@@ -107,6 +113,9 @@ namespace Fletch.Rendering.Systems
 
         private void OnSpriteRendererChange(Component component, ComponentChangeType changeType)
         {
+            if (isDisposed)
+                throw new ObjectDisposedException(nameof(WorldRenderingSystem));
+
             if (component is not SpriteRenderer sprite)
             {
                 throw new InvalidOperationException($"Expected component of type {typeof(SpriteRenderer)}, but got {component.GetType()}.");
@@ -117,8 +126,6 @@ namespace Fletch.Rendering.Systems
                 case ComponentChangeType.Added:
                     worldSpriteManager.RegisterRenderer(sprite);
 
-                    sprite.ZIndex = zSpriteIndex;
-                    zSpriteIndex++;
                     break;
 
                 case ComponentChangeType.Removed:
@@ -134,6 +141,9 @@ namespace Fletch.Rendering.Systems
 
         private void OnWorldTextRendererChange(Component component, ComponentChangeType changeType)
         {
+            if (isDisposed)
+                throw new ObjectDisposedException(nameof(WorldRenderingSystem));
+
             if (component is not WorldTextRenderer textRenderer)
             {
                 throw new InvalidOperationException($"Expected component of type {typeof(WorldTextRenderer)}, but got {component.GetType()}.");
@@ -155,6 +165,16 @@ namespace Fletch.Rendering.Systems
 
                 default: break;
             }
+        }
+
+        public void Dispose()
+        {
+            if (isDisposed)
+                throw new ObjectDisposedException(nameof(WorldRenderingSystem));
+
+            isDisposed = true;
+
+            worldSpriteManager.Dispose();
         }
     }
 }
