@@ -24,6 +24,12 @@ namespace Fletch.Platform.MonoGame.Paths
         /// </summary>
         public string AssetFolderDirectory { get; }
 
+        /// <inheritdoc/>
+        public string ResolveAssetPath(string path)
+        {
+            return Path.GetFullPath(path, AssetFolderDirectory);
+        }
+
         public MonoGamePathProvider(string applicationName)
         {
             if (string.IsNullOrWhiteSpace(applicationName))

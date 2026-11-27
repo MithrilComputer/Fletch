@@ -26,8 +26,12 @@
         public string AssetFolderDirectory { get; }
 
         /// <summary>
-        /// Resolves a relative asset path to an absolute path based on the platform's asset folder.
+        /// Resolves an asset relative path into a normalized
+        /// absolute path using the application's asset directory.
+        /// Absolute paths are also supported.
         /// </summary>
+        /// <param name="path">The relative or absolute asset path.</param>
+        /// <returns>The normalized absolute path.</returns>
         string ResolveAssetPath(string path);
     }
 }
