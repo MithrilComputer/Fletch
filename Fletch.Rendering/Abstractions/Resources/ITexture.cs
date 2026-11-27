@@ -1,4 +1,6 @@
-﻿namespace Fletch.Rendering.Abstractions.Resources
+﻿using System.Numerics;
+
+namespace Fletch.Rendering.Abstractions.Resources
 {
     /// <summary>
     /// Represents a GPU texture resource in a backend-agnostic way.
@@ -14,5 +16,11 @@
         /// The height of the texture in pixels.
         /// </summary>
         int Height { get; }
+
+        /// <summary>
+        /// The s
+        /// ize of the texture in pixels.
+        /// </summary>
+        public Vector2 Size => new Vector2(Width, Height);
     }
 }

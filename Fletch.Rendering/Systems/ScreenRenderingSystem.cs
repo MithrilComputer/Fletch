@@ -16,7 +16,8 @@ namespace Fletch.Rendering.Systems
 
             scene.SystemManager.RegisterSystem(this, SystemExecutionOrder.Rendering, 0);
 
-            scene.AddSystemComponentRegistration(typeof(SpriteRenderer), (b, c) => OnScreenSpriteRenderer(b, c));
+            scene.AddSystemComponentRegistration(typeof(ScreenSpriteRenderer), OnScreenSpriteRendererChange);
+            scene.AddSystemComponentRegistration(typeof(TextRenderer), OnScreenTextRendererChange);
         }
 
         public void Render(FrameTime frameTime)
@@ -24,11 +25,11 @@ namespace Fletch.Rendering.Systems
             
         }
 
-        private void OnScreenSpriteRenderer(Component component, ComponentChangeType changeType)
+        private void OnScreenSpriteRendererChange(Component component, ComponentChangeType changeType)
         {
             if (component is not ScreenSpriteRenderer sprite)
             {
-                throw new InvalidOperationException($"Expected component of type {typeof(SpriteRenderer)}, but got {component.GetType()}.");
+                throw new InvalidOperationException($"Expected component of type {typeof(ScreenSpriteRenderer)}, but got {component.GetType()}.");
             }
 
             switch (changeType)
@@ -43,6 +44,32 @@ namespace Fletch.Rendering.Systems
 
                 case ComponentChangeType.Modified:
                     
+                    break;
+
+                default: break;
+            }
+        }
+
+        private void OnScreenTextRendererChange(Component component, ComponentChangeType changeType)
+        {
+            if (component is not TextRenderer text)
+            {
+                throw new InvalidOperationException($"Expected component of type {typeof(TextRenderer)}, but got {component.GetType()}.");
+            }
+
+            switch (changeType)
+            {
+                case ComponentChangeType.Added:
+
+
+                    break;
+
+                case ComponentChangeType.Removed:
+
+                    break;
+
+                case ComponentChangeType.Modified:
+
                     break;
 
                 default: break;

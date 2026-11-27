@@ -3,8 +3,8 @@ using Fletch.Engine.Hierarchy.Objects;
 
 namespace Fletch.Rendering.Components
 {
-    internal class ScreenSpriteRenderer : GameObjectComponent
+    internal class ScreenSpriteRenderer : UIComponent
     {
-        public ScreenSpriteRenderer(GameObject gameObject) : base(gameObject) {}
+        public ScreenSpriteRenderer(UIObject uiObject) : base(uiObject) {}
     }
 }

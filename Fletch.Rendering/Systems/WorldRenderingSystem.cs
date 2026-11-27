@@ -13,7 +13,7 @@ using Fletch.Rendering.Abstractions.Backends;
 using Fletch.Rendering.Abstractions.Cameras;
 using Fletch.Rendering.Abstractions.Managers;
 using Fletch.Rendering.Components;
-using System.Numerics;
+using Fletch.Rendering.Managers;
 
 namespace Fletch.Rendering.Systems
 {
@@ -23,13 +23,11 @@ namespace Fletch.Rendering.Systems
 
         private readonly IFletchContextLogger<WorldRenderingSystem> logger;
 
-        private readonly TrackedSet<SpriteRenderer> spriteRenderers = new TrackedSet<SpriteRenderer>();
+        private readonly WorldSpriteManager worldSpriteManager = new WorldSpriteManager();
 
         private readonly ICameraManager cameraManager;
 
         private readonly IRenderSurface screenSurface;
-
-        bool spriteOrderDirty = true;
 
         private int zSpriteIndex = 0;
 
@@ -49,21 +47,16 @@ namespace Fletch.Rendering.Systems
 
             scene.SystemManager.RegisterSystem(this, SystemExecutionOrder.Rendering, 0);
 
-            scene.AddSystemComponentRegistration(typeof(SpriteRenderer), (b, c) => OnSpriteRendererChange(b, c));
+            scene.AddSystemComponentRegistration(typeof(SpriteRenderer), OnSpriteRendererChange);
+            scene.AddSystemComponentRegistration(typeof(WorldTextRenderer), OnWorldTextRendererChange);
         }
 
         public void Render(FrameTime frameTime)
         {
-            spriteRenderers.Refresh();
+            worldSpriteManager.Refresh();
 
             if (!screenSurface.IsValid)
                 return;
-
-            if (spriteOrderDirty)
-            {
-                spriteRenderers.Sort(SystemCompare);
-                spriteOrderDirty = false;
-            }
 
             for (int i = 0; i < cameraManager.Cameras.Count; i++)
             {
@@ -82,7 +75,7 @@ namespace Fletch.Rendering.Systems
                         $"IsMain={frontendCamera.IsMainCamera}.");
                 }
 
-                backendCamera.SetZoom(frontendCamera.Zoom); // Replace later
+                backendCamera.SetZoom(frontendCamera.Zoom);
                 backendCamera.SetPosition(frontendCamera.Position);
 
                 RectangleFloat visibleArea = backendCamera.GetVisibleArea();
@@ -106,111 +99,10 @@ namespace Fletch.Rendering.Systems
                     );
                 }
 
-                foreach (SpriteRenderer sprite in spriteRenderers.Items)
-                {
-                    if (!sprite.IsEnabled || sprite.VisualResource.Texture == null || sprite.GameObject == null)
-                        continue;
-
-                    if (!IsSpriteVisible(visibleArea, sprite))
-                        continue;
-
-                    float spritePPU = sprite.VisualResource.PixelPerWorldUnit;
-                    float worldUnitsPerPixelForThisSprite = 1.0f / spritePPU;
-
-                    Vector2 drawScale =
-                        sprite.GameObject.Transform.WorldScale *
-                        sprite.ScaleOffset *
-                        worldUnitsPerPixelForThisSprite;
-
-                    Vector2 drawPosition = sprite.RenderPose.Position + sprite.PositionOffset;
-                    float drawRotation = sprite.RenderPose.Rotation + sprite.RotationOffset.Radians;
-
-                    renderingBackend.SpriteBatcher.Draw(
-                        texture: sprite.VisualResource.Texture,
-                        sourceRectangle: sprite.SourceRectangle,
-                        position: drawPosition,
-                        rotation: drawRotation,
-                        scale: drawScale,
-                        color: sprite.Color,
-                        origin: sprite.Origin,
-                        layerDepth: 0,
-                        spriteEffect: sprite.Effect
-                    );
-                }
+                worldSpriteManager.RenderAll(renderingBackend.SpriteBatcher, visibleArea);
 
                 renderingBackend.EndCamera();
             }
-        }
-
-        private static bool IsSpriteVisible(RectangleFloat worldArea, SpriteRenderer sprite)
-        {
-            if (sprite.VisualResource.Texture == null)
-                return false;
-
-            RectangleFloat spriteBounds = GetSpriteWorldBounds(sprite);
-            return worldArea.Intersects(spriteBounds);
-        }
-
-        private static RectangleFloat GetSpriteWorldBounds(SpriteRenderer sprite)
-        {
-            float pixelWidth = sprite.SourceRectangle?.Width ?? sprite.VisualResource.Texture!.Width;
-            float pixelHeight = sprite.SourceRectangle?.Height ?? sprite.VisualResource.Texture!.Height;
-
-            float importPixelsPerUnit = sprite.VisualResource.PixelPerWorldUnit;
-            float widthUnits = pixelWidth / importPixelsPerUnit;
-            float heightUnits = pixelHeight / importPixelsPerUnit;
-
-            Vector2 worldPosition = sprite.RenderPose.Position;
-            Vector2 worldScale = sprite.GameObject.Transform.WorldScale;
-
-            Vector2 finalScale = worldScale * sprite.ScaleOffset;
-
-            float scaledWidth = MathF.Abs(widthUnits * finalScale.X);
-            float scaledHeight = MathF.Abs(heightUnits * finalScale.Y);
-
-            Vector2 p = worldPosition + sprite.PositionOffset;
-
-            float originX = scaledWidth * sprite.Origin.X;
-            float originY = scaledHeight * sprite.Origin.Y;
-
-            float rotation =
-                sprite.RenderPose.Rotation +
-                sprite.RotationOffset.Radians;
-
-            if (MathF.Abs(rotation) > 0.0001f)
-            {
-                float cos = MathF.Abs(MathF.Cos(rotation));
-                float sin = MathF.Abs(MathF.Sin(rotation));
-
-                float aabbWidth = scaledWidth * cos + scaledHeight * sin;
-                float aabbHeight = scaledWidth * sin + scaledHeight * cos;
-
-                float aabbOriginX = aabbWidth * sprite.Origin.X;
-                float aabbOriginY = aabbHeight * sprite.Origin.Y;
-
-                return new RectangleFloat(
-                    p.X - aabbOriginX,
-                    p.Y - aabbOriginY,
-                    aabbWidth,
-                    aabbHeight
-                );
-            }
-
-            return new RectangleFloat(
-                p.X - originX,
-                p.Y - originY,
-                scaledWidth,
-                scaledHeight
-            );
-        }
-
-        private static int SystemCompare(SpriteRenderer a, SpriteRenderer b)
-        {
-            int order = a.ZHeight.CompareTo(b.ZHeight);
-            if (order != 0)
-                return order;
-
-            return a.ZIndex.CompareTo(b.ZIndex);
         }
 
         private void OnSpriteRendererChange(Component component, ComponentChangeType changeType)
@@ -223,20 +115,42 @@ namespace Fletch.Rendering.Systems
             switch (changeType)
             {
                 case ComponentChangeType.Added:
-                    spriteRenderers.MarkToAdd(sprite);
-                    spriteOrderDirty = true;
+                    worldSpriteManager.RegisterRenderer(sprite);
 
                     sprite.ZIndex = zSpriteIndex;
                     zSpriteIndex++;
-
                     break;
+
                 case ComponentChangeType.Removed:
-                    spriteRenderers.MarkToRemove(sprite);
-                    spriteOrderDirty = true;
+                    worldSpriteManager.UnregisterRenderer(sprite);
                     break;
 
                 case ComponentChangeType.Modified:
-                    spriteOrderDirty = true;
+                    break;
+
+                default: break;
+            }
+        }
+
+        private void OnWorldTextRendererChange(Component component, ComponentChangeType changeType)
+        {
+            if (component is not WorldTextRenderer textRenderer)
+            {
+                throw new InvalidOperationException($"Expected component of type {typeof(WorldTextRenderer)}, but got {component.GetType()}.");
+            }
+
+            switch (changeType)
+            {
+                case ComponentChangeType.Added:
+                    worldSpriteManager.RegisterRenderer(textRenderer);
+                    break;
+
+                case ComponentChangeType.Removed:
+                    worldSpriteManager.UnregisterRenderer(textRenderer);
+                    break;
+
+                case ComponentChangeType.Modified:
+                    
                     break;
 
                 default: break;

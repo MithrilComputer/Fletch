@@ -14,9 +14,13 @@ using System.Numerics;
 
 namespace Fletch.Runtime.Systems
 {
-    internal class PhysicsInterpolator : SceneSubsystem, IUpdateable
+    internal class PhysicsInterpolator : SceneSubsystem, IUpdateable, IDisposable
     {
         private readonly Dictionary<GameObject, PoseBind> gameObjectPoseBinds = new Dictionary<GameObject, PoseBind>();
+
+        private bool isDisposed;
+
+        private Scene? scene;
 
         public override void AttachToScene(Scene scene)
         {
@@ -24,8 +28,10 @@ namespace Fletch.Runtime.Systems
 
             scene.SystemManager.RegisterSystem(this, SystemExecutionOrder.RenderPrep, 0);
 
-            scene.AddSystemComponentRegistration(typeof(IInternalWorldRenderingComponent), (b, c) => OnRendererChange(b, c));
-            scene.AddSystemComponentRegistration(typeof(RigidBody), (b, c) => OnRigidbodyChange(b, c));
+            scene.AddSystemComponentRegistration(typeof(IInternalWorldRenderingComponent), OnRendererChange);
+            scene.AddSystemComponentRegistration(typeof(RigidBody), OnRigidbodyChange);
+
+            this.scene = scene;
         }
 
         public void Update(FrameTime frameTime)
@@ -39,7 +45,10 @@ namespace Fletch.Runtime.Systems
                 {
                     foreach (IInternalWorldRenderingComponent renderingComponent in poseBind.RenderingComponents)
                     {
-                        RigidBody rigidBody = poseBind.RigidBody;
+                        RigidBody? rigidBody = poseBind.RigidBody;
+
+                        if(rigidBody == null)
+                            continue;
 
                         Vector2 renderPostion = Vector2.Lerp(
                             rigidBody.PreviousPose.Position,
@@ -123,6 +132,19 @@ namespace Fletch.Runtime.Systems
                     bind.RigidBody = null;
                     break;
             }
+        }
+
+        public void Dispose()
+        {
+            if (isDisposed || scene == null)
+                return;
+
+            isDisposed = true;
+
+            scene.RemoveSystemComponentRegistration(typeof(IInternalWorldRenderingComponent), OnRendererChange);
+            scene.RemoveSystemComponentRegistration(typeof(RigidBody), OnRigidbodyChange);
+
+            gameObjectPoseBinds.Clear();
         }
     }
 }

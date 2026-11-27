@@ -65,10 +65,10 @@ namespace Fletch.Rendering.MonoGame.Drawing
                 transformMatrix.M31, transformMatrix.M32, 0, 1);
 
             spriteBatch.Begin(
-                sortMode: SpriteSortMode.Deferred,
+                sortMode: SpriteSortMode.FrontToBack,
                 blendState: blendState,
                 samplerState: samplerState,
-                depthStencilState: DepthStencilState.Default,
+                depthStencilState: DepthStencilState.None,
                 rasterizerState: RasterizerState.CullNone,
                 effect: null,
                 transformMatrix: transform
@@ -138,7 +138,7 @@ namespace Fletch.Rendering.MonoGame.Drawing
             float rotation,
             SystemVector origin,
             SystemVector scale,
-            float layerDepth,
+            byte layerDepth,
             FletchSpriteEffect spriteEffect = FletchSpriteEffect.None)
         {
             if (!IsBatchOpen)
@@ -162,6 +162,8 @@ namespace Fletch.Rendering.MonoGame.Drawing
                 origin.X * xnaRectangle.Width,
                 origin.Y * xnaRectangle.Height
             );
+            
+            float layerDepthNormalized = Math.Clamp(layerDepth / 255f, 0f, 1f);
 
             spriteBatch.Draw(
                 texture: xnaTexture,
@@ -172,31 +174,8 @@ namespace Fletch.Rendering.MonoGame.Drawing
                 origin: new XnaVector(originPixels.X, originPixels.Y),
                 scale: new XnaVector(scale.X, scale.Y),
                 effects: effects,
-                layerDepth: layerDepth
+                layerDepth: layerDepthNormalized
                 );
-        }
-
-        /// <summary>
-        /// Draws a texture at the given position with a color tint.
-        /// </summary>
-        /// <param name="texture">The texture to draw.</param>
-        /// <param name="position">The world-space position of the sprite.</param>
-        /// The color tint to apply to the sprite. Use <c>Color.White</c> (the engine’s white color) to draw without tint.
-        /// <remarks>
-        /// This is a convenience overload that draws the entire texture with no rotation and unit scale.
-        /// </remarks>
-        public void Draw(ITexture texture, SystemVector position, FletchColor color,
-            FletchSpriteEffect spriteEffect = FletchSpriteEffect.None)
-        {
-            Draw(texture,
-                position,
-                sourceRectangle: null,
-                color: color,
-                rotation: 0f,
-                origin: SystemVector.Zero,
-                scale: new SystemVector(1f, 1f),
-                layerDepth: 0f,
-                spriteEffect);
         }
 
         /// <summary>
@@ -212,7 +191,7 @@ namespace Fletch.Rendering.MonoGame.Drawing
         public void Draw(ITexture texture,
             SystemVector position,
             FletchColor color,
-            float layerDepth,
+            byte layerDepth,
             FletchSpriteEffect spriteEffect = FletchSpriteEffect.None)
         {
             Draw(texture,
@@ -244,7 +223,7 @@ namespace Fletch.Rendering.MonoGame.Drawing
             SystemVector position,
             RectangleFloat sourceRectangle,
             FletchColor color,
-            float layerDepth = 0f,
+            byte layerDepth = 0,
             FletchSpriteEffect spriteEffect = FletchSpriteEffect.None)
         {
             Draw(texture,
@@ -278,7 +257,7 @@ namespace Fletch.Rendering.MonoGame.Drawing
             RectangleFloat destinationRectangle,
             RectangleFloat sourceRectangle,
             FletchColor color,
-            float layerDepth = 0f,
+            byte layerDepth = 0,
             FletchSpriteEffect spriteEffect = FletchSpriteEffect.None)
         {
             Draw(texture,
@@ -325,7 +304,7 @@ namespace Fletch.Rendering.MonoGame.Drawing
             RectangleFloat destinationRectangle,
             FletchColor color,
             RectangleFloat? sourceRectangle = null,
-            float layerDepth = 0f,
+            byte layerDepth = 0,
             FletchSpriteEffect spriteEffect = FletchSpriteEffect.None)
         {
             if (!IsBatchOpen)
@@ -365,7 +344,7 @@ namespace Fletch.Rendering.MonoGame.Drawing
         /// Thrown if the underlying sprite batch is not currently in a valid state to draw,
         /// or if the provided font is not compatible with the active rendering backend.
         /// </exception>
-        public void DrawString(
+        public void DrawString( //TODO Upgrade to support the full feature set of the SpriteBatch.DrawString
             IFont font,
             string text,
             SystemVector position,

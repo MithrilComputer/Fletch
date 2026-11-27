@@ -75,7 +75,7 @@ namespace Fletch.Rendering.MonoGame.Drawing
                 origin: new SystemVector(0, 0.5f),
                 scale: new SystemVector(length, lineThickness),
                 spriteEffect: SpriteEffect.None,
-                layerDepth: 0f);
+                layerDepth: 255);
         }
 
         /// <summary>

@@ -32,7 +32,7 @@ namespace Fletch.Rendering.Abstractions.Drawing
         /// </summary>
         void End();
 
-#pragma warning disable S107 // Methods has many parameters by design
+        #pragma warning disable S107 // Methods has many parameters by design
 
         /// <summary>
         /// Draws a textured sprite to the active sprite batch.
@@ -54,20 +54,7 @@ namespace Fletch.Rendering.Abstractions.Drawing
             float rotation,
             Vector2 origin,
             Vector2 scale,
-            float layerDepth,
-            SpriteEffect spriteEffect = SpriteEffect.None);
-
-        /// <summary>
-        /// Draws a texture at the given position with a color tint.
-        /// </summary>
-        /// <param name="texture">The texture to draw.</param>
-        /// <param name="position">The world-space position of the sprite.</param>
-        /// <param name="color">The color tint to apply.</param>
-        /// <param name="spriteEffect">Optional flip effect.</param>
-        void Draw(
-            ITexture texture,
-            Vector2 position,
-            Color color,
+            byte layerDepth,
             SpriteEffect spriteEffect = SpriteEffect.None);
 
         /// <summary>
@@ -82,7 +69,7 @@ namespace Fletch.Rendering.Abstractions.Drawing
             ITexture texture,
             Vector2 position,
             Color color,
-            float layerDepth,
+            byte layerDepth,
             SpriteEffect spriteEffect = SpriteEffect.None);
 
         /// <summary>
@@ -99,7 +86,7 @@ namespace Fletch.Rendering.Abstractions.Drawing
             Vector2 position,
             RectangleFloat sourceRectangle,
             Color color,
-            float layerDepth = 0f,
+            byte layerDepth = 0,
             SpriteEffect spriteEffect = SpriteEffect.None);
 
         /// <summary>
@@ -120,7 +107,7 @@ namespace Fletch.Rendering.Abstractions.Drawing
             RectangleFloat destinationRectangle,
             RectangleFloat sourceRectangle,
             Color color,
-            float layerDepth = 0f,
+            byte layerDepth = 0,
             SpriteEffect spriteEffect = SpriteEffect.None);
 
         /// <summary>
@@ -145,17 +132,16 @@ namespace Fletch.Rendering.Abstractions.Drawing
             RectangleFloat destinationRectangle,
             Color color,
             RectangleFloat? sourceRectangle = null,
-            float layerDepth = 0f,
+            byte layerDepth = 0,
             SpriteEffect spriteEffect = SpriteEffect.None);
 
         /// <summary>
-        /// Draws text using the specified font at the given position with a color tint.
+        /// Draws text using the specified font at the given screen space position with a color tint.
         /// </summary>
         /// <param name="font">The font resource to use when rendering the text.</param>
         /// <param name="text">The text string to render.</param>
         /// <param name="position">
         /// The position, in pixels, where the text should be drawn
-        /// (typically in screen or world space, depending on the current transform).
         /// </param>
         /// <param name="color">The color tint to apply to the rendered text.</param>
         /// <exception cref="InvalidOperationException">

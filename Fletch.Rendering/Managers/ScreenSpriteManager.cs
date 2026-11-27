@@ -2,9 +2,9 @@
 using System.Collections.Generic;
 using System.Text;
 
-namespace Fletch.Rendering.Components
+namespace Fletch.Rendering.Managers
 {
-    internal class ScreenTextRenderer
+    internal class ScreenSpriteManager
     {
     }
 }
